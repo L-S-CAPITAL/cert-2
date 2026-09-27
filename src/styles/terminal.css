@@ -1614,3 +1614,117 @@ body::before {
   color: var(--text-amber);
   font-family: var(--font-mono);
 }
+
+/* ================================================================== */
+/* Quiz feedback                                                      */
+/* ================================================================== */
+.quiz-option {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  text-align: left;
+  padding: 7px 12px;
+  color: var(--text-secondary);
+}
+
+.quiz-option-letter {
+  flex: none;
+  font-family: var(--font-mono);
+  color: var(--text-amber);
+}
+
+.quiz-option-text {
+  flex: 1 1 auto;
+}
+
+.quiz-option-mark {
+  flex: none;
+  font-weight: 700;
+}
+
+/* Answered options stay readable: state is shown with ✓ / ✗ marks, a
+   thicker border and text, not colour alone. */
+.quiz-option:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.quiz-option.is-correct {
+  border: 2px solid var(--status-ok);
+  color: var(--text-primary);
+}
+
+.quiz-option.is-correct .quiz-option-mark {
+  color: var(--status-ok);
+}
+
+.quiz-option.is-wrong {
+  border: 2px dashed var(--status-bad);
+  color: var(--text-primary);
+}
+
+.quiz-option.is-wrong .quiz-option-mark {
+  color: var(--status-bad);
+}
+
+.quiz-option.is-other {
+  color: var(--text-tertiary);
+}
+
+.quiz-feedback {
+  min-height: 1.4em;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.quiz-feedback.correct,
+.quiz-feedback.incorrect {
+  padding: 8px 10px;
+  border-left: 3px solid;
+  background: var(--bg-tertiary);
+}
+
+.quiz-feedback.correct {
+  border-left-color: var(--status-ok);
+}
+
+.quiz-feedback.incorrect {
+  border-left-color: var(--status-bad);
+}
+
+.quiz-feedback-head {
+  font-weight: 700;
+}
+
+.quiz-feedback.correct .quiz-feedback-head {
+  color: var(--status-ok);
+}
+
+.quiz-feedback.incorrect .quiz-feedback-head {
+  color: var(--status-bad);
+}
+
+.quiz-explanation {
+  margin-top: 4px;
+  color: var(--text-secondary);
+}
+
+.quiz-result-score {
+  font-size: 36px;
+  font-weight: 700;
+}
+
+.quiz-result-note {
+  margin: 10px 0 4px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.quiz-result-sub {
+  margin-bottom: 8px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
