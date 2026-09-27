@@ -797,7 +797,7 @@ body::before {
 /* === Quick Stats Grid === */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
   gap: 8px;
   margin-bottom: 12px;
 }
@@ -1016,4 +1016,377 @@ body::before {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+}
+
+/* ================================================================== */
+/* Responsive layout (fits down to an 800 x 600 window)               */
+/* ================================================================== */
+
+/* Header: the course title shortens with an ellipsis instead of wrapping. */
+.terminal-title {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.terminal-title > span {
+  flex: none;
+  white-space: nowrap;
+}
+
+.terminal-title > .terminal-title-text {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.terminal-controls {
+  flex: none;
+  margin-left: 12px;
+}
+
+/* Tab bar: scrolls sideways when the tabs don't fit. Fades and arrow
+   buttons show which side has more tabs. */
+.terminal-tabs-bar {
+  position: relative;
+  display: flex;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  z-index: 5;
+}
+
+.terminal-tabs-bar .terminal-tabs {
+  flex: 1 1 auto;
+  min-width: 0;
+  border-bottom: none;
+  scroll-behavior: smooth;
+}
+
+.terminal-tabs-bar::before,
+.terminal-tabs-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 48px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 1;
+}
+
+.terminal-tabs-bar::before {
+  left: 24px;
+  background: linear-gradient(90deg, var(--bg-secondary), transparent);
+}
+
+.terminal-tabs-bar::after {
+  right: 24px;
+  background: linear-gradient(270deg, var(--bg-secondary), transparent);
+}
+
+.terminal-tabs-bar.overflow-left::before,
+.terminal-tabs-bar.overflow-right::after {
+  opacity: 1;
+}
+
+.tabs-scroll {
+  flex: none;
+  width: 24px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  border: none;
+  color: var(--text-amber);
+  font-family: inherit;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.tabs-scroll:hover {
+  background: var(--bg-active);
+  text-shadow: 0 0 6px var(--text-amber);
+}
+
+.tabs-scroll-left {
+  border-right: 1px solid var(--border);
+}
+
+.tabs-scroll-right {
+  border-left: 1px solid var(--border);
+}
+
+/* Only show the arrows when there is something to scroll to. */
+.terminal-tabs-bar.overflow-left .tabs-scroll,
+.terminal-tabs-bar.overflow-right .tabs-scroll {
+  display: flex;
+}
+
+.terminal-tabs-bar:not(.overflow-left) .tabs-scroll-left,
+.terminal-tabs-bar:not(.overflow-right) .tabs-scroll-right {
+  color: var(--text-dim);
+  cursor: default;
+}
+
+/* Panel header: the ACTIVE / SELECTED line stays on one line with an
+   ellipsis (full text in its title attribute). */
+.terminal-window-header {
+  gap: 12px;
+  min-width: 0;
+}
+
+.terminal-window-header .window-title {
+  flex: none;
+  white-space: nowrap;
+}
+
+.terminal-window-header .window-meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.terminal-window {
+  min-width: 0;
+}
+
+/* Status bar: items never break mid-label; the groups wrap instead. */
+.status-bar {
+  flex-wrap: wrap;
+  gap: 2px 16px;
+}
+
+.status-bar-left,
+.status-bar-right {
+  flex-wrap: wrap;
+  row-gap: 2px;
+}
+
+.status-bar-item {
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .time-tracker-window {
+    flex: 0 0 220px;
+    min-width: 200px;
+  }
+
+  .status-bar-left,
+  .status-bar-right {
+    gap: 2px 12px;
+  }
+}
+
+/* === Dashboard === */
+.dashboard {
+  min-width: 0;
+}
+
+.continue-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--text-amber);
+  border-radius: 2px;
+  padding: 10px 12px;
+  box-shadow: 0 0 10px rgba(255, 191, 0, 0.12);
+}
+
+.continue-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.continue-text {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.continue-reason {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-tertiary);
+}
+
+.continue-unit {
+  font-size: 13px;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.continue-code {
+  color: var(--text-amber);
+  font-weight: 700;
+}
+
+.continue-topic {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.continue-topic-title {
+  color: var(--text-bright);
+}
+
+.continue-btn {
+  flex: none;
+  padding: 6px 16px;
+  font-weight: 700;
+}
+
+/* Overall progress: bar and label side by side; the label never shrinks. */
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-row .progress-bar-container {
+  flex: 1 1 auto;
+  min-width: 80px;
+}
+
+.progress-row-label {
+  flex: none;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-bright);
+}
+
+.dashboard-note {
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+.stat-card .stat-detail {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+
+/* Unit table: fixed columns so long names wrap instead of widening it. */
+.unit-progress-table {
+  table-layout: fixed;
+}
+
+.unit-progress-table .col-code {
+  width: 104px;
+}
+
+.unit-progress-table .col-progress {
+  width: 96px;
+}
+
+.unit-progress-table .col-status {
+  width: 104px;
+}
+
+.unit-progress-table td {
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+
+.unit-row {
+  cursor: pointer;
+}
+
+.unit-row:focus-within {
+  background: var(--bg-active);
+}
+
+.row-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.unit-row:hover .row-link {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+
+.row-link:focus-visible,
+.completed-units summary:focus-visible {
+  outline: 2px solid var(--text-amber);
+  outline-offset: 2px;
+}
+
+.unit-topics-bar {
+  height: 18px;
+  margin: 2px 0;
+}
+
+.progress-bar-text {
+  white-space: nowrap;
+}
+
+.unit-status {
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.completed-units {
+  margin-top: 8px;
+}
+
+.completed-units summary {
+  cursor: pointer;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-primary);
+  padding: 4px 0;
+}
+
+.completed-units summary:hover {
+  color: var(--text-bright);
+}
+
+.completed-units[open] summary {
+  margin-bottom: 4px;
+}
+
+@media (max-width: 900px) {
+  .unit-progress-table .col-code {
+    width: 92px;
+  }
+
+  .unit-progress-table .col-status {
+    width: 88px;
+  }
+
+  .unit-progress-table td,
+  .unit-progress-table th {
+    padding: 4px 6px;
+  }
+}
+
+/* Small per-unit bars: a soft fill without the bright edge line, so the
+   "x / y" text on top stays readable at any percentage. */
+.unit-topics-bar .progress-bar-fill {
+  background: rgba(0, 255, 64, 0.28);
+  border-right: none;
+  box-shadow: none;
+}
+
+/* Leave a little room above a unit / topic scrolled to from the Dashboard. */
+.unit-header,
+.topic-title {
+  scroll-margin-top: 12px;
 }

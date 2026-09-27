@@ -34,9 +34,13 @@ const TerminalHeader: React.FC<TerminalHeaderProps> = ({
       <div className="terminal-title">
         <span className="logo">{'</>'}</span>
         <span className="symbol">{code}</span>
-        <span>{title}</span>
-        <span style={{ color: '#7acc7a', fontSize: 10 }}>|</span>
-        <span style={{ fontSize: 10, color: 'var(--text-dim)' }}>{provider}</span>
+        <span className="terminal-title-text" title={`${title} | ${provider}`}>
+          {title}
+        </span>
+        <span className="terminal-provider" style={{ color: '#7acc7a', fontSize: 10 }}>|</span>
+        <span className="terminal-provider" style={{ fontSize: 10, color: 'var(--text-dim)' }}>
+          {provider}
+        </span>
       </div>
       <div className="terminal-controls">
         <div className="status-indicator">
