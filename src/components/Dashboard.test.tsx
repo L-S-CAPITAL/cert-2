@@ -159,7 +159,7 @@ describe('Dashboard stats', () => {
     expect(statCard('Day streak')?.querySelector('.stat-value')?.textContent).toBe('0 days');
     expect(statCard('Average quiz score')?.querySelector('.stat-value')?.textContent).toBe('—');
     expect(statCard('Average quiz score')?.querySelector('.stat-detail')?.textContent).toBe(
-      'no quiz scores recorded yet',
+      'no quizzes taken yet',
     );
     const first = ALL_UNITS[0];
     expect(statCard('Topics left: next unit')?.querySelector('.stat-value')?.textContent).toBe(
@@ -186,5 +186,79 @@ describe('Dashboard stats', () => {
     expect(statCard('Study time this week')?.querySelector('.stat-value')?.textContent).toBe('4m 33s');
     expect(statCard('Day streak')?.querySelector('.stat-value')?.textContent).toBe('1 day');
     expect(statCard('Day streak')?.querySelector('.stat-detail')?.textContent).toBe('studied today');
+  });
+});
+
+describe('Dashboard quiz results and study chart', () => {
+  it('averages saved quiz attempts and lists the five newest', () => {
+    const c5 = unitByCode('UEECD0038');
+    const scores: Array<[number, number]> = [
+      [1, 3],
+      [2, 3],
+      [3, 3],
+      [0, 3],
+      [3, 3],
+      [2, 4],
+    ];
+    for (const [score, total] of scores) {
+      progressStore.recordQuizAttempt(c5.id, c5.topics[0].id, score, total);
+    }
+    render();
+
+    // (33 + 67 + 100 + 0 + 100 + 50) / 6 = 58.3 -> 58%
+    const card = statCard('Average quiz score')!;
+    expect(card.querySelector('.stat-value')?.textContent).toBe('58%');
+    expect(card.querySelector('.stat-detail')?.textContent).toBe('across 6 attempts');
+
+    const items = Array.from(container.querySelectorAll('.quiz-results .quiz-result'));
+    expect(items).toHaveLength(5);
+    // Newest first: the last recorded attempt (2 / 4) leads.
+    expect(items[0].querySelector('.quiz-score')?.textContent).toBe('2 / 4 (50%)');
+    expect(items[0].querySelector('.quiz-topic')?.textContent).toBe(
+      `${c5.code} ${c5.topics[0].title}`,
+    );
+    expect(items[1].querySelector('.quiz-score')?.classList.contains('perfect')).toBe(true);
+    expect(container.querySelector('.recent-quizzes .section-count')?.textContent).toBe('6 saved');
+  });
+
+  it('shows empty states with no quizzes or sessions', () => {
+    render();
+    expect(container.querySelector('.quiz-empty')?.textContent).toContain('No quiz results yet');
+    const chart = container.querySelector('.study-chart[role="img"]')!;
+    expect(chart.getAttribute('aria-label')).toContain('nothing logged in the last 14 days');
+    expect(container.querySelectorAll('.study-chart-bar')).toHaveLength(14);
+  });
+
+  it('summarises the chart for screen readers and lists every day in a hidden table', () => {
+    const c5 = unitByCode('UEECD0038');
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      vi.setSystemTime(new Date(2026, 8, 26, 10, 0, 0));
+      progressStore.startSession(c5.id);
+      vi.setSystemTime(new Date(2026, 8, 26, 10, 25, 0));
+      progressStore.stopSession();
+      vi.setSystemTime(new Date(2026, 8, 28, 9, 0, 0));
+      progressStore.startSession(c5.id);
+      vi.setSystemTime(new Date(2026, 8, 28, 9, 10, 0));
+      progressStore.stopSession();
+      render();
+    } finally {
+      vi.useRealTimers();
+    }
+
+    const chart = container.querySelector('.study-chart[role="img"]')!;
+    const label = chart.getAttribute('aria-label')!;
+    expect(label).toContain('35m in total over 2 days');
+    expect(label).toContain('with 25 min');
+
+    const bars = Array.from(container.querySelectorAll<HTMLElement>('.study-chart-bar'));
+    expect(bars[13].style.height).toBe('40%'); // 10 of the 25-minute peak
+    expect(bars[11].style.height).toBe('100%');
+    expect(bars[12].style.height).toBe('0%');
+
+    const rows = Array.from(container.querySelectorAll('table.visually-hidden tbody tr'));
+    expect(rows).toHaveLength(14);
+    expect(rows[13].querySelector('td')?.textContent).toBe('10 min');
+    expect(rows[12].querySelector('td')?.textContent).toBe('0 min');
   });
 });

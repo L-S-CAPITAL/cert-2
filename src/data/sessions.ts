@@ -8,10 +8,13 @@ export interface SessionDescription {
 }
 
 /**
- * Shared by SessionLog and Dashboard so both resolve course units and study
- * strands the same way and show the topic when there is one.
+ * Shared by SessionLog and Dashboard (sessions and quiz results) so they
+ * resolve course units and study strands the same way and show the topic
+ * when there is one.
  */
-export function describeSession(log: SessionLog): SessionDescription {
+export function describeSession(
+  log: Pick<SessionLog, 'unitId' | 'topicId'>,
+): SessionDescription {
   const unit = findUnit(log.unitId);
   const topic = log.topicId ? findTopic(log.unitId, log.topicId) : undefined;
   return {

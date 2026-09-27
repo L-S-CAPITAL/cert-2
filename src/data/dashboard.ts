@@ -1,4 +1,4 @@
-import { SessionLog, Topic, Unit } from '../types';
+import { QuizAttempt, SessionLog, Topic, Unit } from '../types';
 import { isUnitComplete, isUnitUnlocked } from './prerequisites';
 
 type Completions = Record<string, Record<string, boolean>>;
@@ -92,6 +92,71 @@ export function dayStreak(logs: SessionLog[], now: Date = new Date()): DayStreak
   let streak = 0;
   for (let day = latest; days.has(day); day -= 1) streak += 1;
   return { days: streak, daysSinceLastSession };
+}
+
+/* ------------------------------------------------------------------ */
+/* Daily study time (chart)                                            */
+/* ------------------------------------------------------------------ */
+
+export interface DailyStudyTime {
+  /** Local midnight at the start of the day. */
+  date: Date;
+  seconds: number;
+}
+
+/**
+ * Logged study time for each of the last `days` local calendar days, oldest
+ * first and ending today. Like the weekly figures, a session counts on the
+ * day it was logged (stopped). Logs with unreadable timestamps, or dated in
+ * the future, are ignored.
+ */
+export function dailyStudyTime(
+  logs: SessionLog[],
+  now: Date = new Date(),
+  days = 14,
+): DailyStudyTime[] {
+  const today = localDayNumber(now);
+  const first = today - (days - 1);
+  const buckets: DailyStudyTime[] = [];
+  for (let offset = days - 1; offset >= 0; offset -= 1) {
+    buckets.push({
+      date: new Date(now.getFullYear(), now.getMonth(), now.getDate() - offset),
+      seconds: 0,
+    });
+  }
+  for (const log of logs) {
+    const at = new Date(log.timestamp);
+    if (Number.isNaN(at.getTime())) continue;
+    const day = localDayNumber(at);
+    if (day < first || day > today) continue;
+    buckets[day - first].seconds += log.durationSeconds;
+  }
+  return buckets;
+}
+
+/* ------------------------------------------------------------------ */
+/* Quiz results                                                         */
+/* ------------------------------------------------------------------ */
+
+export interface QuizAverage {
+  /** Mean of each attempt's percentage, rounded to a whole percent. */
+  percent: number;
+  attempts: number;
+}
+
+/**
+ * Average quiz score across saved attempts: every attempt counts equally,
+ * whatever its length. Null when nothing has been recorded.
+ */
+export function averageQuizScore(attempts: QuizAttempt[]): QuizAverage | null {
+  const valid = attempts.filter((attempt) => attempt.total > 0);
+  if (valid.length === 0) return null;
+  const sum = valid.reduce((total, attempt) => total + attempt.score / attempt.total, 0);
+  return { percent: Math.round((sum / valid.length) * 100), attempts: valid.length };
+}
+
+export function quizPercent(attempt: QuizAttempt): number {
+  return attempt.total > 0 ? Math.round((attempt.score / attempt.total) * 100) : 0;
 }
 
 /** Compact duration for stat cards: "0m", "4m 33s", "1h 05m". */
