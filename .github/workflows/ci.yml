@@ -45,12 +45,9 @@ jobs:
         run: npx vite build
 
       - name: Verify production CSP meta tag
-        run: |
-          grep -q '<meta http-equiv="Content-Security-Policy"' dist/index.html \
-            || { echo "::error file=dist/index.html::Content-Security-Policy meta tag missing"; exit 1; }
-          grep -q "script-src 'self'" dist/index.html \
-            || { echo "::error file=dist/index.html::CSP script-src 'self' missing"; exit 1; }
-          grep -o '<meta http-equiv="Content-Security-Policy"[^>]*>' dist/index.html
+        # Vite 8 HTML-escapes the quotes in the attribute, so a plain grep for
+        # "script-src 'self'" no longer works; the script decodes and checks.
+        run: node scripts/check-csp.mjs dist/index.html
 
   package:
     name: package (${{ matrix.os }})
