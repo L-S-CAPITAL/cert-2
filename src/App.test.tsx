@@ -99,19 +99,74 @@ describe('App keyboard shortcuts', () => {
 
     keyOnTab('ArrowLeft');
     keyOnTab('ArrowLeft');
-    expect(selectedTab()).toBe('tab-blueprints');
-    expect(document.activeElement?.id).toBe('tab-blueprints');
+    expect(selectedTab()).toBe('tab-overview');
+    expect(document.activeElement?.id).toBe('tab-overview');
 
     keyOnTab('Home');
     expect(selectedTab()).toBe('tab-dashboard');
     keyOnTab('End');
-    expect(selectedTab()).toBe('tab-blueprints');
+    expect(selectedTab()).toBe('tab-overview');
     keyOnTab('ArrowRight');
     expect(selectedTab()).toBe('tab-dashboard');
     expect(document.activeElement?.id).toBe('tab-dashboard');
     expect(
       container.querySelector('[role="tabpanel"]')?.getAttribute('aria-labelledby'),
     ).toBe('tab-dashboard');
+  });
+
+  it('shows a vertical sidebar grouped into Study and Records', () => {
+    const nav = container.querySelector('nav.sidebar')!;
+    expect(nav.getAttribute('aria-label')).toBe('Sections');
+    const list = nav.querySelector('[role="tablist"]')!;
+    expect(list.getAttribute('aria-orientation')).toBe('vertical');
+    const tabs = Array.from(list.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    expect(tabs.map((tab) => tab.id)).toEqual([
+      'tab-dashboard',
+      'tab-units',
+      'tab-math',
+      'tab-algebra',
+      'tab-geometry',
+      'tab-blueprints',
+      'tab-sessions',
+      'tab-overview',
+    ]);
+    const groupOf = (tab: HTMLElement) =>
+      document.getElementById(tab.getAttribute('aria-describedby')!)?.textContent;
+    expect(tabs.map(groupOf)).toEqual([
+      'Study', 'Study', 'Study', 'Study', 'Study', 'Study', 'Records', 'Records',
+    ]);
+    // Accessible names stay readable text; the [DASH] labels are decoration.
+    expect(tabs[0].querySelector('.nav-label')?.textContent).toBe('Dashboard');
+    expect(tabs[0].querySelector('.tab-icon')?.getAttribute('aria-hidden')).toBe('true');
+    expect(tabs[0].querySelector('.tab-icon')?.textContent).toBe('[DASH]');
+    // Number shortcuts are unchanged and exposed to assistive tech.
+    expect(tabs.map((tab) => tab.getAttribute('aria-keyshortcuts'))).toEqual([
+      '1', '2', '5', '6', '7', '8', '3', '4',
+    ]);
+    // The old horizontal, scrolling tab bar is gone.
+    expect(container.querySelector('.terminal-tabs-bar')).toBeNull();
+  });
+
+  it('moves through sections with Up/Down arrows, wrapping at the ends', () => {
+    const tab = (id: string) => container.querySelector<HTMLButtonElement>(`#tab-${id}`)!;
+    const keyOnFocused = (key: string) =>
+      act(() => {
+        (document.activeElement as HTMLElement).dispatchEvent(
+          new KeyboardEvent('keydown', { key, bubbles: true }),
+        );
+      });
+    tab('dashboard').focus();
+    keyOnFocused('ArrowDown');
+    keyOnFocused('ArrowDown');
+    expect(selectedTab()).toBe('tab-math');
+    expect(document.activeElement?.id).toBe('tab-math');
+    keyOnFocused('ArrowUp');
+    keyOnFocused('ArrowUp');
+    keyOnFocused('ArrowUp');
+    expect(selectedTab()).toBe('tab-overview');
+    expect(tab('overview').tabIndex).toBe(0);
+    expect(tab('dashboard').tabIndex).toBe(-1);
+    expect(container.querySelector('.window-title')?.textContent).toContain('Course Overview');
   });
 
   it('labels the header with the timed unit/topic while the timer runs', () => {
