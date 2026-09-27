@@ -1,118 +1,136 @@
 import { Unit } from '../types';
 
+/**
+ * Elective units in this enrolment of UEE22020 (140 elective weighting
+ * points in total):
+ *
+ *   UEECD0008  Group B  60  https://training.gov.au/Training/Details/UEECD0008
+ *   UEECD0019  Group B  40  https://training.gov.au/Training/Details/UEECD0019
+ *   UEECD0020  Group B  20  https://training.gov.au/Training/Details/UEECD0020
+ *   UEECD0035  Group A  20  https://training.gov.au/Training/Details/UEECD0035
+ *
+ * Groups and points are from the UEE22020 packaging rules (see
+ * qualification.ts). For UEECD0008, UEECD0019 and UEECD0035 each topic is
+ * one of the unit's official elements, with key points taken from its
+ * performance criteria (checked 28 Sep 2026). They have no study notes or
+ * quizzes yet.
+ *
+ * Former electives (UEECD0044, UEECD0051, UEECO0002) live in
+ * archivedElectives.ts. Unit ids are never reused, so saved progress for an
+ * old id can never land on a different unit.
+ */
 export const ELECTIVE_UNITS: Unit[] = [
   {
-    id: 'e1',
-    code: 'UEECD0044',
-    name: 'Solve problems in multiple path circuits',
+    id: 'e5',
+    code: 'UEECD0008',
+    name: 'Carry out preparatory energy sector work activities',
     description:
-      'This unit covers solving problems in multiple path (parallel and series-parallel) extra-low voltage circuits. Pre-requisite: UEECD0007.',
+      'Official application (training.gov.au): the skills and knowledge required to carry out preparatory energy sector work activities, including planning and carrying out energy sector work support activities. Pre-requisite: UEECD0007. Topic outlines only: study notes and quizzes are still to be written.',
     prerequisites: ['UEECD0007'],
-    points: 40,
+    points: 60,
     kind: 'elective',
+    // Group B, 60 weighting points (UEE22020 packaging rules).
+    // Topics = the unit's official elements; notes and quizzes still to write.
     topics: [
       {
-        id: 'e1-t1',
-        title: 'Parallel circuit analysis',
+        id: 'e5-t1',
+        title: 'Plan energy sector support activity',
         content:
-          'In a parallel circuit there are multiple current paths. The voltage across each branch equals the supply voltage. Total current is the sum of branch currents. Total resistance is found from 1/R_total = 1/R1 + 1/R2 + 1/R3 + … For two resistors, R_total = (R1 × R2) / (R1 + R2). If one branch opens, other branches continue to operate. Adding branches decreases total resistance and increases total current.',
+          'Element 1. Before the work: obtain and apply WHS/OHS requirements and workplace procedures, identify hazards and put risk controls in place, get work instructions and the scope and location of the work from the supervisor, coordinate with others, and work out the materials, tools, equipment and testing devices needed.',
         keyPoints: [
-          'Voltage is the same across all parallel branches',
-          'Total current = sum of branch currents',
-          'Total resistance is less than the smallest individual resistance',
-          'Failure of one branch does not stop other branches',
-          'Adding parallel branches reduces total resistance',
-        ],
-        quizQuestions: [
-          {
-            question: 'What happens to total resistance when a parallel branch is added?',
-            options: [
-              'It increases',
-              'It stays the same',
-              'It decreases',
-              'It becomes infinite',
-            ],
-            correctAnswer: 2,
-          },
+          'WHS/OHS requirements and workplace procedures for the work area are obtained and applied',
+          'Hazards are identified, risks assessed and control measures implemented for energy sector work preparation',
+          'Hazards not previously identified are noted on job safety assessments and advice is sought from the work supervisor',
+          'Work instructions are obtained and the nature, scope and location of work is determined',
+          'Advice is sought so work is coordinated effectively with others',
+          'Materials required for work are determined in accordance with workplace procedures',
+          'Tools, equipment and testing devices are obtained and checked for correct operation and safety',
         ],
       },
       {
-        id: 'e1-t2',
-        title: 'Series-parallel networks',
+        id: 'e5-t2',
+        title: 'Undertake energy sector support activity',
         content:
-          'Many practical ELV circuits combine series and parallel groups. Reduce parallel groups to an equivalent resistance, then combine series equivalents until a single R_total remains. Use Ohm’s law for total current, then work back through the network to find branch currents and voltage drops. Check results with KCL at nodes and KVL around loops.',
+          'Element 2. Doing the work: follow risk control measures and workplace procedures, check plant and equipment, install mechanical equipment straight and square within tolerances, use hand and power tools safely, carry out work instructions under supervision, and refer unplanned events to the supervisor.',
         keyPoints: [
-          'Reduce parallel groups before combining series resistances',
-          'Work from equivalent R_total back to branch values',
-          'KCL and KVL still apply in mixed networks',
-          'Document assumed current directions',
+          'WHS/OHS risk control measures and workplace procedures for carrying out work are followed',
+          'Plant and equipment are checked in accordance with manufacturer guidelines, WHS/OHS requirements and workplace procedures',
+          'Mechanical equipment is installed straight and square in the required locations and within acceptable tolerances',
+          'Hand and power tools are used in accordance with safe working practices',
+          'Work instructions are carried out under supervision',
+          'Unplanned events are referred to the supervisor and directions are followed',
         ],
-        quizQuestions: [
-          {
-            question: 'A reliable way to analyse a series-parallel circuit is to:',
-            options: [
-              'Treat every component as series',
-              'Reduce parallel groups to equivalents, then combine series',
-              'Ignore the smallest resistor',
-              'Short the supply',
-            ],
-            correctAnswer: 1,
-          },
+      },
+      {
+        id: 'e5-t3',
+        title: 'Complete energy sector work activity',
+        content:
+          'Element 3. Finishing the work: follow work completion risk controls and procedures, clean the work site and make it safe, and notify the supervisor that the work is complete.',
+        keyPoints: [
+          'WHS/OHS work completion risk control measures and workplace procedures are followed',
+          'Work site is cleaned and made safe in accordance with workplace procedures',
+          'Supervisor is notified of work completion in accordance with workplace procedures',
         ],
       },
     ],
   },
   {
-    id: 'e2',
-    code: 'UEECD0051',
-    name: 'Use drawings, diagrams, schedules, standards, codes and specifications',
+    id: 'e6',
+    code: 'UEECD0019',
+    name: 'Fabricate, assemble and dismantle utilities industry components',
     description:
-      'Read and apply electrotechnology drawings, diagrams, schedules, Australian Standards, codes and specifications to energy sector work.',
+      'Official application (training.gov.au): the skills and knowledge required to fabricate, assemble and dismantle utilities industry components using fitting and metal fabrication techniques, including hand and power tools, cutting, shaping, joining and fixing, measuring and marking out, and reading drawings. Pre-requisite: UEECD0007. Topic outlines only: study notes and quizzes are still to be written.',
     prerequisites: ['UEECD0007'],
     points: 40,
     kind: 'elective',
+    // Group B, 40 weighting points (UEE22020 packaging rules).
+    // Topics = the unit's official elements; notes and quizzes still to write.
     topics: [
       {
-        id: 'e2-t1',
-        title: 'Electrical drawings and symbols',
+        id: 'e6-t1',
+        title: 'Prepare for dismantling, assembling and fabrication work',
         content:
-          'Wiring diagrams show physical connections. Schematics use AS/NZS symbols for function. Schedules list cables, circuits, and protection. Title blocks identify revision, drawing number, and author. Always work from the latest revision and note discrepancies before starting work.',
+          'Element 1. Before the work: identify and apply WHS/OHS procedures and risk controls, identify the work instructions, procedures, standards, codes and regulations that apply, get the scope of work, coordinate with others, and obtain and check materials, tools and measuring devices.',
         keyPoints: [
-          'Confirm you have the latest revision',
-          'Schematics show function; wiring diagrams show connections',
-          'Schedules list circuits, cables, and protection',
-          'Report drawing errors rather than guessing',
-        ],
-        quizQuestions: [
-          {
-            question: 'What should you do if a drawing revision looks older than the site copy?',
-            options: [
-              'Use whichever is prettier',
-              'Confirm the latest revision before working',
-              'Ignore the title block',
-              'Redraw it from memory',
-            ],
-            correctAnswer: 1,
-          },
+          'WHS/OHS procedures for the work area are identified and applied',
+          'WHS/OHS risk control measures and workplace procedures are followed in preparation for the work',
+          'Work instructions, workplace procedures, industry standards, codes of practice and regulations are identified and applied',
+          'Scope of work is obtained from relevant documentation and from the work supervisor',
+          'Advice is sought so work is coordinated effectively with other persons',
+          'Materials required for work are identified and obtained',
+          'Tools, equipment and measuring devices are obtained and checked for correct operation and safety',
         ],
       },
       {
-        id: 'e2-t2',
-        title: 'Standards and specifications',
+        id: 'e6-t2',
+        title: 'Dismantle and assemble utilities industry apparatus',
         content:
-          'AS/NZS 3000 (Wiring Rules) is the primary installation standard in Australia. Manufacturer specifications set torque, ratings, and installation conditions. Codes of practice give practical guidance for WHS duties. Specifications in a contract may be stricter than the minimum standard — the more onerous documented requirement applies.',
+          'Element 2. Confirm isolation, select and use tools safely, follow manufacturer guides, mark or tag components during dismantling so they go back correctly, store parts against loss or damage, avoid waste and damage, refer unplanned events, carry out quality checks, tidy up and notify the supervisor.',
         keyPoints: [
-          'AS/NZS 3000 is the core wiring standard',
-          'Manufacturer ratings must not be exceeded',
-          'Contract specifications can exceed the minimum standard',
-          'Keep referenced standards available on the job',
+          'Circuits/apparatus/plant are checked and isolation confirmed',
+          'Relevant tools are selected and used correctly and safely',
+          'Manufacturer guides and instructions are followed when dismantling and assembling apparatus',
+          'Components are marked or tagged during dismantling for correct and efficient reassembly',
+          'Dismantled components and parts are stored to protect them against loss or damage',
+          'Apparatus is dismantled and assembled without waste or damage to apparatus, surroundings or services',
+          'Unplanned events are referred to the supervisor; quality checks are carried out',
+          'Worksite is tidied, tools cleaned and stored, and the supervisor is notified of completion',
         ],
-        quizQuestions: [
-          {
-            question: 'Which standard is the primary wiring rules document in Australia?',
-            options: ['AS/NZS 3000', 'AS/NZS 4360', 'ISO 9001', 'AS 1428'],
-            correctAnswer: 0,
-          },
+      },
+      {
+        id: 'e6-t3',
+        title: 'Fabricate utilities industry components',
+        content:
+          'Element 3. Check and isolate circuits/apparatus/plant, follow drawings, diagrams and instructions, find component dimensions by measuring or calculating from job drawings, fabricate by measuring, marking out, cutting, joining and fixing accurately, carry out quality checks, tidy up and notify the supervisor.',
+        keyPoints: [
+          'WHS/OHS risk control measures and workplace procedures for fabricating components are followed',
+          'Circuits/apparatus/plant are checked and isolated',
+          'Relevant tools and equipment are selected and used correctly and safely',
+          'Drawings, diagrams and instructions for fabrication of mechanical components are followed',
+          'Component dimensions are determined by measuring, or by calculation from job drawings and instructions',
+          'Components are fabricated by measuring, marking out, cutting, joining and fixing accurately, minimising waste',
+          'Unplanned events are referred to the supervisor; quality checks are carried out',
+          'Worksite is tidied, tools cleaned and stored, and the supervisor is notified of completion',
         ],
       },
     ],
@@ -154,37 +172,43 @@ export const ELECTIVE_UNITS: Unit[] = [
     ],
   },
   {
-    id: 'e4',
-    code: 'UEECO0002',
-    name: 'Maintain documentation',
+    id: 'e7',
+    code: 'UEECD0035',
+    name: 'Provide basic instruction in the use of electrotechnology apparatus',
     description:
-      'Create and maintain workplace documents used in electrotechnology work, including job sheets, test results, and handover records.',
+      'Official application (training.gov.au): the skills and knowledge required to instruct customers/users in the use of electrotechnology apparatus, including customer relations, using manufacturer instruction material, instructing methods and completing instruction documentation. No pre-requisite. Topic outlines only: study notes and quizzes are still to be written.',
     prerequisites: [],
     points: 20,
     kind: 'elective',
+    // Group A, 20 weighting points (UEE22020 packaging rules).
+    // Topics = the unit's official elements; notes and quizzes still to write.
     topics: [
       {
-        id: 'e4-t1',
-        title: 'Workplace records',
+        id: 'e7-t1',
+        title: 'Prepare to instruct in the use of electrotechnology apparatus',
         content:
-          'Keep test results, isolation records, and variation notes with the job. Use clear dates, names, and circuit identifiers. Store records as required by the PCBU and the contract. Incomplete documentation is a compliance and safety failure, not just an admin issue.',
+          'Element 1. Identify and apply WHS/OHS requirements and risk controls, confirm with the supervisor which apparatus the user is to be instructed on, review its safety features and safe use in the manufacturer instructions, do a practice run-through, and obtain the materials needed for the instruction.',
         keyPoints: [
-          'Identify who, when, and which circuit',
-          'File test results with the job',
-          'Documentation is part of WHS compliance',
-          'Handover records must match the as-built work',
+          'WHS/OHS requirements and workplace procedures for the work area are identified and applied',
+          'Hazards are identified, risks are assessed and control measures are implemented',
+          'The apparatus the user is to be instructed on is confirmed with the work supervisor',
+          'Safety features and safe use of the apparatus are reviewed in accordance with manufacturer instructions',
+          'Familiarity with the apparatus is gained from the manufacturer user instructions and a preliminary practice run-through',
+          'Materials required to instruct users are obtained in accordance with workplace procedures',
         ],
-        quizQuestions: [
-          {
-            question: 'Why do isolation and test records matter after the job is finished?',
-            options: [
-              'They do not matter',
-              'They provide a compliance and safety trail',
-              'Only for payroll',
-              'To decorate the van',
-            ],
-            correctAnswer: 1,
-          },
+      },
+      {
+        id: 'e7-t2',
+        title: 'Instruct user in the use of electrotechnology apparatus',
+        content:
+          'Element 2. Tell users about the safety features and safe use of the apparatus, instruct them in its set-up and use per the manufacturer instructions, let them ask questions and show they understand, hand over the manufacturer instructions and documentation, refer unplanned events, and give the instruction efficiently without damage.',
+        keyPoints: [
+          'Users are informed of safety features and safe use of the apparatus',
+          'Users are instructed in the set-up and use of the apparatus in accordance with manufacturer instructions',
+          'Users can ask questions and demonstrate they understand the safety aspects, set-up and operation',
+          'Manufacturer user instructions and related documentation are given to the appropriate person/s',
+          'Unplanned events are referred to the supervisor for direction',
+          'Instructions are given efficiently, without damage to apparatus, surroundings or services, using sustainable energy practices',
         ],
       },
     ],

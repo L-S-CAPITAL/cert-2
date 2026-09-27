@@ -1,5 +1,7 @@
 import { Unit } from '../types';
 import { ELECTIVE_UNITS } from './electives';
+import { ARCHIVED_ELECTIVE_UNITS } from './archivedElectives';
+import { QUALIFICATION_RULES } from './qualification';
 import { EXTRA_QUIZZES } from './quizzes';
 import { MATH_UNIT } from './math';
 import { ALGEBRA_UNIT } from './algebra';
@@ -18,9 +20,11 @@ export const COURSE_INFO = {
     'Trades Assistant',
     'Electrotechnology Apprentice',
   ],
-  totalPoints: 140,
-  electivePointsRequired: 220,
-  unitsCount: 8,
+  // Official UEE22020 packaging rules (see qualification.ts for the source).
+  totalPoints: QUALIFICATION_RULES.totalPoints,
+  corePointsRequired: QUALIFICATION_RULES.corePoints,
+  electivePointsRequired: QUALIFICATION_RULES.electivePoints,
+  unitsCount: Object.keys(QUALIFICATION_RULES.core).length,
   expectedJobOpenings: '26,000',
 };
 
@@ -32,7 +36,7 @@ export const CORE_UNITS: Unit[] = [
     description:
       'This unit of competency specifies the mandatory work health and safety training required prior to undertaking construction work. The unit requires the person to demonstrate personal awareness and knowledge of health and safety legislative requirements in order to work safely and prevent injury or harm to self and others. It covers identifying and orally reporting common construction hazards, understanding basic risk control measures, and identifying procedures for responding to potential incidents and emergencies. It also covers correctly selecting and fitting common personal protective equipment (PPE) used for construction work.',
     prerequisites: [],
-    points: 20,
+    points: 10,
     topics: [
       {
         id: 'c1-t1',
@@ -215,7 +219,7 @@ export const CORE_UNITS: Unit[] = [
     description:
       'This unit involves the skills and knowledge required to carry out work activities in an energy sector environment. Pre-requisite: UEECD0007.',
     prerequisites: ['UEECD0007'],
-    points: 15,
+    points: 40,
     topics: [
       {
         id: 'c3-t1',
@@ -265,7 +269,7 @@ export const CORE_UNITS: Unit[] = [
     description:
       'This unit involves the skills and knowledge required to identify and select components, accessories and materials for energy sector work activities. Pre-requisites: UEECD0007 and UEECD0009.',
     prerequisites: ['UEECD0007', 'UEECD0009'],
-    points: 15,
+    points: 20,
     topics: [
       {
         id: 'c4-t1',
@@ -327,7 +331,7 @@ export const CORE_UNITS: Unit[] = [
     description:
       'This unit involves the skills and knowledge required to provide solutions and report on electrotechnology problems.',
     prerequisites: [],
-    points: 20,
+    points: 60,
     topics: [
       {
         id: 'c5-t1',
@@ -377,7 +381,7 @@ export const CORE_UNITS: Unit[] = [
     description:
       'This unit involves the skills and knowledge required to solve problems in single path circuits. Pre-requisite: UEECD0007.',
     prerequisites: ['UEECD0007'],
-    points: 20,
+    points: 40,
     topics: [
       {
         id: 'c6-t1',
@@ -431,13 +435,13 @@ export const CORE_UNITS: Unit[] = [
         id: 'c6-t3',
         'title': 'Voltage dividers in single-path circuits',
         content:
-          'A series voltage divider is still a single path: the same current flows through each resistor. Voltage drop across each resistor is V = I × R, so larger resistances take a larger share of the supply. The output of a two-resistor divider is Vout = Vin × R2 / (R1 + R2) when taken across R2. Loading the output with another path turns the circuit into a multiple-path problem, which is covered in UEECD0044.',
+          'A series voltage divider is still a single path: the same current flows through each resistor. Voltage drop across each resistor is V = I × R, so larger resistances take a larger share of the supply. The output of a two-resistor divider is Vout = Vin × R2 / (R1 + R2) when taken across R2. Loading the output with another path turns the circuit into a multiple-path problem, which is beyond this single-path topic.',
         keyPoints: [
           'A voltage divider is a series (single-path) arrangement',
           'Voltage drop is proportional to resistance at the same current',
           'Vout = Vin × R2 / (R1 + R2) for an unloaded two-resistor divider',
           'Loading the output adds a parallel path — that is not a single-path circuit',
-          'Parallel and series-parallel analysis belongs with UEECD0044',
+          'Parallel and series-parallel analysis is outside this topic',
         ],
       },
       {
@@ -475,7 +479,7 @@ export const CORE_UNITS: Unit[] = [
     description:
       'This unit involves the skills and knowledge required to use routine equipment, plant, technologies and personnel protective equipment (PPE) in an energy sector environment. Pre-requisite: UEECD0007.',
     prerequisites: ['UEECD0007'],
-    points: 15,
+    points: 40,
     topics: [
       {
         id: 'c7-t1',
@@ -537,7 +541,7 @@ export const CORE_UNITS: Unit[] = [
     description:
       'This unit involves the skills and knowledge required to provide sustainable energy solutions for energy reduction in residential premises.',
     prerequisites: [],
-    points: 15,
+    points: 40,
     topics: [
       {
         id: 'c8-t1',
@@ -625,10 +629,15 @@ export const ALL_UNITS = [
   ...ELECTIVE_UNITS_WITH_QUIZZES,
 ];
 
-/** Look up a course unit or study strand (MATH / ALG / GEO / DWG) by id. */
+/**
+ * Look up a course unit or study strand (MATH / ALG / GEO / DWG) by id.
+ * Archived former electives are included so older session logs and quiz
+ * results still show the right unit code.
+ */
 export function findUnit(unitId: string): Unit | undefined {
   return [
     ...ALL_UNITS,
+    ...withQuizzes(ARCHIVED_ELECTIVE_UNITS),
     MATH_UNIT,
     ALGEBRA_UNIT,
     GEOMETRY_UNIT,
