@@ -1,4 +1,5 @@
 import { Unit } from '../types';
+import { ElectiveStudySet, UEECD0008_STUDY, UEECD0019_STUDY, UEECD0035_STUDY } from './electiveStudy';
 
 /**
  * Elective units in this enrolment of UEE22020 (140 elective weighting
@@ -12,25 +13,26 @@ import { Unit } from '../types';
  * Groups and points are from the UEE22020 packaging rules (see
  * qualification.ts). For UEECD0008, UEECD0019 and UEECD0035 each topic is
  * one of the unit's official elements, with key points taken from its
- * performance criteria (checked 28 Sep 2026). They have no study notes or
- * quizzes yet.
+ * performance criteria (checked 28 Sep 2026). Their quizzes and flashcards
+ * are in electiveStudy.ts, written from the official unit text only; longer
+ * study notes are still to be written.
  *
  * Former electives (UEECD0044, UEECD0051, UEECO0002) live in
  * archivedElectives.ts. Unit ids are never reused, so saved progress for an
  * old id can never land on a different unit.
  */
-export const ELECTIVE_UNITS: Unit[] = [
+const ELECTIVE_OUTLINES: Unit[] = [
   {
     id: 'e5',
     code: 'UEECD0008',
     name: 'Carry out preparatory energy sector work activities',
     description:
-      'Official application (training.gov.au): the skills and knowledge required to carry out preparatory energy sector work activities, including planning and carrying out energy sector work support activities. Pre-requisite: UEECD0007. Topic outlines only: study notes and quizzes are still to be written.',
+      'Official application (training.gov.au): the skills and knowledge required to carry out preparatory energy sector work activities, including planning and carrying out energy sector work support activities. Pre-requisite: UEECD0007. Quizzes and flashcards are written from the official unit text; longer study notes are still to be written.',
     prerequisites: ['UEECD0007'],
     points: 60,
     kind: 'elective',
     // Group B, 60 weighting points (UEE22020 packaging rules).
-    // Topics = the unit's official elements; notes and quizzes still to write.
+    // Topics = the unit's official elements.
     topics: [
       {
         id: 'e5-t1',
@@ -79,12 +81,12 @@ export const ELECTIVE_UNITS: Unit[] = [
     code: 'UEECD0019',
     name: 'Fabricate, assemble and dismantle utilities industry components',
     description:
-      'Official application (training.gov.au): the skills and knowledge required to fabricate, assemble and dismantle utilities industry components using fitting and metal fabrication techniques, including hand and power tools, cutting, shaping, joining and fixing, measuring and marking out, and reading drawings. Pre-requisite: UEECD0007. Topic outlines only: study notes and quizzes are still to be written.',
+      'Official application (training.gov.au): the skills and knowledge required to fabricate, assemble and dismantle utilities industry components using fitting and metal fabrication techniques, including hand and power tools, cutting, shaping, joining and fixing, measuring and marking out, and reading drawings. Pre-requisite: UEECD0007. Quizzes and flashcards are written from the official unit text; longer study notes are still to be written.',
     prerequisites: ['UEECD0007'],
     points: 40,
     kind: 'elective',
     // Group B, 40 weighting points (UEE22020 packaging rules).
-    // Topics = the unit's official elements; notes and quizzes still to write.
+    // Topics = the unit's official elements.
     topics: [
       {
         id: 'e6-t1',
@@ -176,12 +178,12 @@ export const ELECTIVE_UNITS: Unit[] = [
     code: 'UEECD0035',
     name: 'Provide basic instruction in the use of electrotechnology apparatus',
     description:
-      'Official application (training.gov.au): the skills and knowledge required to instruct customers/users in the use of electrotechnology apparatus, including customer relations, using manufacturer instruction material, instructing methods and completing instruction documentation. No pre-requisite. Topic outlines only: study notes and quizzes are still to be written.',
+      'Official application (training.gov.au): the skills and knowledge required to instruct customers/users in the use of electrotechnology apparatus, including customer relations, using manufacturer instruction material, instructing methods and completing instruction documentation. No pre-requisite. Quizzes and flashcards are written from the official unit text; longer study notes are still to be written.',
     prerequisites: [],
     points: 20,
     kind: 'elective',
     // Group A, 20 weighting points (UEE22020 packaging rules).
-    // Topics = the unit's official elements; notes and quizzes still to write.
+    // Topics = the unit's official elements.
     topics: [
       {
         id: 'e7-t1',
@@ -214,3 +216,26 @@ export const ELECTIVE_UNITS: Unit[] = [
     ],
   },
 ];
+
+const STUDY_BY_UNIT: Record<string, ElectiveStudySet> = {
+  [UEECD0008_STUDY.unitId]: UEECD0008_STUDY,
+  [UEECD0019_STUDY.unitId]: UEECD0019_STUDY,
+  [UEECD0035_STUDY.unitId]: UEECD0035_STUDY,
+};
+
+/** Add the source URL, flashcards and per-topic quizzes from electiveStudy.ts. */
+function attachStudy(unit: Unit): Unit {
+  const study = STUDY_BY_UNIT[unit.id];
+  if (!study) return unit;
+  return {
+    ...unit,
+    sourceUrl: study.sourceUrl,
+    flashcards: study.flashcards,
+    topics: unit.topics.map((topic) => ({
+      ...topic,
+      quizQuestions: study.quizzes[topic.id] ?? topic.quizQuestions,
+    })),
+  };
+}
+
+export const ELECTIVE_UNITS: Unit[] = ELECTIVE_OUTLINES.map(attachStudy);
