@@ -168,6 +168,8 @@ const ELECTIVE_OUTLINES: Unit[] = [
               'Skip fixings and rest it on the floor',
             ],
             correctAnswer: 1,
+            explanation:
+              'Locate hidden cables and pipes first, then choose a fixing suited to the surface, so you don\'t drill into services.',
           },
         ],
       },
