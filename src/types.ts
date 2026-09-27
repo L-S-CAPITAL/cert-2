@@ -33,10 +33,24 @@ export interface SessionLog {
   timestamp: string;
 }
 
+/** One finished quiz: how many questions were right out of how many. */
+export interface QuizAttempt {
+  id: string;
+  /** Course unit id, or a study strand id (math, algebra, ...). */
+  unitId: string;
+  topicId: string;
+  score: number;
+  total: number;
+  /** ISO time the quiz was finished. */
+  timestamp: string;
+}
+
 export interface ProgressData {
   unitCompletions: Record<string, Record<string, boolean>>;
   sessionLogs: SessionLog[];
   totalTimeSeconds: number;
+  /** Newest first, capped at MAX_QUIZ_ATTEMPTS. */
+  quizAttempts: QuizAttempt[];
 }
 
 export interface ProgressState extends ProgressData {
