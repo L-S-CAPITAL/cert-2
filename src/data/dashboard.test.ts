@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { SessionLog, Unit } from '../types';
+import { QuizAttempt, SessionLog, Unit } from '../types';
 import {
+  averageQuizScore,
+  dailyStudyTime,
   dayStreak,
+  quizPercent,
   formatStudyDuration,
   groupUnits,
   nextTopic,
@@ -234,5 +237,68 @@ describe('pickContinueTarget', () => {
   it('returns none when everything left is locked', () => {
     const target = pickContinueTarget({ ...base, units: [unit('a', 1), unit('z', 1, ['MISSING'])], completions: done('a-t1') });
     expect(target).toEqual({ kind: 'none' });
+  });
+});
+
+describe('dailyStudyTime', () => {
+  const now = at(2026, 9, 28, 18, 30);
+
+  it('returns 14 local days, oldest first, ending today', () => {
+    const days = dailyStudyTime([], now);
+    expect(days).toHaveLength(14);
+    expect(days[0].date).toEqual(at(2026, 9, 15, 0, 0));
+    expect(days[13].date).toEqual(at(2026, 9, 28, 0, 0));
+    expect(days.every((day) => day.seconds === 0)).toBe(true);
+  });
+
+  it('buckets sessions by the local day they were logged', () => {
+    const days = dailyStudyTime(
+      [
+        log(at(2026, 9, 28, 0, 1), 60),
+        log(at(2026, 9, 28, 23, 59), 120),
+        log(at(2026, 9, 27, 23, 59), 30),
+        log(at(2026, 9, 15, 0, 0), 600),
+        log(at(2026, 9, 14, 23, 59), 999), // one day too old
+        log(at(2026, 9, 29, 9, 0), 999), // in the future
+        { ...log(at(2026, 9, 28), 999), timestamp: 'not a date' },
+      ],
+      now,
+    );
+    expect(days[13].seconds).toBe(180);
+    expect(days[12].seconds).toBe(30);
+    expect(days[0].seconds).toBe(600);
+    expect(days.reduce((sum, day) => sum + day.seconds, 0)).toBe(810);
+  });
+
+  it('spans month boundaries and custom lengths', () => {
+    const days = dailyStudyTime([log(at(2026, 2, 28), 60)], at(2026, 3, 2), 3);
+    expect(days.map((day) => day.date.getDate())).toEqual([28, 1, 2]);
+    expect(days[0].seconds).toBe(60);
+  });
+});
+
+describe('averageQuizScore', () => {
+  const attempt = (score: number, total: number): QuizAttempt => ({
+    id: `${score}/${total}`,
+    unitId: 'c1',
+    topicId: 't',
+    score,
+    total,
+    timestamp: '2026-09-01T00:00:00.000Z',
+  });
+
+  it('is null with no attempts', () => {
+    expect(averageQuizScore([])).toBeNull();
+  });
+
+  it('averages each attempt equally', () => {
+    // 50% and 100% average to 75%, even though the quizzes differ in length.
+    expect(averageQuizScore([attempt(1, 2), attempt(10, 10)])).toEqual({ percent: 75, attempts: 2 });
+    expect(averageQuizScore([attempt(1, 3)])).toEqual({ percent: 33, attempts: 1 });
+  });
+
+  it('computes a single attempt percentage', () => {
+    expect(quizPercent(attempt(2, 3))).toBe(67);
+    expect(quizPercent(attempt(0, 4))).toBe(0);
   });
 });

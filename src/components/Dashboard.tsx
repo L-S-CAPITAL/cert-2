@@ -3,10 +3,13 @@ import { Unit } from '../types';
 import { useProgress } from '../stores/progress';
 import { describeSession, formatSessionDate } from '../data/sessions';
 import { summarizeCompletion } from '../data/completion';
+import StudyChart from './StudyChart';
 import {
   ContinueReason,
   UnitRow,
+  averageQuizScore,
   dayStreak,
+  quizPercent,
   formatStudyDuration,
   groupUnits,
   pickContinueTarget,
@@ -139,6 +142,8 @@ const Dashboard: React.FC<DashboardProps> = ({ units, selectedUnitId = null, onO
   const streak = dayStreak(sessionLogs, now);
   const weekDelta = week.thisWeekSeconds - week.lastWeekSeconds;
   const grouped = groupUnits(units, completions);
+  const quizAttempts = progress.quizAttempts;
+  const quizAverage = averageQuizScore(quizAttempts);
   const activeRows = [...grouped.inProgress, ...grouped.notStarted];
 
   const statCards: { label: string; value: string; detail: string; colorClass?: string }[] = [
@@ -166,11 +171,14 @@ const Dashboard: React.FC<DashboardProps> = ({ units, selectedUnitId = null, onO
       colorClass: streak.days > 0 ? 'green' : undefined,
     },
     {
-      // Quiz scores are not stored anywhere yet (quizzes only mark a topic
-      // complete on a perfect score), so there is no real average to show.
+      // From saved attempts only (recorded since quiz history was added);
+      // every attempt counts equally.
       label: 'Average quiz score',
-      value: '—',
-      detail: 'no quiz scores recorded yet',
+      value: quizAverage ? `${quizAverage.percent}%` : '—',
+      detail: quizAverage
+        ? `across ${quizAverage.attempts} ${quizAverage.attempts === 1 ? 'attempt' : 'attempts'}`
+        : 'no quizzes taken yet',
+      colorClass: quizAverage ? 'green' : undefined,
     },
     {
       label: 'Topics left: next unit',
@@ -281,6 +289,46 @@ const Dashboard: React.FC<DashboardProps> = ({ units, selectedUnitId = null, onO
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="dashboard-panels">
+        <StudyChart sessionLogs={sessionLogs} now={now} />
+
+        <section className="terminal-section recent-quizzes" aria-labelledby="recent-quizzes-title">
+          <div className="terminal-section-title" id="recent-quizzes-title">
+            <span className="icon">QUIZ</span>
+            <span>Recent quiz results</span>
+            {quizAttempts.length > 0 && (
+              <span className="section-count">{quizAttempts.length} saved</span>
+            )}
+          </div>
+          {quizAttempts.length === 0 ? (
+            <div className="dashboard-note quiz-empty">
+              No quiz results yet. Finish a topic quiz in the Units tab and your score shows up
+              here.
+            </div>
+          ) : (
+            <ol className="quiz-results">
+              {quizAttempts.slice(0, 5).map((attempt) => {
+                const { unitLabel, topicTitle } = describeSession(attempt);
+                const percent = quizPercent(attempt);
+                return (
+                  <li key={attempt.id} className="quiz-result">
+                    <span className="quiz-topic" title={`${unitLabel} / ${topicTitle ?? attempt.topicId}`}>
+                      <span className="quiz-unit">{unitLabel}</span> {topicTitle ?? attempt.topicId}
+                    </span>
+                    <span
+                      className={`quiz-score${attempt.score === attempt.total ? ' perfect' : ''}`}
+                    >
+                      {attempt.score} / {attempt.total} ({percent}%)
+                    </span>
+                    <span className="quiz-date">{formatSessionDate(attempt.timestamp)}</span>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </section>
       </div>
 
       <div className="terminal-section">

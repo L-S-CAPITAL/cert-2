@@ -1390,3 +1390,117 @@ body::before {
 .topic-title {
   scroll-margin-top: 12px;
 }
+
+/* === Dashboard: study chart + recent quiz results === */
+.dashboard-panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: 0 16px;
+}
+
+.study-chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 96px;
+  padding: 0 2px;
+  border-bottom: 1px solid var(--border);
+  background: repeating-linear-gradient(
+    to top,
+    transparent 0,
+    transparent 23px,
+    rgba(0, 255, 64, 0.08) 23px,
+    rgba(0, 255, 64, 0.08) 24px
+  );
+}
+
+.study-chart-col {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.study-chart-bar {
+  width: 100%;
+  background: rgba(0, 255, 64, 0.35);
+  border-top: 2px solid var(--text-bright);
+  box-shadow: 0 0 6px rgba(0, 255, 64, 0.35);
+}
+
+.study-chart-col.today .study-chart-bar {
+  background: rgba(255, 191, 0, 0.35);
+  border-top-color: var(--text-amber);
+  box-shadow: 0 0 6px rgba(255, 191, 0, 0.35);
+}
+
+.study-chart-col.empty .study-chart-bar {
+  border-top: none;
+  box-shadow: none;
+}
+
+.study-chart-col:hover .study-chart-bar {
+  background: rgba(0, 255, 64, 0.55);
+}
+
+.study-chart-labels {
+  display: flex;
+  gap: 3px;
+  padding: 2px 2px 0;
+  font-size: 9px;
+  color: var(--text-dim);
+}
+
+.study-chart-labels span {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+}
+
+.study-chart-labels span.today {
+  color: var(--text-amber);
+  font-weight: 700;
+}
+
+.quiz-results {
+  list-style: none;
+  font-size: 11px;
+}
+
+.quiz-result {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 8px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border-thick);
+}
+
+/* Row 1: unit + topic (full width). Row 2: score, then date on the right. */
+.quiz-topic {
+  grid-column: 1 / -1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-secondary);
+}
+
+.quiz-unit {
+  color: var(--text-amber);
+}
+
+.quiz-score {
+  color: var(--text-amber);
+  font-weight: 700;
+}
+
+.quiz-score.perfect {
+  color: var(--text-primary);
+}
+
+.quiz-date {
+  text-align: right;
+  color: var(--text-tertiary);
+  font-size: 10px;
+}

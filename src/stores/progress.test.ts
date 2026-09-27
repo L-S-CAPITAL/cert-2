@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { createProgressStore } from './progress';
-import { MAX_SESSION_LOGS, STORAGE_KEY } from './persist';
+import { MAX_QUIZ_ATTEMPTS, MAX_SESSION_LOGS, STORAGE_KEY } from './persist';
 
 class MemoryStorage implements Storage {
   private data = new Map<string, string>();
@@ -159,6 +159,70 @@ describe('progressStore', () => {
     expect(store.getState().startTime).toBeNull();
     expect(store.getState().totalTimeSeconds).toBe(42);
     expect(store.isTopicComplete('c2', 'c2-t1')).toBe(true);
+  });
+
+  it('records quiz attempts newest first and saves them', () => {
+    const { store, storage } = makeStore();
+    store.recordQuizAttempt('c1', 'c1-t1', 2, 4);
+    store.recordQuizAttempt('c1', 'c1-t2', 3, 3);
+    const attempts = store.getState().quizAttempts;
+    expect(attempts.map((a) => [a.topicId, a.score, a.total])).toEqual([
+      ['c1-t2', 3, 3],
+      ['c1-t1', 2, 4],
+    ]);
+    expect(attempts[0].id).not.toBe(attempts[1].id);
+    expect(Number.isNaN(Date.parse(attempts[0].timestamp))).toBe(false);
+    const saved = JSON.parse(storage.getItem(STORAGE_KEY) || '{}');
+    expect(saved.version).toBe(2);
+    expect(saved.quizAttempts).toHaveLength(2);
+    // Recording a score does not complete the topic by itself.
+    expect(store.isTopicComplete('c1', 'c1-t2')).toBe(false);
+  });
+
+  it('ignores invalid quiz attempts', () => {
+    const { store } = makeStore();
+    store.recordQuizAttempt('c1', 'c1-t1', 5, 4);
+    store.recordQuizAttempt('c1', 'c1-t1', -1, 4);
+    store.recordQuizAttempt('c1', 'c1-t1', 0, 0);
+    store.recordQuizAttempt('', 'c1-t1', 1, 2);
+    store.recordQuizAttempt('c1', 'c1-t1', 1.5, 2);
+    expect(store.getState().quizAttempts).toHaveLength(0);
+  });
+
+  it('keeps at most MAX_QUIZ_ATTEMPTS attempts', () => {
+    const { store } = makeStore();
+    for (let i = 0; i < MAX_QUIZ_ATTEMPTS + 3; i++) store.recordQuizAttempt('c1', `t${i}`, 1, 1);
+    const attempts = store.getState().quizAttempts;
+    expect(attempts).toHaveLength(MAX_QUIZ_ATTEMPTS);
+    expect(attempts[0].topicId).toBe(`t${MAX_QUIZ_ATTEMPTS + 2}`);
+  });
+
+  it('loads version 1 saves without losing progress', () => {
+    const { store } = makeStore(
+      JSON.stringify({
+        version: 1,
+        unitCompletions: { c1: { 'c1-t1': true } },
+        sessionLogs: [],
+        totalTimeSeconds: 90,
+      }),
+    );
+    expect(store.isTopicComplete('c1', 'c1-t1')).toBe(true);
+    expect(store.getState().totalTimeSeconds).toBe(90);
+    expect(store.getState().quizAttempts).toEqual([]);
+  });
+
+  it('exports and re-imports quiz attempts, validating them', () => {
+    const { store } = makeStore();
+    store.recordQuizAttempt('c1', 'c1-t1', 1, 3);
+    const exported = JSON.parse(store.exportProgress());
+    expect(exported.version).toBe(2);
+    expect(exported.quizAttempts).toHaveLength(1);
+
+    const { store: other } = makeStore();
+    exported.quizAttempts.push({ id: 'x', unitId: 'c1', topicId: 't', score: 9, total: 3, timestamp: 'nope' });
+    expect(other.importProgress(JSON.stringify(exported))).toBe(true);
+    expect(other.getState().quizAttempts).toHaveLength(1);
+    expect(other.getState().quizAttempts[0]).toMatchObject({ topicId: 'c1-t1', score: 1, total: 3 });
   });
 
   it('leaves a running session alone when an import is rejected', () => {

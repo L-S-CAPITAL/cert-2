@@ -40,6 +40,9 @@ const QuizModal: React.FC<QuizModalProps> = ({ unit, topic, onClose }) => {
 
   const handleNext = () => {
     if (isLast) {
+      // Save every finished attempt (perfect or not) for the dashboard's
+      // quiz history. Recorded here, once per Finish click, not in an effect.
+      progressStore.recordQuizAttempt(unit.id, topic.id, score, questions.length);
       setShowResult(true);
     } else {
       setCurrentQuestion((value) => value + 1);

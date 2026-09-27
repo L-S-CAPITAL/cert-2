@@ -1,6 +1,8 @@
 import { useSyncExternalStore } from 'react';
-import { ProgressState, SessionLog, Topic } from '../types';
+import { ProgressState, QuizAttempt, SessionLog, Topic } from '../types';
 import {
+  MAX_QUIZ_ATTEMPTS,
+  MAX_QUIZ_QUESTIONS,
   MAX_SESSION_LOGS,
   loadPersisted,
   savePersisted,
@@ -30,6 +32,7 @@ function fromStorage(storage: Storage): ProgressState {
 
 export function createProgressStore(storage: Storage) {
   let state: ProgressState = fromStorage(storage);
+  let attemptCounter = 0;
   const listeners = new Set<Listener>();
 
   function emit() {
@@ -157,6 +160,39 @@ export function createProgressStore(storage: Storage) {
             [topicId]: false,
           },
         },
+      });
+    },
+
+    /**
+     * Save a finished quiz (newest first, capped at MAX_QUIZ_ATTEMPTS).
+     * Invalid input (no questions, score out of range) is ignored.
+     */
+    recordQuizAttempt(unitId: string, topicId: string, score: number, total: number): void {
+      if (
+        !unitId ||
+        !topicId ||
+        !Number.isInteger(total) ||
+        total < 1 ||
+        total > MAX_QUIZ_QUESTIONS ||
+        !Number.isInteger(score) ||
+        score < 0 ||
+        score > total
+      ) {
+        return;
+      }
+      const now = Date.now();
+      attemptCounter += 1;
+      const attempt: QuizAttempt = {
+        id: `${now.toString(36)}-${attemptCounter}`,
+        unitId,
+        topicId,
+        score,
+        total,
+        timestamp: new Date(now).toISOString(),
+      };
+      commit({
+        ...state,
+        quizAttempts: [attempt, ...state.quizAttempts].slice(0, MAX_QUIZ_ATTEMPTS),
       });
     },
 
