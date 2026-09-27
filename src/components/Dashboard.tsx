@@ -1,6 +1,7 @@
 import React from 'react';
 import { Unit } from '../types';
 import { progressStore, useProgress } from '../stores/progress';
+import { describeSession, formatSessionDate } from '../data/sessions';
 
 interface DashboardProps {
   units: Unit[];
@@ -173,22 +174,20 @@ const Dashboard: React.FC<DashboardProps> = ({ units }) => {
           </div>
           <div className="session-log">
             {sessionLogs.slice(0, 5).map((log) => {
-              const unit = units.find((u) => u.id === log.unitId);
+              const { unitLabel, topicTitle } = describeSession(log);
               const mins = Math.floor(log.durationSeconds / 60);
               const secs = log.durationSeconds % 60;
               const formatted = `${mins}m ${secs}s`;
-              const date = new Date(log.timestamp);
-              const dateStr = date.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-              });
               return (
                 <div key={log.id} className="session-log-item">
                   <span className="session-unit">
-                    {unit?.code || 'Unknown'}
+                    {unitLabel}
+                    {topicTitle ? ` / ${topicTitle}` : ''}
                   </span>
                   <span className="session-duration">{formatted}</span>
-                  <span className="session-date">{dateStr}</span>
+                  <span className="session-date">
+                    {formatSessionDate(log.timestamp)}
+                  </span>
                 </div>
               );
             })}
