@@ -2,6 +2,7 @@ import React from 'react';
 import { MathModule, Unit } from '../types';
 import { evaluateDrill, makeDrillPaper } from '../data/drill';
 import { progressStore } from '../stores/progress';
+import { SHORTCUT_BLOCK_ATTR } from '../shortcuts';
 
 interface MathDrillProps {
   module: MathModule;
@@ -126,8 +127,12 @@ const MathDrill: React.FC<MathDrillProps> = ({ module, unit, onBack }) => {
     startedAt.current = Date.now();
   };
 
+  // While the drill is running, block global shortcuts (tab switches would
+  // unmount this component and lose the attempt).
+  const shortcutBlock = { [SHORTCUT_BLOCK_ATTR]: done ? undefined : 'true' };
+
   return (
-    <div className="math-lesson">
+    <div className="math-lesson" {...shortcutBlock}>
       <button type="button" className="terminal-btn" onClick={onBack}>
         Back to modules
       </button>

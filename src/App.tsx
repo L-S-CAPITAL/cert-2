@@ -18,6 +18,7 @@ import { ALGEBRA_UNIT } from './data/algebra';
 import { GEOMETRY_UNIT } from './data/geometry';
 import { BLUEPRINT_UNIT } from './data/blueprints';
 import { progressStore } from './stores/progress';
+import { shouldIgnoreShortcut } from './shortcuts';
 
 const TABS: { id: TabType; label: string; icon: string }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: 'DASH' },
@@ -56,22 +57,17 @@ const App: React.FC = () => {
 
   React.useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      const tag = target?.tagName;
-      const inField =
-        tag === 'INPUT' ||
-        tag === 'SELECT' ||
-        tag === 'TEXTAREA' ||
-        target?.isContentEditable;
-      if (inField) return;
+      // Escape always closes the help dialog (QuizModal / HelpModal also
+      // handle Escape themselves), even while other shortcuts are blocked.
+      if (event.key === 'Escape') {
+        setHelpOpen(false);
+        return;
+      }
+      if (shouldIgnoreShortcut(event)) return;
 
       if (event.key === '?') {
         event.preventDefault();
         setHelpOpen(true);
-        return;
-      }
-      if (event.key === 'Escape') {
-        setHelpOpen(false);
         return;
       }
       if (event.key === '1') setActiveTab('dashboard');

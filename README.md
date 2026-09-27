@@ -282,7 +282,7 @@ Treat the export file as study notes, not credentials. If you share a machine, e
 
 ## Keyboard
 
-Shortcuts are ignored while focus is in an input, select, textarea, or contenteditable field.
+Shortcuts are ignored while focus is in an input, select, textarea, or contenteditable field, while a dialog (quiz or help) is open, while a timed drill is running, and whenever Ctrl / Cmd / Alt is held. **`Esc`** always closes dialogs.
 
 | Key | Action |
 |---|---|
@@ -413,7 +413,7 @@ The hardening pass wired the chrome for keyboard and AT use:
 - Help and quizzes are dialogs; `Esc` dismisses
 - Progress bars carry `role="progressbar"` and value attributes
 - Contrast and focus treatment live in `src/styles/terminal.css`
-- Shortcuts skip form fields so typing an answer does not change tabs
+- Shortcuts skip form fields, open dialogs, running drills, and Ctrl / Cmd / Alt combos, so a stray key cannot change tabs and lose quiz or drill progress
 
 Further contrast or screen-reader work should start in the CSS custom properties and the modal components, not by adding an icon library — **lucide-react is intentionally unused**.
 
