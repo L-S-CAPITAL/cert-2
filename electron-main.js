@@ -16,7 +16,7 @@ const IS_DEV = Boolean(DEV_SERVER_URL) && !app.isPackaged;
  *
  * The packaged app loads dist/index.html over file:// with loadFile, where
  * webRequest.onHeadersReceived does not run. Its (strict) policy ships as a
- * <meta http-equiv="Content-Security-Policy"> tag that vite.config.ts injects
+ * <meta http-equiv="Content-Security-Policy"> tag that vite.config.mts injects
  * into production builds only.
  */
 function devContentSecurityPolicy() {
