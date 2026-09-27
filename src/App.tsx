@@ -21,6 +21,14 @@ import { BLUEPRINT_UNIT } from './data/blueprints';
 import { progressStore, useProgress } from './stores/progress';
 import { isUnitUnlocked } from './data/prerequisites';
 import { shouldIgnoreShortcut } from './shortcuts';
+import {
+  Settings,
+  applyTheme,
+  loadSettings,
+  resolveTheme,
+  saveSettings,
+  systemPrefersLight,
+} from './stores/settings';
 
 type NavGroup = 'Study' | 'Records';
 
@@ -102,6 +110,37 @@ const App: React.FC = () => {
   // requests for the same unit fire again.
   const [focusRequest, setFocusRequest] = React.useState<UnitFocusRequest | null>(null);
   const progress = useProgress();
+  const [settings, setSettings] = React.useState<Settings>(() => loadSettings());
+  const [prefersLight, setPrefersLight] = React.useState(systemPrefersLight);
+  const theme = resolveTheme(settings.theme, prefersLight);
+  const themeRef = React.useRef(theme);
+  themeRef.current = theme;
+
+  // Until the user picks a theme, follow the system setting live.
+  React.useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return;
+    const query = window.matchMedia('(prefers-color-scheme: light)');
+    const onChange = () => setPrefersLight(query.matches);
+    query.addEventListener?.('change', onChange);
+    return () => query.removeEventListener?.('change', onChange);
+  }, []);
+
+  React.useEffect(() => applyTheme(theme), [theme]);
+  React.useEffect(() => saveSettings(settings), [settings]);
+
+  const toggleTheme = React.useCallback(() => {
+    setSettings((current) => ({
+      ...current,
+      theme: themeRef.current === 'light' ? 'dark' : 'light',
+    }));
+  }, []);
+
+  // The timer panel is a compact bar while idle unless the user opened it;
+  // it is always open while the timer runs.
+  const timerRunning = progress.startTime !== null;
+  const timerOpen = timerRunning || settings.timerExpanded;
+  const toggleTimerPanel = () =>
+    setSettings((current) => ({ ...current, timerExpanded: !current.timerExpanded }));
 
   // A focus request is used once: forget it when leaving the Units tab so
   // coming back later does not jump to that unit / topic again.
@@ -132,6 +171,11 @@ const App: React.FC = () => {
       }
       const byKey = TABS.find((tab) => tab.key === event.key);
       if (byKey) setActiveTab(byKey.id);
+      if (event.key === 't' || event.key === 'T') {
+        event.preventDefault();
+        toggleTheme();
+        return;
+      }
       if (event.key === 's' || event.key === 'S') {
         event.preventDefault();
         const state = progressStore.getState();
@@ -144,7 +188,7 @@ const App: React.FC = () => {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [selectedUnitId]);
+  }, [selectedUnitId, toggleTheme]);
 
   const tabRefs = React.useRef<Array<HTMLButtonElement | null>>([]);
 
@@ -247,7 +291,6 @@ const App: React.FC = () => {
 
   // While the timer runs, the header shows what is actually being timed
   // (progress.activeUnitId / activeTopicId), not whatever is selected now.
-  const timerRunning = progress.startTime !== null;
   const headerUnitId = timerRunning ? progress.activeUnitId : selectedUnitId;
   const headerUnit = headerUnitId
     ? TIMER_UNITS.find((u) => u.id === headerUnitId)
@@ -268,6 +311,8 @@ const App: React.FC = () => {
         title={COURSE_INFO.title}
         code={COURSE_INFO.code}
         provider={COURSE_INFO.provider}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
       <div className="terminal-content">
@@ -345,16 +390,42 @@ const App: React.FC = () => {
         </main>
 
         <aside
-          className="terminal-window time-tracker-window"
+          className={`terminal-window time-tracker-window${timerOpen ? '' : ' collapsed'}`}
           aria-label="Study timer"
         >
           <div className="terminal-window-header">
             <div className="window-title">
               <span className="icon">TIMER</span>
-              TIMER
+              <span className="timer-window-label">TIMER</span>
             </div>
+            <button
+              type="button"
+              className="timer-toggle"
+              aria-expanded={timerOpen}
+              aria-controls="timer-panel"
+              aria-label={timerOpen ? 'Hide study timer' : 'Show study timer'}
+              title={
+                timerRunning
+                  ? 'The panel stays open while the timer runs'
+                  : timerOpen
+                    ? 'Hide study timer'
+                    : 'Show study timer'
+              }
+              disabled={timerRunning}
+              onClick={toggleTimerPanel}
+            >
+              <span aria-hidden="true">{timerOpen ? '▸' : '◂'}</span>
+              {!timerOpen && (
+                <span className="timer-toggle-text" aria-hidden="true">
+                  Show timer
+                </span>
+              )}
+            </button>
           </div>
-          <div className="terminal-window-body">
+          {/* Kept mounted while collapsed so its start / stop announcements
+              and selected unit survive; hidden removes it from view and from
+              the accessibility tree. */}
+          <div className="terminal-window-body" id="timer-panel" hidden={!timerOpen}>
             <TimeTracker
               selectedUnitId={selectedUnitId}
               onUnitSelect={setSelectedUnitId}

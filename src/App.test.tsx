@@ -250,3 +250,80 @@ describe('Dashboard navigation', () => {
     expect(container.querySelector<HTMLSelectElement>('#unit-select')?.value).toBe('');
   });
 });
+
+describe('Theme', () => {
+  const themeButton = () =>
+    Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Light theme'),
+    )!;
+
+  it('toggles the light theme from the header and with t, and remembers the choice', () => {
+    expect(document.documentElement.dataset.theme).toBe('dark');
+    expect(themeButton().getAttribute('aria-pressed')).toBe('false');
+
+    act(() => themeButton().click());
+    expect(document.documentElement.dataset.theme).toBe('light');
+    expect(themeButton().getAttribute('aria-pressed')).toBe('true');
+    expect(JSON.parse(localStorage.getItem('electrotech-settings')!).theme).toBe('light');
+
+    press('t');
+    expect(document.documentElement.dataset.theme).toBe('dark');
+    expect(JSON.parse(localStorage.getItem('electrotech-settings')!).theme).toBe('dark');
+  });
+
+  it('follows prefers-color-scheme on first run, and a saved choice wins', () => {
+    const original = window.matchMedia;
+    window.matchMedia = ((query: string) => ({
+      matches: query === '(prefers-color-scheme: light)',
+      media: query,
+      addEventListener() {},
+      removeEventListener() {},
+    })) as unknown as typeof window.matchMedia;
+    try {
+      act(() => root.unmount());
+      root = createRoot(container);
+      act(() => root.render(<App />));
+      expect(document.documentElement.dataset.theme).toBe('light');
+
+      act(() => root.unmount());
+      localStorage.setItem('electrotech-settings', JSON.stringify({ theme: 'dark' }));
+      root = createRoot(container);
+      act(() => root.render(<App />));
+      expect(document.documentElement.dataset.theme).toBe('dark');
+    } finally {
+      window.matchMedia = original;
+    }
+  });
+});
+
+describe('Study timer panel', () => {
+  const toggle = () => container.querySelector<HTMLButtonElement>('.timer-toggle')!;
+  const panel = () => container.querySelector<HTMLElement>('#timer-panel')!;
+
+  it('is a compact bar while idle and opens with an aria-expanded toggle', () => {
+    expect(toggle().getAttribute('aria-expanded')).toBe('false');
+    expect(toggle().getAttribute('aria-controls')).toBe('timer-panel');
+    expect(toggle().getAttribute('aria-label')).toBe('Show study timer');
+    expect(panel().hidden).toBe(true);
+    expect(container.querySelector('.time-tracker-window')?.classList).toContain('collapsed');
+
+    act(() => toggle().click());
+    expect(toggle().getAttribute('aria-expanded')).toBe('true');
+    expect(panel().hidden).toBe(false);
+    expect(JSON.parse(localStorage.getItem('electrotech-settings')!).timerExpanded).toBe(true);
+
+    act(() => toggle().click());
+    expect(panel().hidden).toBe(true);
+  });
+
+  it('opens while the timer runs and collapses again when it stops', () => {
+    act(() => progressStore.startSession(ALL_UNITS[0].id));
+    expect(toggle().getAttribute('aria-expanded')).toBe('true');
+    expect(toggle().disabled).toBe(true);
+    expect(panel().hidden).toBe(false);
+
+    act(() => progressStore.stopSession());
+    expect(toggle().getAttribute('aria-expanded')).toBe('false');
+    expect(panel().hidden).toBe(true);
+  });
+});

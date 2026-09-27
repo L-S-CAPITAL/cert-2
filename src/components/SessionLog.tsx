@@ -21,9 +21,11 @@ const SessionLog: React.FC = () => {
   if (logs.length === 0) {
     return (
       <div className="empty-state">
-        <div className="empty-icon">[ No sessions yet ]</div>
-        <div style={{ color: 'var(--text-tertiary)' }}>
-          Start a study session to track your time.
+        <div className="empty-icon" aria-hidden="true">[ LOG ]</div>
+        <div className="empty-title">No study sessions yet</div>
+        <div className="empty-text">
+          Pick a unit in the timer panel and press Start (or the <kbd>s</kbd> key). Each session
+          you stop is listed here with its unit and how long it ran.
         </div>
       </div>
     );
