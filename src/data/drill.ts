@@ -36,6 +36,14 @@ export function scoreDrill(
   return { answered, correct, percent };
 }
 
+/**
+ * Whole seconds left before `deadline` (a ms timestamp), rounded up so the
+ * display reads e.g. 10:00 for the first second and 00:00 only at expiry.
+ */
+export function secondsUntil(deadline: number, now: number = Date.now()): number {
+  return Math.max(0, Math.ceil((deadline - now) / 1000));
+}
+
 export interface DrillEvaluation {
   answered: number;
   correct: number;
