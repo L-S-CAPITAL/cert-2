@@ -36,6 +36,62 @@ export function scoreDrill(
   return { answered, correct, percent };
 }
 
+export interface DrillEvaluation {
+  answered: number;
+  correct: number;
+  percent: number;
+  /**
+   * Mean seconds per answered item, rounded to one decimal place. Skipped
+   * and timed-out items are excluded. null when nothing was answered.
+   */
+  averageSeconds: number | null;
+  speedOk: boolean;
+  passed: boolean;
+}
+
+/**
+ * Single source of truth for a finished drill: the same result drives both
+ * "mark module complete" and the result screen, so they can never disagree.
+ * The speed check uses the rounded average that is shown to the learner.
+ */
+export function evaluateDrill(options: {
+  answers: Array<number | null>;
+  times: Array<number | null>;
+  items: Array<{ correctAnswer: number }>;
+  passPercent: number;
+  passAnswered: number;
+  perQuestionSeconds?: number;
+}): DrillEvaluation {
+  const { answers, times, items, passPercent, passAnswered, perQuestionSeconds } =
+    options;
+  const { answered, correct, percent } = scoreDrill(answers, items);
+
+  const answeredTimes: number[] = [];
+  items.forEach((_item, index) => {
+    const given = answers[index];
+    const time = times[index];
+    if (given === null || given === undefined) return;
+    if (time === null || time === undefined) return;
+    answeredTimes.push(time);
+  });
+  const averageSeconds =
+    answeredTimes.length === 0
+      ? null
+      : Math.round(
+          (answeredTimes.reduce((sum, item) => sum + item, 0) /
+            answeredTimes.length) *
+            10,
+        ) / 10;
+
+  const speedOk = perQuestionSeconds
+    ? averageSeconds !== null && averageSeconds <= perQuestionSeconds
+    : true;
+  const passed =
+    percent >= passPercent && answered >= passAnswered && speedOk;
+
+  return { answered, correct, percent, averageSeconds, speedOk, passed };
+}
+
 export function isModuleUnlocked(
   modules: Array<{ id: string; order: number }>,
   module: { id: string; order: number },

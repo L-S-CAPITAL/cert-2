@@ -115,7 +115,7 @@ Packaged Electron is locked down on purpose:
 - `contextIsolation: true`
 - `nodeIntegration: false`
 - `sandbox: true`
-- Strict **Content-Security-Policy** (dev CSP allows the Vite HMR websocket; prod does not)
+- Strict **Content-Security-Policy**: the production build ships it as a `<meta http-equiv>` tag in `dist/index.html` (injected by `vite.config.ts`), because response-header CSP does not apply to the packaged app's `file://` load; `npm run dev` gets a looser header CSP that allows Vite's inline scripts and HMR websocket
 - Navigation and `window.open` denied except the local dist tree / dev server
 - Preload exposes a **read-only** `window.electrotech` bridge (`platform` + version strings) — no file system, no Node
 - Single-instance lock so a second launch focuses the existing window
@@ -197,7 +197,7 @@ Press **`?`** anywhere (outside a form field) for the in-app keyboard card. **`E
 
 ### Requirements
 
-- **Node.js 18+**
+- **Node.js 22.12+** (required by `@electron/fuses` v2, used when packaging)
 - **npm 9+**
 - A desktop OS Electron can run on (Linux, macOS, Windows)
 
@@ -208,7 +208,8 @@ git clone https://github.com/L-S-CAPITAL/cert-2.git
 cd cert-2
 npm install
 
-# If Electron’s binary is missing (install scripts blocked by policy):
+# Electron 42+ downloads its binary on first run (e.g. `npm run dev`).
+# To fetch it ahead of time (or if install scripts are blocked by policy):
 node node_modules/electron/install.js
 
 npm test
@@ -248,7 +249,7 @@ npm run pack             # unpacked directory in release/
 npm run dist             # installers
 ```
 
-The packaged app loads `dist/index.html` with `loadFile`. Production CSP is tight (`script-src 'self'`, no eval, no remote connect). `afterPack` runs `scripts/afterPack.js` (Electron fuses). Output directory: **`release/`**.
+The packaged app loads `dist/index.html` with `loadFile`. Production CSP is a `<meta http-equiv="Content-Security-Policy">` tag that Vite injects into `dist/index.html` at build time (header CSP does not reach `file://` pages): `default-src 'self'`, `script-src 'self'` and `style-src 'self'` with no inline code or eval, no remote connect, `object-src 'none'`, `base-uri 'none'`, `form-action 'none'`. `afterPack` runs `scripts/afterPack.js` (Electron fuses). Output directory: **`release/`**.
 
 App identity from `package.json`:
 
@@ -281,7 +282,7 @@ Treat the export file as study notes, not credentials. If you share a machine, e
 
 ## Keyboard
 
-Shortcuts are ignored while focus is in an input, select, textarea, or contenteditable field.
+Shortcuts are ignored while focus is in an input, select, textarea, or contenteditable field, while a dialog (quiz or help) is open, while a timed drill is running, and whenever Ctrl / Cmd / Alt is held. **`Esc`** always closes dialogs.
 
 | Key | Action |
 |---|---|
@@ -381,7 +382,7 @@ Tests live beside the modules they cover: `*.test.ts` under `src/data/` and `src
 | Node in renderer | off |
 | Sandbox | on |
 | Preload surface | `platform`, `versions` only |
-| CSP (prod) | `default-src 'self'`; no remote connect; no object |
+| CSP (prod) | `<meta>` tag in `dist/index.html`: `default-src 'self'`; no inline script/style; no remote connect; no object |
 | New windows | denied |
 | Off-tree navigation | prevented |
 | Vite base | `./` so `file://` assets resolve |
@@ -412,7 +413,7 @@ The hardening pass wired the chrome for keyboard and AT use:
 - Help and quizzes are dialogs; `Esc` dismisses
 - Progress bars carry `role="progressbar"` and value attributes
 - Contrast and focus treatment live in `src/styles/terminal.css`
-- Shortcuts skip form fields so typing an answer does not change tabs
+- Shortcuts skip form fields, open dialogs, running drills, and Ctrl / Cmd / Alt combos, so a stray key cannot change tabs and lose quiz or drill progress
 
 Further contrast or screen-reader work should start in the CSS custom properties and the modal components, not by adding an icon library — **lucide-react is intentionally unused**.
 
@@ -481,6 +482,6 @@ No licence file is published on the repository at the time of writing. Treat the
 
 <br />
 
-<sub>Built with Electron 30 · React 18 · TypeScript 5 · Vite 5 · Vitest 2</sub>
+<sub>Built with Electron 44 · React 18 · TypeScript 5 · Vite 5 · Vitest 2</sub>
 
 </div>
