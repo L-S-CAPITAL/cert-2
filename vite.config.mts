@@ -1,4 +1,5 @@
-import { defineConfig, type Plugin } from 'vitest/config';
+import type { Plugin } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
 /**
@@ -53,10 +54,18 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    rollupOptions: {
+    // Vite 8 bundles with Rolldown: rollupOptions is now rolldownOptions and
+    // the object form of manualChunks is gone. Keep React in its own
+    // long-lived "vendor" chunk, as before.
+    rolldownOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
+        codeSplitting: {
+          groups: [
+            {
+              name: 'vendor',
+              test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+            },
+          ],
         },
       },
     },
