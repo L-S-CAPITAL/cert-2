@@ -102,11 +102,13 @@ describe('new elective units (topic outlines from training.gov.au elements)', ()
     });
   });
 
-  it('are outlines only: no quiz questions yet', () => {
+  it('have four quiz questions per element and a flashcard deck', () => {
     for (const id of ['e5', 'e6', 'e7']) {
       const unit = ALL_UNITS.find((u) => u.id === id)!;
+      expect(unit.sourceUrl).toBe(`https://training.gov.au/Training/Details/${unit.code}`);
+      expect(unit.flashcards?.length ?? 0, id).toBeGreaterThanOrEqual(8);
       for (const topic of unit.topics) {
-        expect(topic.quizQuestions ?? [], topic.id).toEqual([]);
+        expect(topic.quizQuestions ?? [], topic.id).toHaveLength(4);
         expect(topic.content.length, topic.id).toBeGreaterThan(0);
       }
     }
