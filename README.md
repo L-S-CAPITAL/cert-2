@@ -182,7 +182,7 @@ Eight tabs. Keys `1`–`8`. The TIMER pane stays visible on the right.
 
 | Key | Panel | You use it to |
 |---|---|---|
-| `1` | **Dashboard** | **Continue studying** (jumps to the next unfinished topic), weekly study time, day streak, units still to do (click a row to open it) |
+| `1` | **Dashboard** | **Continue studying** (jumps to the next unfinished topic), weekly study time, day streak, average quiz score, 14-day study chart, recent quiz results, units still to do (click a row to open it) |
 | `2` | **Units** | Expand core and elective units, read topics, sit quizzes, mark complete |
 | `3` | **Session Log** | Audit timed study against unit / topic |
 | `4` | **Course Overview** | Points, outcomes, unit table, **export / import / reset** |
@@ -273,12 +273,12 @@ There is **no account, no backend, and no telemetry**.
 | Fact | Detail |
 |---|---|
 | Storage | Browser `localStorage` on this machine |
-| Shape | Validated / sanitised on read (`src/stores/persist.ts`) |
-| Contents | Topic completions, session logs, accumulated seconds |
+| Shape | Versioned (currently v2) and validated / sanitised on read (`src/stores/persist.ts`); older saves are migrated |
+| Contents | Topic completions, session logs (newest 200), accumulated seconds, quiz attempts (score / total, topic, time; newest 500) |
 | Runtime-only | Active timer start stamp — not written until the session stops |
 | Export | Course Overview → **Export** → `electrotech-progress.json` |
 | Import | Same panel; invalid JSON is rejected |
-| Reset | Confirmed destructive wipe of completions, logs, and time |
+| Reset | Confirmed destructive wipe of completions, logs, time, and quiz history |
 
 Treat the export file as study notes, not credentials. If you share a machine, export then reset.
 
@@ -329,7 +329,7 @@ cert-2/
     ├── types.ts              # Unit, Topic, Progress, MathModule, …
     ├── styles/terminal.css   # phosphor terminal chrome
     ├── stores/
-    │   ├── persist.ts        # load / save / sanitise / cap logs
+    │   ├── persist.ts        # load / save / migrate / sanitise / cap logs + quiz attempts
     │   └── progress.ts       # useSyncExternalStore store
     ├── data/
     │   ├── course.ts         # COURSE_INFO + CORE_UNITS + ALL_UNITS
