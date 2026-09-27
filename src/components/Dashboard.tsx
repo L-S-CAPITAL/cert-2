@@ -42,7 +42,7 @@ const STATUS_LABEL: Record<UnitRow['status'], string> = {
 const STATUS_COLOR: Record<UnitRow['status'], string> = {
   'in-progress': 'var(--text-amber)',
   'not-started': 'var(--text-dim)',
-  complete: 'var(--text-primary)',
+  complete: 'var(--status-ok)',
 };
 
 function UnitTable({

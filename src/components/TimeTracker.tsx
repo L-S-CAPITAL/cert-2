@@ -106,7 +106,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
       </button>
 
       {isActive && activeUnit && (
-        <div style={{ fontSize: 10, color: 'var(--text-dim)', width: '100%' }}>
+        <div style={{ fontSize: 11, color: 'var(--text-dim)', width: '100%' }}>
           Timer active for: {activeUnit.code}
           {activeTopic ? ` / ${activeTopic.title}` : ''}
         </div>
@@ -116,7 +116,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
         <div style={{ marginTop: 12, width: '100%' }}>
           <div
             className="terminal-section-title"
-            style={{ marginBottom: 6, fontSize: 10 }}
+            style={{ marginBottom: 6, fontSize: 11 }}
           >
             <span className="icon">TOPICS</span>
             <span>Quick start: {selectedUnit.topics?.length ?? 0} topics</span>
@@ -128,7 +128,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                 type="button"
                 className="terminal-btn"
                 onClick={() => handleStartTopic(topic.id)}
-                style={{ fontSize: 10, padding: '2px 8px' }}
+                style={{ fontSize: 11, padding: '2px 8px' }}
               >
                 {topic.title}
               </button>
@@ -139,14 +139,14 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
 
       <div
         className="terminal-section-title"
-        style={{ marginTop: 12, marginBottom: 6, fontSize: 10 }}
+        style={{ marginTop: 12, marginBottom: 6, fontSize: 11 }}
       >
         <span className="icon">TOTAL</span>
         <span>Logged time</span>
       </div>
       <div
         className="timer-display"
-        style={{ color: 'var(--text-primary)', fontSize: 14 }}
+        style={{ color: 'var(--status-ok)', fontSize: 16 }}
       >
         {progressStore.getFormattedTotalTime()}
       </div>

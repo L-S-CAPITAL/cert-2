@@ -37,15 +37,15 @@ const TerminalHeader: React.FC<TerminalHeaderProps> = ({
         <span className="terminal-title-text" title={`${title} | ${provider}`}>
           {title}
         </span>
-        <span className="terminal-provider" style={{ color: '#7acc7a', fontSize: 10 }}>|</span>
-        <span className="terminal-provider" style={{ fontSize: 10, color: 'var(--text-dim)' }}>
+        <span className="terminal-provider" style={{ color: 'var(--text-dim)', fontSize: 11 }}>|</span>
+        <span className="terminal-provider" style={{ fontSize: 11, color: 'var(--text-dim)' }}>
           {provider}
         </span>
       </div>
       <div className="terminal-controls">
         <div className="status-indicator">
           <span className="status-dot local"></span>
-          <span style={{ fontSize: 10 }}>
+          <span style={{ fontSize: 11 }}>
             {electronVersion ? `ELECTRON ${electronVersion}` : 'LOCAL'}
           </span>
         </div>

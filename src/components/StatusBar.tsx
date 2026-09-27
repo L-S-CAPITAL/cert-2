@@ -89,7 +89,7 @@ const StatusBar: React.FC = () => {
           <span
             className={`connection-light ${isTimerActive ? '' : 'off'}`}
           ></span>
-          <span style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>
+          <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
             {isTimerActive ? 'TIMER ACTIVE' : 'TIMER IDLE'}
           </span>
         </div>
@@ -99,7 +99,7 @@ const StatusBar: React.FC = () => {
         </div>
 
         <div className="status-bar-item">
-          <span style={{ fontSize: 10, color: 'var(--text-dim)' }}>[READY]</span>
+          <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>[READY]</span>
         </div>
       </div>
     </footer>

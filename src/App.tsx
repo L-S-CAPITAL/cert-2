@@ -20,23 +20,69 @@ import { GEOMETRY_UNIT } from './data/geometry';
 import { BLUEPRINT_UNIT } from './data/blueprints';
 import { progressStore, useProgress } from './stores/progress';
 import { isUnitUnlocked } from './data/prerequisites';
-import { scrollIntoViewHorizontally } from './scroll';
 import { shouldIgnoreShortcut } from './shortcuts';
 
-const TABS: { id: TabType; label: string; icon: string }[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: 'DASH' },
-  { id: 'units', label: 'Units', icon: 'UNITS' },
-  { id: 'sessions', label: 'Session Log', icon: 'LOG' },
-  { id: 'overview', label: 'Course Overview', icon: 'INFO' },
-  { id: 'math', label: 'Foundational Trade Mathematics', icon: 'MATH' },
+type NavGroup = 'Study' | 'Records';
+
+/**
+ * Sections in sidebar order. `key` is the number shortcut (unchanged from the
+ * old tab bar so muscle memory still works); `short` is the sidebar label and
+ * `label` the full panel title.
+ */
+export const TABS: {
+  id: TabType;
+  label: string;
+  short: string;
+  icon: string;
+  group: NavGroup;
+  key: string;
+}[] = [
+  { id: 'dashboard', label: 'Dashboard', short: 'Dashboard', icon: 'DASH', group: 'Study', key: '1' },
+  { id: 'units', label: 'Units', short: 'Units', icon: 'UNITS', group: 'Study', key: '2' },
+  {
+    id: 'math',
+    label: 'Foundational Trade Mathematics',
+    short: 'Trade maths',
+    icon: 'MATH',
+    group: 'Study',
+    key: '5',
+  },
   {
     id: 'algebra',
     label: 'Scientific Notation, Prefixes & Algebra',
+    short: 'Notation & algebra',
     icon: 'ALG',
+    group: 'Study',
+    key: '6',
   },
-  { id: 'geometry', label: 'Geometry, Physics & Hand Tools', icon: 'GEO' },
-  { id: 'blueprints', label: 'Technical Documents & Blueprints', icon: 'DWG' },
+  {
+    id: 'geometry',
+    label: 'Geometry, Physics & Hand Tools',
+    short: 'Geometry & tools',
+    icon: 'GEO',
+    group: 'Study',
+    key: '7',
+  },
+  {
+    id: 'blueprints',
+    label: 'Technical Documents & Blueprints',
+    short: 'Drawings',
+    icon: 'DWG',
+    group: 'Study',
+    key: '8',
+  },
+  { id: 'sessions', label: 'Session Log', short: 'Session log', icon: 'LOG', group: 'Records', key: '3' },
+  {
+    id: 'overview',
+    label: 'Course Overview',
+    short: 'Course overview',
+    icon: 'INFO',
+    group: 'Records',
+    key: '4',
+  },
 ];
+
+const NAV_GROUPS: NavGroup[] = ['Study', 'Records'];
 
 const TIMER_UNITS = [
   ...ALL_UNITS,
@@ -84,14 +130,8 @@ const App: React.FC = () => {
         setHelpOpen(true);
         return;
       }
-      if (event.key === '1') setActiveTab('dashboard');
-      if (event.key === '2') setActiveTab('units');
-      if (event.key === '3') setActiveTab('sessions');
-      if (event.key === '4') setActiveTab('overview');
-      if (event.key === '5') setActiveTab('math');
-      if (event.key === '6') setActiveTab('algebra');
-      if (event.key === '7') setActiveTab('geometry');
-      if (event.key === '8') setActiveTab('blueprints');
+      const byKey = TABS.find((tab) => tab.key === event.key);
+      if (byKey) setActiveTab(byKey.id);
       if (event.key === 's' || event.key === 'S') {
         event.preventDefault();
         const state = progressStore.getState();
@@ -107,53 +147,21 @@ const App: React.FC = () => {
   }, [selectedUnitId]);
 
   const tabRefs = React.useRef<Array<HTMLButtonElement | null>>([]);
-  const tabListRef = React.useRef<HTMLElement | null>(null);
-  const [tabOverflow, setTabOverflow] = React.useState({ left: false, right: false });
 
-  // The tab bar scrolls horizontally when the window is too narrow for every
-  // tab. Track whether there is more to either side so the fade + arrow
-  // affordances only show when they mean something.
-  const updateTabOverflow = React.useCallback(() => {
-    const list = tabListRef.current;
-    if (!list) return;
-    const left = list.scrollLeft > 1;
-    const right = list.scrollLeft + list.clientWidth < list.scrollWidth - 1;
-    setTabOverflow((prev) =>
-      prev.left === left && prev.right === right ? prev : { left, right },
-    );
-  }, []);
-
-  React.useEffect(() => {
-    updateTabOverflow();
-    window.addEventListener('resize', updateTabOverflow);
-    return () => window.removeEventListener('resize', updateTabOverflow);
-  }, [updateTabOverflow]);
-
-  // Keep the active tab visible (e.g. after arrow keys or a number shortcut).
-  React.useEffect(() => {
-    const index = TABS.findIndex((tab) => tab.id === activeTab);
-    const tab = tabRefs.current[index];
-    if (tab && tabListRef.current) scrollIntoViewHorizontally(tabListRef.current, tab);
-    updateTabOverflow();
-  }, [activeTab, updateTabOverflow]);
-
-  const scrollTabs = (direction: -1 | 1) => {
-    const list = tabListRef.current;
-    if (!list) return;
-    list.scrollBy?.({ left: direction * list.clientWidth * 0.6, behavior: 'smooth' });
-  };
-
-  // WAI-ARIA tabs pattern (automatic activation): Left/Right move between
-  // tabs with wrap-around, Home/End jump to the first/last tab. Only the
-  // active tab is in the Tab order (roving tabindex).
+  // WAI-ARIA tabs pattern, vertical (automatic activation): Down/Up move
+  // between sections with wrap-around (Right/Left do the same, as they did
+  // in the old horizontal tab bar), Home/End jump to the first/last section.
+  // Only the active section is in the Tab order (roving tabindex).
   const onTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (event.altKey || event.ctrlKey || event.metaKey) return;
     const current = TABS.findIndex((tab) => tab.id === activeTab);
     let next: number;
     switch (event.key) {
+      case 'ArrowDown':
       case 'ArrowRight':
         next = (current + 1) % TABS.length;
         break;
+      case 'ArrowUp':
       case 'ArrowLeft':
         next = (current - 1 + TABS.length) % TABS.length;
         break;
@@ -262,62 +270,56 @@ const App: React.FC = () => {
         provider={COURSE_INFO.provider}
       />
 
-      <div
-        className={`terminal-tabs-bar${tabOverflow.left ? ' overflow-left' : ''}${
-          tabOverflow.right ? ' overflow-right' : ''
-        }`}
-      >
-        {/* Pointer-only scroll helpers: keyboard users move with the arrow
-            keys inside the tablist, which scrolls the active tab into view. */}
-        <button
-          type="button"
-          className="tabs-scroll tabs-scroll-left"
-          aria-hidden="true"
-          tabIndex={-1}
-          onClick={() => scrollTabs(-1)}
-        >
-          ◀
-        </button>
-        <nav
-          className="terminal-tabs"
-          role="tablist"
-          aria-label="Main"
-          ref={tabListRef}
-          onScroll={updateTabOverflow}
-        >
-          {TABS.map((tab, index) => (
-            <button
-              key={tab.id}
-              ref={(element) => {
-                tabRefs.current[index] = element;
-              }}
-              type="button"
-              role="tab"
-              id={`tab-${tab.id}`}
-              aria-selected={activeTab === tab.id}
-              aria-controls="main-panel"
-              tabIndex={activeTab === tab.id ? 0 : -1}
-              className={`tab ${activeTab === tab.id ? 'active' : ''}`}
-              onClick={() => setActiveTab(tab.id)}
-              onKeyDown={onTabKeyDown}
-            >
-              <span className="tab-icon">[{tab.icon}]</span>
-              {tab.label}
-            </button>
-          ))}
-        </nav>
-        <button
-          type="button"
-          className="tabs-scroll tabs-scroll-right"
-          aria-hidden="true"
-          tabIndex={-1}
-          onClick={() => scrollTabs(1)}
-        >
-          ▶
-        </button>
-      </div>
-
       <div className="terminal-content">
+        <nav className="sidebar" aria-label="Sections">
+          <div
+            className="sidebar-tabs"
+            role="tablist"
+            aria-orientation="vertical"
+            aria-label="Sections"
+          >
+            {NAV_GROUPS.map((group) => (
+              <React.Fragment key={group}>
+                {/* Visual group heading; each tab names its group in its
+                    description instead, since a tablist may only own tabs. */}
+                <div className="sidebar-group" id={`nav-group-${group}`} role="presentation" aria-hidden="true">
+                  {group}
+                </div>
+                {TABS.map((tab, index) =>
+                  tab.group !== group ? null : (
+                    <button
+                      key={tab.id}
+                      ref={(element) => {
+                        tabRefs.current[index] = element;
+                      }}
+                      type="button"
+                      role="tab"
+                      id={`tab-${tab.id}`}
+                      aria-selected={activeTab === tab.id}
+                      aria-controls="main-panel"
+                      aria-describedby={`nav-group-${group}`}
+                      aria-keyshortcuts={tab.key}
+                      tabIndex={activeTab === tab.id ? 0 : -1}
+                      title={`${tab.label} (${tab.key})`}
+                      className={`tab nav-tab ${activeTab === tab.id ? 'active' : ''}`}
+                      onClick={() => setActiveTab(tab.id)}
+                      onKeyDown={onTabKeyDown}
+                    >
+                      <span className="tab-icon" aria-hidden="true">
+                        [{tab.icon}]
+                      </span>
+                      <span className="nav-label">{tab.short}</span>
+                      <span className="nav-key" aria-hidden="true">
+                        {tab.key}
+                      </span>
+                    </button>
+                  ),
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        </nav>
+
         <main
           className="terminal-window"
           id="main-panel"

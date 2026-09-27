@@ -102,12 +102,12 @@ const QuizModal: React.FC<QuizModalProps> = ({ unit, topic, onClose }) => {
             style={{
               fontSize: 36,
               fontWeight: 700,
-              color: perfect ? 'var(--text-primary)' : 'var(--text-amber)',
+              color: perfect ? 'var(--status-ok)' : 'var(--text-amber)',
             }}
           >
             {score} / {questions.length}
           </div>
-          <div style={{ color: 'var(--text-tertiary)', margin: '12px 0', fontSize: 12 }}>
+          <div style={{ color: 'var(--text-tertiary)', margin: '12px 0', fontSize: 13 }}>
             {perfect
               ? 'PERFECT SCORE — topic marked complete'
               : `Score: ${Math.round((score / questions.length) * 100)}%`}
@@ -134,14 +134,7 @@ const QuizModal: React.FC<QuizModalProps> = ({ unit, topic, onClose }) => {
         Q {currentQuestion + 1} / {questions.length}
       </div>
       <div style={{ marginBottom: 16 }}>
-        <div
-          style={{
-            color: 'var(--text-primary)',
-            fontSize: 13,
-            lineHeight: 1.5,
-            marginBottom: 12,
-          }}
-        >
+        <div className="quiz-question" style={{ marginBottom: 12 }}>
           {q.question}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -153,18 +146,18 @@ const QuizModal: React.FC<QuizModalProps> = ({ unit, topic, onClose }) => {
             let optionBorder = 'var(--border)';
 
             if (showFeedback && isSelected) {
-              optionColor = isCorrect ? 'var(--text-primary)' : '#ff5555';
+              optionColor = isCorrect ? 'var(--status-ok)' : 'var(--status-bad)';
               optionBorder = optionColor;
             } else if (showFeedback && isCorrect) {
-              optionColor = 'var(--text-primary)';
-              optionBorder = 'var(--text-primary)';
+              optionColor = 'var(--status-ok)';
+              optionBorder = 'var(--status-ok)';
             }
 
             return (
               <button
                 key={i}
                 type="button"
-                className="terminal-btn"
+                className="terminal-btn quiz-option"
                 onClick={() => handleAnswer(i)}
                 disabled={selectedAnswer !== null}
                 style={{
@@ -188,11 +181,11 @@ const QuizModal: React.FC<QuizModalProps> = ({ unit, topic, onClose }) => {
         <div
           style={{
             marginBottom: 12,
-            fontSize: 11,
+            fontSize: 12,
             color:
               selectedAnswer === q.correctAnswer
-                ? 'var(--text-primary)'
-                : '#ff5555',
+                ? 'var(--status-ok)'
+                : 'var(--status-bad)',
           }}
         >
           {selectedAnswer === q.correctAnswer

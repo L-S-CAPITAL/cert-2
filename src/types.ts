@@ -23,6 +23,10 @@ export interface Unit {
   points: number;
   topics: Topic[];
   kind?: UnitKind;
+  /** Official unit page that the quizzes and flashcards are written from. */
+  sourceUrl?: string;
+  /** Unit-level flashcard deck (same card format as the study strands). */
+  flashcards?: Flashcard[];
 }
 
 export interface SessionLog {

@@ -13,12 +13,8 @@ describe('course catalogue', () => {
     expect(ALL_UNITS.length).toBe(CORE_UNITS.length + ELECTIVE_UNITS.length);
   });
 
-  // UEECD0008 (e5), UEECD0019 (e6) and UEECD0035 (e7) are topic outlines
-  // taken from the official elements; their quizzes are still to be written.
-  const OUTLINE_ONLY = new Set(['e5', 'e6', 'e7']);
-
-  it('gives every topic at least one quiz question (outline-only units excepted)', () => {
-    for (const unit of ALL_UNITS.filter((u) => !OUTLINE_ONLY.has(u.id))) {
+  it('gives every topic at least one quiz question', () => {
+    for (const unit of ALL_UNITS) {
       for (const topic of unit.topics) {
         expect(
           topic.quizQuestions?.length ?? 0,
