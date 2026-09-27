@@ -28,7 +28,7 @@ Progress never leaves this machine.
 
 [![CI](https://github.com/L-S-CAPITAL/cert-2/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/L-S-CAPITAL/cert-2/actions/workflows/ci.yml)
 [![Electron](https://img.shields.io/badge/Electron-44-47848F?style=flat-square&logo=electron&logoColor=white)](https://www.electronjs.org/)
-[![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Vitest](https://img.shields.io/badge/Vitest-5-6E9F18?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
@@ -479,7 +479,7 @@ The original hardening scope is recorded in:
 
 House rules from that plan still apply:
 
-- Stay on **React 18** (do not jump to 19; keep `@types/react` on 18)
+- React is on **19**; keep `react`, `react-dom`, `@types/react` and `@types/react-dom` on the same version (Dependabot bumps them together). This replaces the plan's original "stay on React 18" rule
 - Do not add `lucide-react`
 - Keep Electron thin; keep content in `src/data/*`
 - Preserve `base: './'`, isolation, sandbox, and CSP
@@ -503,6 +503,6 @@ No licence file is published on the repository at the time of writing. Treat the
 
 <br />
 
-<sub>Built with Electron 44 · React 18 · TypeScript 5 · Vite 8 · Vitest 5</sub>
+<sub>Built with Electron 44 · React 19 · TypeScript 5 · Vite 8 · Vitest 5</sub>
 
 </div>

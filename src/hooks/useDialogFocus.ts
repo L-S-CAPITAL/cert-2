@@ -25,7 +25,7 @@ export interface DialogFocusOptions {
  * callback on every render does not re-run the focus logic.
  */
 export function useDialogFocus(
-  dialogRef: React.RefObject<HTMLElement>,
+  dialogRef: React.RefObject<HTMLElement | null>,
   onClose: () => void,
   { initialFocus = 'first', refocusKey }: DialogFocusOptions = {},
 ): void {
