@@ -337,6 +337,7 @@ cert-2/
     │   ├── quizzes.ts        # extra topic quizzes merged into units
     │   ├── prerequisites.ts
     │   ├── dashboard.ts      # streak, week vs week, unit grouping, "continue" target
+    │   ├── qualification.ts  # official UEE22020 packaging rules + progress toward them
     │   ├── math.ts           # foundational modules + drill bank
     │   ├── algebra.ts
     │   ├── geometry.ts
@@ -381,6 +382,7 @@ Strand content uses `MathModule` (`tutorial` | `drill` | `flashcards` | `guide`)
 - `startSession` / `startTopicSession` / `stopSession`
 - `markTopicComplete` on a perfect quiz
 - Completion figures come from one helper, `summarizeCompletion` (`src/data/completion.ts`): **core progress** is completed topics across the core units, electives are reported separately, and study strands are not counted. StatusBar, Dashboard and Course Overview all use it
+- Qualification progress on the Dashboard follows the official UEE22020 (release 2) packaging rules from [training.gov.au](https://training.gov.au/Training/Details/UEE22020), kept in `src/data/qualification.ts`: 8 core units (270 weighting points) plus 140 elective points, with at most 60 from Group A and at least 80 from Group B. Only electives on those lists count, using the official weighting points. UEE22020 was superseded by the equivalent UEE22025 on 24 Nov 2025
 - `exportProgress` / `importProgress` / `reset` with sanitisation
 
 Tests live beside the modules they cover: `*.test.ts` under `src/data/` and `src/stores/`.
