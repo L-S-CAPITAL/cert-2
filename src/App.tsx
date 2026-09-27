@@ -92,6 +92,36 @@ const App: React.FC = () => {
     return () => window.removeEventListener('keydown', onKey);
   }, [selectedUnitId]);
 
+  const tabRefs = React.useRef<Array<HTMLButtonElement | null>>([]);
+
+  // WAI-ARIA tabs pattern (automatic activation): Left/Right move between
+  // tabs with wrap-around, Home/End jump to the first/last tab. Only the
+  // active tab is in the Tab order (roving tabindex).
+  const onTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    const current = TABS.findIndex((tab) => tab.id === activeTab);
+    let next: number;
+    switch (event.key) {
+      case 'ArrowRight':
+        next = (current + 1) % TABS.length;
+        break;
+      case 'ArrowLeft':
+        next = (current - 1 + TABS.length) % TABS.length;
+        break;
+      case 'Home':
+        next = 0;
+        break;
+      case 'End':
+        next = TABS.length - 1;
+        break;
+      default:
+        return;
+    }
+    event.preventDefault();
+    setActiveTab(TABS[next].id);
+    tabRefs.current[next]?.focus();
+  };
+
   const toggleUnit = (unitId: string) => {
     setExpandedUnits((prev) => ({
       ...prev,
@@ -143,16 +173,21 @@ const App: React.FC = () => {
       />
 
       <nav className="terminal-tabs" role="tablist" aria-label="Main">
-        {TABS.map((tab) => (
+        {TABS.map((tab, index) => (
           <button
             key={tab.id}
+            ref={(element) => {
+              tabRefs.current[index] = element;
+            }}
             type="button"
             role="tab"
             id={`tab-${tab.id}`}
             aria-selected={activeTab === tab.id}
             aria-controls="main-panel"
+            tabIndex={activeTab === tab.id ? 0 : -1}
             className={`tab ${activeTab === tab.id ? 'active' : ''}`}
             onClick={() => setActiveTab(tab.id)}
+            onKeyDown={onTabKeyDown}
           >
             <span className="tab-icon">[{tab.icon}]</span>
             {tab.label}

@@ -297,6 +297,8 @@ Shortcuts are ignored while focus is in an input, select, textarea, or contented
 | `s` | Start or stop the study timer (a unit must be selected) |
 | `?` | Help |
 | `Esc` | Close dialogs |
+| `←` / `→` | Previous / next tab (when a tab has focus; wraps) |
+| `Home` / `End` | First / last tab (when a tab has focus) |
 
 ---
 
@@ -409,7 +411,7 @@ Prerequisite units must be fully topic-complete before dependents unlock. That i
 
 The hardening pass wired the chrome for keyboard and AT use:
 
-- Tabs expose `role="tablist"` / `tab` / `tabpanel` with `aria-selected` and `aria-controls`
+- Tabs expose `role="tablist"` / `tab` / `tabpanel` with `aria-selected` and `aria-controls`, a roving `tabindex`, and arrow / Home / End key navigation (WAI-ARIA tabs pattern)
 - Help and quizzes are dialogs; `Esc` dismisses
 - Progress bars carry `role="progressbar"` and value attributes
 - Contrast and focus treatment live in `src/styles/terminal.css`

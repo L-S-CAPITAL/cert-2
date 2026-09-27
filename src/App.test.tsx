@@ -72,4 +72,42 @@ describe('App keyboard shortcuts', () => {
     press('4');
     expect(selectedTab()).toBe('tab-overview');
   });
+
+  it('supports arrow-key, Home and End navigation with a roving tabindex', () => {
+    const tabs = () =>
+      Array.from(container.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const keyOnTab = (key: string) => {
+      const active = document.activeElement as HTMLElement;
+      act(() => {
+        active.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+      });
+    };
+    expect(tabs().map((tab) => tab.tabIndex)).toEqual([0, -1, -1, -1, -1, -1, -1, -1]);
+    for (const tab of tabs()) {
+      expect(tab.getAttribute('aria-controls')).toBe('main-panel');
+    }
+
+    tabs()[0].focus();
+    keyOnTab('ArrowRight');
+    expect(selectedTab()).toBe('tab-units');
+    expect(document.activeElement?.id).toBe('tab-units');
+    expect(tabs()[1].tabIndex).toBe(0);
+    expect(tabs()[0].tabIndex).toBe(-1);
+
+    keyOnTab('ArrowLeft');
+    keyOnTab('ArrowLeft');
+    expect(selectedTab()).toBe('tab-blueprints');
+    expect(document.activeElement?.id).toBe('tab-blueprints');
+
+    keyOnTab('Home');
+    expect(selectedTab()).toBe('tab-dashboard');
+    keyOnTab('End');
+    expect(selectedTab()).toBe('tab-blueprints');
+    keyOnTab('ArrowRight');
+    expect(selectedTab()).toBe('tab-dashboard');
+    expect(document.activeElement?.id).toBe('tab-dashboard');
+    expect(
+      container.querySelector('[role="tabpanel"]')?.getAttribute('aria-labelledby'),
+    ).toBe('tab-dashboard');
+  });
 });
