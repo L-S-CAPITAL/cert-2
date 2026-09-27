@@ -10,6 +10,13 @@ export interface QuizQuestion {
   question: string;
   options: string[];
   correctAnswer: number;
+  /**
+   * One line shown after answering, saying why the answer is right. Only
+   * written where it can be grounded in the question/answer itself or, for
+   * the training.gov.au electives, the cited unit text. Without it the quiz
+   * just shows the correct answer.
+   */
+  explanation?: string;
 }
 
 export type UnitKind = 'core' | 'elective';

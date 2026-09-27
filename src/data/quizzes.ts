@@ -6,6 +6,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
       question: 'Which control is the most effective in the hierarchy of controls?',
       options: ['PPE', 'Administrative controls', 'Elimination', 'Engineering controls'],
       correctAnswer: 2,
+      explanation:
+        'Elimination removes the hazard completely, so it sits at the top of the hierarchy; PPE is the last line of defence.',
     },
   ],
   'c1-t4': [
@@ -18,6 +20,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
         'Only when the client asks',
       ],
       correctAnswer: 2,
+      explanation:
+        'Report incidents immediately, even minor injuries, so hazards are fixed before someone else is hurt.',
     },
   ],
   'c2-t2': [
@@ -30,6 +34,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
         'To lock the site gate overnight',
       ],
       correctAnswer: 1,
+      explanation:
+        'LOTO isolates energy sources and secures them with a lock and tag so nobody can re-energise the equipment while you work on it.',
     },
   ],
   'c2-t3': [
@@ -42,6 +48,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
         'Remove the main fuse by hand without PPE',
       ],
       correctAnswer: 1,
+      explanation:
+        'Never assume a circuit is dead: always test for dead with an approved tester, even after isolating it.',
     },
   ],
   'c2-t4': [
@@ -54,6 +62,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
         'Start CPR immediately without isolating',
       ],
       correctAnswer: 2,
+      explanation:
+        'Isolate the supply first so you don\'t become a second casualty, then call 000; never touch the person while they are still live.',
     },
   ],
   'c3-t1': [
@@ -66,6 +76,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
         'Retail and advertising only',
       ],
       correctAnswer: 0,
+      explanation:
+        'Electricity is generated, carried by transmission and distribution networks, and sold to customers by retailers.',
     },
   ],
   'c3-t2': [
@@ -78,6 +90,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
         'A marketing brochure',
       ],
       correctAnswer: 1,
+      explanation:
+        'A Safe Work Method Statement (SWMS) lists the work steps, the hazards of each step and the controls for them.',
     },
   ],
   'c3-t3': [
@@ -90,6 +104,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
         'Only for apprentices',
       ],
       correctAnswer: 2,
+      explanation:
+        'Toolbox talks happen before a task starts, so the crew agrees on the hazards and controls before work begins.',
     },
   ],
   'c4-t2': [
@@ -97,6 +113,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
       question: 'What trip current is typically used for personal-protection RCDs?',
       options: ['300 mA', '100 mA', '30 mA', '10 A'],
       correctAnswer: 2,
+      explanation:
+        'RCDs used for personal protection typically trip at 30 mA.',
     },
   ],
   'c4-t3': [
@@ -109,6 +127,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
         'Earth is optional on steel',
       ],
       correctAnswer: 1,
+      explanation:
+        'Earthing gives fault current a path and keeps exposed metal at earth potential, so a fault trips the protection instead of making the case live.',
     },
   ],
   'c5-t1': [
@@ -121,6 +141,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
         'Increase supply voltage',
       ],
       correctAnswer: 1,
+      explanation:
+        'Start by defining the problem and gathering information; replacing parts before you understand the fault wastes time and money.',
     },
   ],
   'c5-t2': [
@@ -128,6 +150,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
       question: 'Insulation resistance is commonly checked with which instrument?',
       options: ['A clamp meter only', 'A megger (IR tester)', 'A spirit level', 'A torque wrench'],
       correctAnswer: 1,
+      explanation:
+        'An insulation resistance tester (megger) is used for insulation resistance; a clamp meter measures current.',
     },
   ],
   'c5-t3': [
@@ -140,6 +164,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
         'A photo of the van',
       ],
       correctAnswer: 1,
+      explanation:
+        'A useful report records the symptom, the diagnosis, the fix and the verification results, so the next person understands what was done.',
     },
   ],
   'c6-t2': [
@@ -147,6 +173,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
       question: 'In a series circuit, which quantity is the same through every component?',
       options: ['Voltage drop', 'Current', 'Power', 'Resistance'],
       correctAnswer: 1,
+      explanation:
+        'A series circuit has only one path, so the same current flows through every component.',
     },
   ],
   'c6-t3': [
@@ -159,6 +187,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
         'Zero if another resistor is present',
       ],
       correctAnswer: 1,
+      explanation:
+        'With the same current through each resistor, V = I × R means a larger resistance takes a larger share of the voltage.',
     },
   ],
   'c6-t4': [
@@ -171,6 +201,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
         'Increase fuse size until it holds',
       ],
       correctAnswer: 1,
+      explanation:
+        'Start with a visual inspection and confirm the supply voltage before replacing parts or taking risks.',
     },
   ],
   'c6-t5': [
@@ -183,6 +215,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
         'Only after removing the earth',
       ],
       correctAnswer: 1,
+      explanation:
+        'A voltmeter is connected in parallel with the part being measured; ammeters go in series.',
     },
   ],
   'c7-t2': [
@@ -195,6 +229,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
         'Override interlocks',
       ],
       correctAnswer: 1,
+      explanation:
+        'Do the pre-start checks every time, including guards and the emergency stop; never remove guards or override interlocks.',
     },
   ],
   'c7-t3': [
@@ -207,6 +243,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
         'Moved off-site without isolation',
       ],
       correctAnswer: 1,
+      explanation:
+        'Equipment is fully isolated with lock out tag out before maintenance so it cannot start while you work on it.',
     },
   ],
   'c8-t2': [
@@ -219,6 +257,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
         'Replaces the main earthing electrode',
       ],
       correctAnswer: 0,
+      explanation:
+        'Solar panels produce DC; the inverter converts it to AC for the home and the grid.',
     },
   ],
   'c8-t3': [
@@ -231,6 +271,8 @@ export const EXTRA_QUIZZES: Record<string, QuizQuestion[]> = {
         'Always 1 year',
       ],
       correctAnswer: 0,
+      explanation:
+        'Payback period = investment cost ÷ annual energy savings, i.e. how many years the savings take to cover the cost.',
     },
   ],
 };
