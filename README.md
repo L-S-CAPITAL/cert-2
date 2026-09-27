@@ -86,10 +86,10 @@ If you already live in a workshop, a switchroom, or a code editor, the UI should
 
 ### Course spine
 
-- **8 core units** (140 packaged core points in-app) with topics, key points, and quizzes.
-- **4 electives** covering multi-path circuits, drawings & standards, fixing/securing, and documentation.
+- **8 core units** (270 weighting points) with topics, key points, and quizzes.
+- **4 electives** (140 weighting points): preparatory energy sector work, fabricating/assembling utilities components, fixing and securing equipment, and instructing others on apparatus. Three of them are topic outlines only for now (see below).
 - Prerequisite unlocking via unit codes (`src/data/prerequisites.ts`).
-- Course overview with points, topic counts, career outcomes, and live core / elective progress bars.
+- Course overview with official weighting points, topic counts, career outcomes, and core units / elective points progress bars.
 
 ### Strand panels (beyond the packaged units)
 
@@ -126,31 +126,35 @@ Packaged Electron is locked down on purpose:
 
 ## Curriculum
 
-Figures below are **what this terminal ships**, not a claim about every possible UEE22020 packaging a provider may offer. Elective points required by the qualification packaging in-app metadata: **220**. Electives included here total **120** points — enough to study the selected units, not a complete elective menu.
+The unit list matches one UEE22020 enrolment: the 8 core units plus 4 chosen electives. Points are the official weighting points from [training.gov.au](https://training.gov.au/Training/Details/UEE22020): **270 core + 140 elective = 410**. The electives take 20 points from Group A and 120 from Group B, which meets the packaging rules (Group A at most 60, Group B at least 80).
 
 ### Core — 8 units
 
 | Code | Unit | Pts | Gate |
 |---|---|---|---|
-| `CPCCWHS1001` | Prepare to work safely in the construction industry | 20 | — |
+| `CPCCWHS1001` | Prepare to work safely in the construction industry | 10 | — |
 | `UEECD0007` | Apply work health and safety regulations, codes and practices in the workplace | 20 | — |
-| `UEECD0009` | Carry out routine work activities in an energy sector environment | 15 | `UEECD0007` |
-| `UEECD0021` | Identify and select components, accessories and materials for energy sector work activities | 15 | `UEECD0007`, `UEECD0009` |
-| `UEECD0038` | Provide solutions and report on routine electrotechnology problems | 20 | see unit record |
-| `UEECD0046` | Solve problems in single path circuits | 20 | see unit record |
-| `UEECD0052` | Use routine equipment/plant/technologies in an energy sector environment | 15 | see unit record |
-| `UEERE0021` | Provide basic sustainable energy solutions for energy reduction in residential premises | 15 | see unit record |
+| `UEECD0009` | Carry out routine work activities in an energy sector environment | 40 | `UEECD0007` |
+| `UEECD0021` | Identify and select components, accessories and materials for energy sector work activities | 20 | `UEECD0007`, `UEECD0009` |
+| `UEECD0038` | Provide solutions and report on routine electrotechnology problems | 60 | see unit record |
+| `UEECD0046` | Solve problems in single path circuits | 40 | see unit record |
+| `UEECD0052` | Use routine equipment/plant/technologies in an energy sector environment | 40 | see unit record |
+| `UEERE0021` | Provide basic sustainable energy solutions for energy reduction in residential premises | 40 | see unit record |
 
 Typical topic coverage inside the cores includes WHS legislation and the PCBU duty, PPE and the hierarchy of controls, LOTO and test-for-dead, electrical risk and first response, energy-sector documentation and toolbox talks, component ratings and AS/NZS 3008 cable selection, protective devices, single-path circuit theory, and basic sustainable-energy measures.
 
 ### Electives — 4 units
 
-| Code | Unit | Pts | Gate |
-|---|---|---|---|
-| `UEECD0044` | Solve problems in multiple path circuits | 40 | `UEECD0007` |
-| `UEECD0051` | Use drawings, diagrams, schedules, standards, codes and specifications | 40 | `UEECD0007` |
-| `UEECD0020` | Fix and secure electrotechnology equipment | 20 | `UEECD0007` |
-| `UEECO0002` | Maintain documentation | 20 | — |
+| Code | Unit | Group | Pts | Gate |
+|---|---|---|---|---|
+| `UEECD0008` | Carry out preparatory energy sector work activities | B | 60 | `UEECD0007` |
+| `UEECD0019` | Fabricate, assemble and dismantle utilities industry components | B | 40 | `UEECD0007` |
+| `UEECD0020` | Fix and secure electrotechnology equipment | B | 20 | `UEECD0007` |
+| `UEECD0035` | Provide basic instruction in the use of electrotechnology apparatus | A | 20 | — |
+
+UEECD0008, UEECD0019 and UEECD0035 are **topic outlines only**: one topic per official element, with a short summary of its performance criteria. Study notes and quizzes are still to be written; until then these topics have no quiz button and can be ticked off with **Mark complete**.
+
+Earlier versions shipped UEECD0044, UEECD0051 and UEECO0002 as electives. They are not part of this enrolment (and UEECD0044/UEECD0051 are not UEE22020 electives), so they were taken out of the unit list. Their notes and quizzes are kept in `src/data/archivedElectives.ts`. Saved progress for them stays in your progress file and exports, but it no longer counts toward any figure; old session logs still show their names.
 
 ### Career outcomes (as shown in Course Overview)
 
@@ -333,7 +337,8 @@ cert-2/
     │   └── progress.ts       # useSyncExternalStore store
     ├── data/
     │   ├── course.ts         # COURSE_INFO + CORE_UNITS + ALL_UNITS
-    │   ├── electives.ts
+    │   ├── electives.ts      # the 4 enrolled electives
+    │   ├── archivedElectives.ts  # removed electives, kept for old logs (not in ALL_UNITS)
     │   ├── quizzes.ts        # extra topic quizzes merged into units
     │   ├── prerequisites.ts
     │   ├── dashboard.ts      # streak, week vs week, unit grouping, "continue" target
@@ -381,8 +386,8 @@ Strand content uses `MathModule` (`tutorial` | `drill` | `flashcards` | `guide`)
 - Completions are `Record<unitId, Record<topicId, boolean>>`
 - `startSession` / `startTopicSession` / `stopSession`
 - `markTopicComplete` on a perfect quiz
-- Completion figures come from one helper, `summarizeCompletion` (`src/data/completion.ts`): **core progress** is completed topics across the core units, electives are reported separately, and study strands are not counted. StatusBar, Dashboard and Course Overview all use it
-- Qualification progress on the Dashboard follows the official UEE22020 (release 2) packaging rules from [training.gov.au](https://training.gov.au/Training/Details/UEE22020), kept in `src/data/qualification.ts`: 8 core units (270 weighting points) plus 140 elective points, with at most 60 from Group A and at least 80 from Group B. Only electives on those lists count, using the official weighting points. UEE22020 was superseded by the equivalent UEE22025 on 24 Nov 2025
+- Headline figures (status bar POINTS / CORE UNITS / ELECTIVE PTS, the Dashboard qualification panel and the Course Overview bars) all come from `qualificationProgress` and use official weighting points and whole units. Topic counts (`summarizeCompletion`, `src/data/completion.ts`) are shown only as study detail, and study strands are not counted
+- Qualification progress on the Dashboard follows the official UEE22020 (release 2) packaging rules from [training.gov.au](https://training.gov.au/Training/Details/UEE22020), kept in `src/data/qualification.ts`: 8 core units (270 weighting points) plus 140 elective points, with at most 60 from Group A and at least 80 from Group B. Only electives on those lists count, using the official weighting points; a test checks every unit's `points` matches them. UEE22020 was superseded by the equivalent UEE22025 on 24 Nov 2025
 - `exportProgress` / `importProgress` / `reset` with sanitisation
 
 Tests live beside the modules they cover: `*.test.ts` under `src/data/` and `src/stores/`.

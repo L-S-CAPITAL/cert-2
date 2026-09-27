@@ -2,23 +2,34 @@ import React from 'react';
 import { COURSE_INFO, ALL_UNITS, CORE_UNITS, ELECTIVE_UNITS } from '../data/course';
 import { progressStore, useProgress } from '../stores/progress';
 import { summarizeCompletion } from '../data/completion';
+import {
+  QUALIFICATION_RULES,
+  electiveGroup,
+  qualificationProgress,
+  stillNeededSummary,
+} from '../data/qualification';
+
+const percentOf = (value: number, total: number) =>
+  total === 0 ? 0 : Math.min(100, Math.round((value / total) * 100));
 
 const CourseOverview: React.FC = () => {
   const progress = useProgress();
   const fileRef = React.useRef<HTMLInputElement>(null);
   const [status, setStatus] = React.useState<string | null>(null);
 
-  const totalPoints = ALL_UNITS.reduce((sum, u) => sum + u.points, 0);
   const corePoints = CORE_UNITS.reduce((sum, u) => sum + u.points, 0);
   const electivePoints = ELECTIVE_UNITS.reduce((sum, u) => sum + u.points, 0);
+  const groupPoints = (group: 'A' | 'B') =>
+    ELECTIVE_UNITS.filter((u) => electiveGroup(u.code)?.group === group).reduce(
+      (sum, u) => sum + u.points,
+      0,
+    );
   const totalTopics = ALL_UNITS.reduce(
     (sum, u) => sum + (u.topics?.length ?? 0),
     0,
   );
-  const { core, electives } = summarizeCompletion(
-    ALL_UNITS,
-    progress.unitCompletions,
-  );
+  const { electives } = summarizeCompletion(ALL_UNITS, progress.unitCompletions);
+  const qual = qualificationProgress(ALL_UNITS, progress.unitCompletions);
 
   const detailRow = (label: string, value: string | number) => (
     <div className="detail-row">
@@ -76,14 +87,15 @@ const CourseOverview: React.FC = () => {
           {detailRow('Course Code', COURSE_INFO.code)}
           {detailRow('Course Title', COURSE_INFO.title)}
           {detailRow('Provider', COURSE_INFO.provider)}
-          {detailRow('Core points', `${corePoints} points`)}
           {detailRow(
-            'Elective points in this terminal',
-            `${electivePoints} of ${COURSE_INFO.electivePointsRequired} required`,
+            'Core',
+            `${COURSE_INFO.unitsCount} units, ${corePoints} of ${COURSE_INFO.corePointsRequired} points`,
           )}
-          {detailRow('Points packed', `${totalPoints} points`)}
-          {detailRow('Core units', `${COURSE_INFO.unitsCount} units`)}
-          {detailRow('Elective units', `${ELECTIVE_UNITS.length} units`)}
+          {detailRow(
+            'Electives',
+            `${ELECTIVE_UNITS.length} units, ${electivePoints} of ${COURSE_INFO.electivePointsRequired} points (Group A ${groupPoints('A')}, Group B ${groupPoints('B')})`,
+          )}
+          {detailRow('Total', `${corePoints + electivePoints} of ${COURSE_INFO.totalPoints} points`)}
           {detailRow('Topics', `${totalTopics} topics`)}
         </div>
 
@@ -192,13 +204,15 @@ const CourseOverview: React.FC = () => {
                 <tr key={unit.id}>
                   <td style={{ color: 'var(--text-dim)' }}>{i + 1}</td>
                   <td style={{ color: 'var(--text-tertiary)' }}>
-                    {unit.kind === 'elective' ? 'Elective' : 'Core'}
+                    {unit.kind === 'elective'
+                      ? `Elective${electiveGroup(unit.code) ? ` (${electiveGroup(unit.code)!.group})` : ''}`
+                      : 'Core'}
                   </td>
                   <td style={{ color: 'var(--text-amber)' }}>{unit.code}</td>
                   <td>{unit.name}</td>
                   <td style={{ color: 'var(--text-secondary)' }}>{unit.points}</td>
                   <td style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>
-                    {completion}% complete
+                    {completion}% of topics
                   </td>
                 </tr>
               );
@@ -212,23 +226,26 @@ const CourseOverview: React.FC = () => {
         style={{ marginTop: 16, marginBottom: 8 }}
       >
         <span className="icon">PROGRESS</span>
-        <span>Core progress</span>
+        <span>Core units</span>
         <span className="section-count">
-          {core.unitsDone} / {core.unitsTotal} core units complete
+          {qual.core.pointsDone} / {qual.core.pointsRequired} core points
         </span>
       </div>
-      <div className="progress-bar-container">
+      <div
+        className="progress-bar-container"
+        role="progressbar"
+        aria-valuenow={qual.core.unitsDone}
+        aria-valuemin={0}
+        aria-valuemax={qual.core.unitsRequired}
+        aria-valuetext={`${qual.core.unitsDone} of ${qual.core.unitsRequired} core units, ${qual.core.pointsDone} of ${qual.core.pointsRequired} core points`}
+        aria-label={`Core toward ${COURSE_INFO.code}`}
+      >
         <div
           className="progress-bar-fill"
-          style={{ width: `${core.percent}%` }}
-          role="progressbar"
-          aria-valuenow={core.percent}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label="Core progress (completed core topics)"
+          style={{ width: `${percentOf(qual.core.unitsDone, qual.core.unitsRequired)}%` }}
         ></div>
         <div className="progress-bar-text">
-          {core.percent}% OF CORE TOPICS ({core.topicsDone} / {core.topicsTotal})
+          {qual.core.unitsDone} / {qual.core.unitsRequired} CORE UNITS
         </div>
       </div>
 
@@ -237,25 +254,33 @@ const CourseOverview: React.FC = () => {
         style={{ marginTop: 12, marginBottom: 8 }}
       >
         <span className="icon">ELEC</span>
-        <span>Elective progress (not included in core progress)</span>
+        <span>Elective points</span>
         <span className="section-count">
           {electives.unitsDone} / {electives.unitsTotal} elective units complete
         </span>
       </div>
-      <div className="progress-bar-container">
+      <div
+        className="progress-bar-container"
+        role="progressbar"
+        aria-valuenow={qual.electives.pointsCounted}
+        aria-valuemin={0}
+        aria-valuemax={qual.electives.pointsRequired}
+        aria-valuetext={`${qual.electives.pointsCounted} of ${qual.electives.pointsRequired} elective points`}
+        aria-label={`Electives toward ${COURSE_INFO.code}`}
+      >
         <div
           className="progress-bar-fill"
-          style={{ width: `${electives.percent}%` }}
-          role="progressbar"
-          aria-valuenow={electives.percent}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label="Elective progress (completed elective topics)"
+          style={{
+            width: `${percentOf(qual.electives.pointsCounted, qual.electives.pointsRequired)}%`,
+          }}
         ></div>
         <div className="progress-bar-text">
-          {electives.percent}% OF ELECTIVE TOPICS ({electives.topicsDone} /{' '}
-          {electives.topicsTotal})
+          {qual.electives.pointsCounted} / {qual.electives.pointsRequired} ELECTIVE POINTS
         </div>
+      </div>
+      <div className="dashboard-note" style={{ marginTop: 6 }}>
+        {stillNeededSummary(qual)} Figures use the official {COURSE_INFO.code} weighting
+        points (release {QUALIFICATION_RULES.release}, training.gov.au).
       </div>
     </div>
   );

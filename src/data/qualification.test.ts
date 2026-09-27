@@ -116,11 +116,24 @@ describe('qualificationProgress', () => {
 
   it('works out what the real app units can cover', () => {
     const progress = qualificationProgress(ALL_UNITS, {});
-    // UEECD0020 (Group B, 20) + UEECO0002 (Group A, 20); UEECD0044 and
-    // UEECD0051 are not on the UEE22020 elective lists.
-    expect(progress.electives.pointsAvailableInApp).toBe(40);
-    expect(progress.electives.notListed.map((u) => u.code).sort()).toEqual(['UEECD0044', 'UEECD0051']);
+    // UEECD0008 (B, 60) + UEECD0019 (B, 40) + UEECD0020 (B, 20) + UEECD0035 (A, 20)
+    expect(progress.electives.pointsAvailableInApp).toBe(140);
+    expect(progress.electives.coversRules).toBe(true);
+    expect(progress.electives.remainingUnits.map((s) => s.unit.code)).toEqual([
+      'UEECD0008',
+      'UEECD0019',
+      'UEECD0020',
+      'UEECD0035',
+    ]);
+    expect(progress.electives.notListed).toEqual([]);
     expect(progress.core.missingFromApp).toEqual([]);
+  });
+
+  it('does not claim the rules are covered when Group B is short', () => {
+    const groupA = ['BSBOPS203', 'UEECD0035', 'UEECO0002'].map((c) => unit(c)); // 60 A
+    const groupB = ['UEECD0008', 'UEECD0019'].map((c) => unit(c)); // 100 B
+    expect(qualificationProgress([...groupA, ...groupB], {}).electives.coversRules).toBe(true);
+    expect(qualificationProgress([...groupA, groupB[1]], {}).electives.coversRules).toBe(false);
   });
 });
 
@@ -138,6 +151,20 @@ describe('stillNeededSummary', () => {
     const groupA = ['BSBOPS203', 'UEECD0035', 'UEECO0002'].map((c) => unit(c)); // 60 pts
     const progress = qualificationProgress([...coreUnits, ...groupA], complete(...coreUnits, ...groupA));
     expect(stillNeededSummary(progress)).toBe('Still needed: 80 elective pts, all from Group B.');
+  });
+
+  it('counts elective units when the listed electives are exactly what is needed', () => {
+    const electives = ['UEECD0008', 'UEECD0019', 'UEECD0020', 'UEECD0035'].map((c) => unit(c));
+    const [e8, e19, e20, e35] = electives;
+    const all = [...coreUnits, ...electives];
+    expect(stillNeededSummary(qualificationProgress(all, complete(...coreUnits, e8, e20)))).toBe(
+      'Still needed: 2 elective units (60 pts).',
+    );
+    expect(stillNeededSummary(qualificationProgress(all, complete(...coreUnits.slice(2), e8, e19, e20)))).toBe(
+      'Still needed: 2 core units (30 pts) and 1 elective unit (20 pts).',
+    );
+    expect(stillNeededSummary(qualificationProgress(all, complete(...all)))).toMatch(/All UEE22020/);
+    expect(e35.code).toBe('UEECD0035');
   });
 
   it('handles one remaining core unit', () => {

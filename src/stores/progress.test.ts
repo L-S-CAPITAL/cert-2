@@ -233,3 +233,33 @@ describe('progressStore', () => {
     expect(store.getState().startTime).not.toBeNull();
   });
 });
+
+describe('saved progress for removed electives', () => {
+  it('loads old saves with UEECD0044/UEECD0051/UEECO0002 progress and keeps it in exports', () => {
+    const storage = new MemoryStorage();
+    storage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        version: 2,
+        unitCompletions: {
+          c1: { 'c1-t1': true },
+          e1: { 'e1-t1': true, 'e1-t2': true },
+          e2: { 'e2-t1': true },
+          e4: { 'e4-t1': true },
+        },
+        sessionLogs: [],
+        totalTimeSeconds: 60,
+        quizAttempts: [],
+      }),
+    );
+    const store = createProgressStore(storage);
+    try {
+      expect(store.isTopicComplete('c1', 'c1-t1')).toBe(true);
+      expect(store.isTopicComplete('e1', 'e1-t2')).toBe(true);
+      const exported = JSON.parse(store.exportProgress());
+      expect(Object.keys(exported.unitCompletions).sort()).toEqual(['c1', 'e1', 'e2', 'e4']);
+    } finally {
+      store.reset();
+    }
+  });
+});
