@@ -4,6 +4,15 @@ import { progressStore, useProgress } from '../stores/progress';
 import { isUnitUnlocked } from '../data/prerequisites';
 import TopicCard from './TopicCard';
 import QuizModal from './QuizModal';
+import { scrollToTopOfPanel } from '../scroll';
+
+/** Request to bring a unit (and optionally one of its topics) into view. */
+export interface UnitFocusRequest {
+  unitId: string;
+  topicId: string | null;
+  /** Changes on every request, so asking for the same unit again re-runs it. */
+  key: number;
+}
 
 interface UnitPanelProps {
   units: Unit[];
@@ -11,6 +20,7 @@ interface UnitPanelProps {
   onToggleUnit: (unitId: string) => void;
   onUnitSelect: (unitId: string | null) => void;
   selectedUnitId: string | null;
+  focusRequest?: UnitFocusRequest | null;
 }
 
 const UnitPanel: React.FC<UnitPanelProps> = ({
@@ -19,8 +29,22 @@ const UnitPanel: React.FC<UnitPanelProps> = ({
   onToggleUnit,
   onUnitSelect,
   selectedUnitId,
+  focusRequest = null,
 }) => {
   const progress = useProgress();
+  const panelRef = React.useRef<HTMLDivElement>(null);
+
+  // Scroll to and focus the requested unit header. A requested topic is
+  // handled by its TopicCard (it expands and takes focus itself).
+  React.useEffect(() => {
+    if (!focusRequest || focusRequest.topicId) return;
+    const header = panelRef.current?.querySelector<HTMLElement>(
+      `[data-unit-id="${focusRequest.unitId}"] .unit-header`,
+    );
+    if (!header) return;
+    scrollToTopOfPanel(header);
+    header.focus({ preventScroll: true });
+  }, [focusRequest]);
   const [quizUnit, setQuizUnit] = React.useState<{
     unit: Unit;
     topic: Topic;
@@ -52,6 +76,7 @@ const UnitPanel: React.FC<UnitPanelProps> = ({
           return (
             <div
               key={unit.id}
+              data-unit-id={unit.id}
               className={`unit-item ${isExpanded ? 'expanded' : ''} ${
                 selectedUnitId === unit.id ? 'selected' : ''
               } ${unlocked ? '' : 'locked'}`}
@@ -134,6 +159,13 @@ const UnitPanel: React.FC<UnitPanelProps> = ({
                           }
                         }}
                         onQuiz={() => setQuizUnit({ unit, topic })}
+                        openRequest={
+                          focusRequest &&
+                          focusRequest.unitId === unit.id &&
+                          focusRequest.topicId === topic.id
+                            ? focusRequest.key
+                            : null
+                        }
                       />
                     ))}
                   </div>
@@ -158,7 +190,7 @@ const UnitPanel: React.FC<UnitPanelProps> = ({
   );
 
   return (
-    <div className="unit-panel">
+    <div className="unit-panel" ref={panelRef}>
       {renderGroup('Core units', core)}
       {electives.length > 0 && renderGroup('Elective units', electives)}
 

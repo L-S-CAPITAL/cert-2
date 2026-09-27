@@ -132,5 +132,66 @@ describe('App keyboard shortcuts', () => {
 
     act(() => progressStore.stopSession());
     expect(meta()).toBe(`SELECTED: ${selected.code} - ${selected.name}`);
+    // Long lines are cut with an ellipsis in CSS; the full text is the tooltip.
+    expect(container.querySelector('.window-meta')?.getAttribute('title')).toBe(meta());
+  });
+});
+
+describe('Dashboard navigation', () => {
+  const unitHeader = (unitId: string) =>
+    container.querySelector<HTMLButtonElement>(`[data-unit-id="${unitId}"] .unit-header`)!;
+
+  it('"Continue" opens the next unfinished topic in the Units tab', () => {
+    const unit = ALL_UNITS.find((candidate) => candidate.code === 'UEECD0038')!;
+    act(() => progressStore.markTopicComplete(unit.id, unit.topics[0].id));
+
+    const continueBtn = container.querySelector<HTMLButtonElement>('.continue-btn')!;
+    expect(container.querySelector('.continue-card')?.textContent).toContain(unit.code);
+    act(() => continueBtn.click());
+
+    expect(selectedTab()).toBe('tab-units');
+    expect(unitHeader(unit.id).getAttribute('aria-expanded')).toBe('true');
+    const nextTitle = Array.from(container.querySelectorAll('.topic-title')).find((title) =>
+      title.textContent?.includes(unit.topics[1].title),
+    )!;
+    expect(nextTitle.getAttribute('aria-expanded')).toBe('true');
+    expect(document.activeElement).toBe(nextTitle);
+    // The unit is now the timer's selected unit too.
+    expect(container.querySelector<HTMLSelectElement>('#unit-select')?.value).toBe(unit.id);
+
+    // Coming back to Units later does not replay the jump.
+    press('1');
+    press('2');
+    const titleAgain = Array.from(container.querySelectorAll('.topic-title')).find((title) =>
+      title.textContent?.includes(unit.topics[1].title),
+    )!;
+    expect(titleAgain.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).not.toBe(titleAgain);
+  });
+
+  it('opens a unit from the unit table and focuses its header', () => {
+    const unit = ALL_UNITS.find((candidate) => candidate.code === 'UEERE0021')!;
+    const rowButton = container.querySelector<HTMLButtonElement>(
+      `button.row-link[aria-label^="Open unit ${unit.code}"]`,
+    )!;
+    act(() => rowButton.click());
+
+    expect(selectedTab()).toBe('tab-units');
+    expect(unitHeader(unit.id).getAttribute('aria-expanded')).toBe('true');
+    expect(document.activeElement).toBe(unitHeader(unit.id));
+  });
+
+  it('only scrolls to a locked unit (it stays collapsed and unselected)', () => {
+    const locked = ALL_UNITS.find((candidate) => candidate.code === 'UEECD0009')!;
+    const row = Array.from(container.querySelectorAll<HTMLTableRowElement>('tr.unit-row')).find(
+      (candidate) => candidate.textContent?.includes(locked.code),
+    )!;
+    expect(row.textContent).toContain('LOCKED');
+    act(() => row.click());
+
+    expect(selectedTab()).toBe('tab-units');
+    expect(unitHeader(locked.id).getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(unitHeader(locked.id));
+    expect(container.querySelector<HTMLSelectElement>('#unit-select')?.value).toBe('');
   });
 });
