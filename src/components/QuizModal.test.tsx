@@ -149,3 +149,22 @@ describe('QuizModal review mode', () => {
     expect(button('Review mistakes')).toBeUndefined();
   });
 });
+
+describe('QuizModal number keys', () => {
+  const dialog = () => container.querySelector('[role="dialog"]')!;
+  const keydown = (key: string) =>
+    act(() => {
+      dialog().dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+    });
+
+  it('answers with 1-4 and ignores keys once answered or out of range', () => {
+    keydown('3'); // only two options
+    expect(container.querySelector('.quiz-feedback')?.textContent).toBe('');
+    keydown('2');
+    expect(container.querySelector('.quiz-feedback')?.textContent).toContain('Incorrect');
+    keydown('1');
+    expect(container.querySelector('.quiz-option.is-wrong')?.textContent).toContain('wrong');
+    expect(container.querySelectorAll('.quiz-option')[0].getAttribute('aria-keyshortcuts')).toBe('1');
+    expect(container.textContent).toContain('Keys 1–2 answer');
+  });
+});

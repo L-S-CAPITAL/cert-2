@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!--
+    ElectroTech Terminal app icon.
+    Recreated as vector art from the LS CAPITAL / Crucible brand artwork:
+    an orange pointy-top hexagon outline with a warm radial glow on black.
+    Brand orange #C45E1C was sampled from the supplied artwork.
+    Rendered to PNG / ICO / ICNS by scripts/build-icons.cjs.
+  -->
+  <defs>
+    <radialGradient id="glow" cx="512" cy="512" r="540" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#C45E1C" stop-opacity="0.5"/>
+      <stop offset="0.22" stop-color="#C45E1C" stop-opacity="0.25"/>
+      <stop offset="0.45" stop-color="#C45E1C" stop-opacity="0.12"/>
+      <stop offset="0.78" stop-color="#C45E1C" stop-opacity="0.04"/>
+      <stop offset="1" stop-color="#C45E1C" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="tile">
+      <rect x="32" y="32" width="960" height="960" rx="216"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#tile)">
+    <rect x="32" y="32" width="960" height="960" fill="#050505"/>
+    <rect x="32" y="32" width="960" height="960" fill="url(#glow)"/>
+  </g>
+  <rect x="33" y="33" width="958" height="958" rx="215" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="2"/>
+  <path id="hexagon" d="M512.0 216.0 L768.3 364.0 L768.3 660.0 L512.0 808.0 L255.7 660.0 L255.7 364.0 Z" fill="none" stroke="#C45E1C" stroke-width="43" stroke-linejoin="round" data-small-stroke-width="69"/>
+</svg>

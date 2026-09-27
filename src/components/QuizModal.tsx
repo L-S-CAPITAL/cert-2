@@ -73,6 +73,18 @@ const QuizModal: React.FC<QuizModalProps> = ({ unit, topic, onClose }) => {
     setShowResult(true);
   };
 
+  // Number keys 1-4 (or up to the number of options) pick an answer. Global
+  // shortcuts are already off while this dialog is open, so they cannot
+  // switch tabs underneath the quiz.
+  const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.altKey || event.ctrlKey || event.metaKey || showResult || !q) return;
+    if (!/^[1-9]$/.test(event.key)) return;
+    const index = Number(event.key) - 1;
+    if (index >= q.options.length || selectedAnswer !== null) return;
+    event.preventDefault();
+    handleAnswer(index);
+  };
+
   const card = (title: string, body: React.ReactNode) => (
     <div
       className="modal-backdrop"
@@ -81,6 +93,7 @@ const QuizModal: React.FC<QuizModalProps> = ({ unit, topic, onClose }) => {
       aria-labelledby="quiz-title"
       tabIndex={-1}
       ref={dialogRef}
+      onKeyDown={onKeyDown}
     >
       <div className="terminal-card quiz-card" style={{ maxWidth: 640, width: '90%' }}>
         <div className="terminal-section-title" id="quiz-title">
@@ -171,8 +184,13 @@ const QuizModal: React.FC<QuizModalProps> = ({ unit, topic, onClose }) => {
   return card(
     `${unit.code} - ${topic.title}`,
     <>
-      <div className="section-count" style={{ marginBottom: 12 }}>
-        {isReview ? 'Review ' : ''}Q {position + 1} / {round.order.length}
+      <div className="quiz-progress-row">
+        <span className="section-count">
+          {isReview ? 'Review ' : ''}Q {position + 1} / {round.order.length}
+        </span>
+        <span className="quiz-key-hint">
+          Keys 1–{q.options.length} answer · Enter continues
+        </span>
       </div>
       <div style={{ marginBottom: 12 }}>
         <div className="quiz-question" id="quiz-question" style={{ marginBottom: 12 }}>
@@ -201,6 +219,7 @@ const QuizModal: React.FC<QuizModalProps> = ({ unit, topic, onClose }) => {
                 className={`terminal-btn quiz-option${state}`}
                 onClick={() => handleAnswer(i)}
                 disabled={answered}
+                aria-keyshortcuts={i < 9 ? String(i + 1) : undefined}
               >
                 <span className="quiz-option-letter">{optionLetter(i)}.</span>
                 <span className="quiz-option-text">{option}</span>

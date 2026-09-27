@@ -73,7 +73,8 @@ Most study apps look like a brochure. This one looks like a **workstation**.
 
 - Dark phosphor palette, monospaced labels, amber highlights, status bar at the foot of the screen.
 - Eight numbered panels, same muscle memory as a Bloomberg function key row.
-- A persistent **TIMER** rail so study time is attributed to a unit, not guessed later.
+- A **TIMER** rail so study time is attributed to a unit, not guessed later. While idle it folds into a slim bar; it opens when you ask or whenever the timer runs.
+- Dark phosphor by default, with a **light "paper" theme** (`t` or the header toggle) for daylight and printing-style reading.
 - Quizzes that actually close the loop: **100% on a topic quiz marks that topic complete**.
 - Instant feedback on every answer: ✓ / ✗ with the right answer and a one-line reason, then **Review mistakes** to re-ask only the questions you got wrong.
 - Prerequisite gates so you cannot skip past `UEECD0007` into units that depend on it.
@@ -180,7 +181,7 @@ Industry demand figure carried in course metadata: on the order of **26,000** op
 
 ## Terminal map
 
-Eight sections in a left sidebar, grouped into **Study** and **Records**. Keys `1`–`8` still jump straight to a section. The TIMER pane stays visible on the right. Below 1000 px wide the sidebar shrinks to its `[DASH]`-style labels.
+Eight sections in a left sidebar, grouped into **Study** and **Records**. Keys `1`–`8` still jump straight to a section. The TIMER pane sits on the right: while the timer is idle it is a slim **Show timer** bar (a button with `aria-expanded`), so the main panel gets the room; it opens when you click it (and remembers that) and always stays open while a session is running. Below 1000 px wide the sidebar shrinks to its `[DASH]`-style labels.
 
 ```
 ┌──────────────────────────────── ElectroTech Terminal ────────────────────────────────┐
@@ -213,6 +214,10 @@ Eight sections in a left sidebar, grouped into **Study** and **Records**. Keys `
 | `8` | **Technical Documents & Blueprints** | Schematics, plans, SLDs, schedules |
 
 Press **`?`** anywhere (outside a form field) for the in-app keyboard card. **`Esc`** closes dialogs.
+
+### Themes
+
+The header's **Light theme** toggle (or **`t`**) switches between the dark terminal look and a light "paper" theme with dark ink. On first run the app follows the system setting (`prefers-color-scheme`); once you pick a theme it is remembered in local storage (`electrotech-settings`, separate from study progress and not part of export / import / reset). Both themes are a set of CSS custom properties (`:root` and `[data-theme="light"]` in `src/styles/terminal.css`), and `src/styles/contrast.test.ts` checks every text colour against every panel background in both at WCAG AA 4.5:1.
 
 ---
 
@@ -274,7 +279,16 @@ npm run dist             # installers
 
 The packaged app loads `dist/index.html` with `loadFile`. Production CSP is a `<meta http-equiv="Content-Security-Policy">` tag that Vite injects into `dist/index.html` at build time (header CSP does not reach `file://` pages): `default-src 'self'`, `script-src 'self'` and `style-src 'self'` with no inline code or eval, no remote connect, `object-src 'none'`, `base-uri 'none'`, `form-action 'none'`. `afterPack` runs `scripts/afterPack.js` (Electron fuses: RunAsNode, NODE_OPTIONS and inspect flags off; cookie encryption and OnlyLoadAppFromAsar on; **ASAR integrity validation on for Windows and macOS only**, where Electron supports it and electron-builder embeds the header hash; Linux has no ASAR integrity support; GrantFileProtocolExtraPrivileges stays on because the app loads from `file://`). Output directory: **`release/`**.
 
-`icon.png` is 256×256. That is enough for Linux and Windows, but a macOS build (`--mac`) needs an icon of at least 512×512. Add a larger source image before packaging for macOS.
+### App icon
+
+The icon is an orange hexagon with a soft glow on a dark rounded square, recreated as vector art from the **LS CAPITAL / Crucible brand artwork** (brand orange `#C45E1C`, sampled from the artwork). The source is `build/icon.svg`; every raster size is generated from it with Electron's own renderer (no extra tools):
+
+```bash
+npx electron scripts/build-icons.cjs
+# headless Linux: xvfb-run -a npx electron --no-sandbox scripts/build-icons.cjs
+```
+
+That writes `build/icon.png` (1024), `build/icons/16x16.png` … `1024x1024.png` (Linux), `build/icon.ico` (16–256, Windows), `build/icon.icns` (16–1024, macOS) and the runtime window icon `icon.png` (512). At 32 px and below the outline is drawn thicker so it stays visible. The generated files are committed; re-run the script after editing the SVG. `package.json` points `mac.icon`, `win.icon` and `linux.icon` at these files.
 
 App identity from `package.json`:
 
@@ -320,10 +334,20 @@ Shortcuts are ignored while focus is in an input, select, textarea, or contented
 | `7` | Geometry, Physics & Hand Tools |
 | `8` | Technical Documents & Blueprints |
 | `s` | Start or stop the study timer (a unit must be selected) |
+| `t` | Switch between the dark and light (paper) theme |
 | `?` | Help |
 | `Esc` | Close dialogs |
 | `↑` / `↓` (or `←` / `→`) | Previous / next section (when the sidebar has focus; wraps) |
 | `Home` / `End` | First / last section (when the sidebar has focus) |
+
+Inside a quiz and on flashcards (these work while the quiz dialog is open):
+
+| Key | Action |
+|---|---|
+| `1`–`4` | Pick answer A–D in a quiz (up to the number of options) |
+| `Enter` | Next question / finish (focus moves to **Next** after you answer) |
+| `Space` / `Enter` | Flip the flashcard (it is a button) |
+| `←` / `→` | Previous / next flashcard while focus is in the deck |
 
 ---
 
@@ -338,7 +362,10 @@ cert-2/
 ├── electron-window-state.js  # remembers window size / position (tested in electron-window-state.test.js)
 ├── electron-preload.js       # contextBridge → window.electrotech (read-only)
 ├── index.html
-├── icon.png
+├── icon.png                  # 512px window icon (generated from build/icon.svg)
+├── build/icon.svg            # app icon source (LS CAPITAL / Crucible brand mark)
+├── build/icon.{png,ico,icns}, build/icons/  # generated icon sizes for electron-builder
+├── scripts/build-icons.cjs   # renders build/icon.svg to every icon size
 ├── vite.config.mts           # React plugin, base: './', production CSP meta, test config
 ├── tsconfig.json
 ├── scripts/afterPack.js      # Electron fuses after pack
@@ -433,7 +460,7 @@ A practical loop that matches how the app is wired:
 1. Open **Dashboard** (`1`). See what is incomplete, or press **Continue** to jump straight to the next unfinished topic.
 2. In **Units** (`2`), expand a unit. Read the topic. Hit the key points.
 3. Sit the quiz. After each answer you see whether it was right, the correct answer, and (for unit quizzes) a one-line reason. A full score completes the topic; anything less leaves it open. On the results screen, **Review mistakes** re-asks only the questions you missed.
-4. Select that unit in the TIMER rail and press **`s`**. Work. Press **`s`** again.
+4. Open the TIMER bar, select that unit and press **`s`**. Work. Press **`s`** again.
 5. When the theory is soft, switch to **MATH** (`5`) and run the speed drill cold.
 6. Before a drawings or circuits class, warm up on **ALG** / **GEO** / **DWG**.
 7. Once a week, **Export** from Course Overview so a disk failure is not a term of lost ticks.
@@ -450,6 +477,9 @@ The hardening pass wired the chrome for keyboard and AT use:
 - Text colours meet WCAG AA (4.5:1) on every panel background; `src/styles/contrast.test.ts` checks the CSS custom properties. Long-form text (topic notes, quiz questions, flashcards) uses the system sans-serif; labels and numbers stay monospace. No web fonts are loaded (CSP `font-src 'self'`)
 - Help and quizzes are dialogs; `Esc` dismisses
 - Quiz answers are marked with ✓ / ✗ and hidden text labels as well as colour; feedback is announced in a live region and focus moves to the Next button after answering
+- Both themes pass the contrast check; the theme toggle is an `aria-pressed` button, and the timer bar toggle uses `aria-expanded` / `aria-controls`
+- Quiz answers can be picked with `1`–`4`; flashcards flip with Space / Enter and move with `←` / `→`. The help card (`?`) lists every key
+- Motion is minimal: completing a topic plays a small tick "pop"; that and every other animation is switched off under `prefers-reduced-motion: reduce`
 - Progress bars carry `role="progressbar"` and value attributes
 - Contrast and focus treatment live in `src/styles/terminal.css`
 - Shortcuts skip form fields, open dialogs, running drills, and Ctrl / Cmd / Alt combos, so a stray key cannot change tabs and lose quiz or drill progress
@@ -483,7 +513,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs on every pull request and on pu
 | `check` | Ubuntu, Node 22 | `npm ci`, `tsc --noEmit`, `vitest run`, `vite build`, and `scripts/check-csp.mjs`, which checks that `dist/index.html` carries the production CSP `<meta>` tag with the expected directives |
 | `package` | Ubuntu, Windows, macOS | Runs only after `check` passes. Builds with `electron-builder --dir` (unpacked, unsigned, never published), prints the applied Electron fuses, and uploads the unpacked app as a `.tar.gz` artifact kept for 7 days |
 
-The macOS job upscales `icon.png` to a temporary 512×512 file (placeholder; nothing is committed) because electron-builder needs a 512px icon on macOS. Newer runs for the same branch cancel older ones. Dependabot (`.github/dependabot.yml`) opens weekly update PRs for npm and GitHub Actions, grouping minor and patch bumps into one PR each.
+Icons come from the committed `build/` files (see [App icon](#app-icon)), so no job creates a placeholder icon any more. Newer runs for the same branch cancel older ones. Dependabot (`.github/dependabot.yml`) opens weekly update PRs for npm and GitHub Actions, grouping minor and patch bumps into one PR each.
 
 ---
 

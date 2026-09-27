@@ -35,6 +35,15 @@ const TopicCard: React.FC<TopicCardProps> = ({
   }, [openRequest]);
   useProgress();
   const isComplete = progressStore.isTopicComplete(unit.id, topic.id);
+  // Animate the tick only when the topic becomes complete while on screen,
+  // not for topics that were already done when the card appeared.
+  const wasComplete = React.useRef(isComplete);
+  const [justCompleted, setJustCompleted] = React.useState(false);
+  React.useEffect(() => {
+    if (isComplete && !wasComplete.current) setJustCompleted(true);
+    if (!isComplete) setJustCompleted(false);
+    wasComplete.current = isComplete;
+  }, [isComplete]);
   const stop = (event: React.MouseEvent) => event.stopPropagation();
 
   return (
@@ -58,6 +67,7 @@ const TopicCard: React.FC<TopicCardProps> = ({
       >
         <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span
+            className={`topic-check${justCompleted ? ' just-completed' : ''}`}
             style={{
               color: isComplete ? 'var(--status-ok)' : 'var(--text-amber)',
             }}

@@ -37,6 +37,47 @@
   --progress-bg: #003300;
   --shadow-glow: 0 0 10px rgba(0, 255, 64, 0.3);
   --shadow-glow-strong: 0 0 20px rgba(0, 255, 64, 0.5);
+  /* LS CAPITAL / Crucible brand orange (sampled from the brand artwork);
+     used only for the small brand mark, never for text. */
+  --brand-orange: #c45e1c;
+  --backdrop: rgba(0, 0, 0, 0.95);
+  color-scheme: dark;
+}
+
+/* Light "paper" theme: same layout and roles, dark ink on warm paper. Green
+   stays the heading / status colour and amber the highlight, both darkened
+   to keep 4.5:1 contrast (checked in src/styles/contrast.test.ts). */
+[data-theme="light"] {
+  --bg-primary: #f7f4ea;
+  --bg-secondary: #efebdf;
+  --bg-tertiary: #e9e4d6;
+  --bg-panel: #f3efe4;
+  --bg-panel-alt: #f0ecdf;
+  --bg-active: #e2dccb;
+  --bg-tab-active: #f7f4ea;
+  --bg-tab-inactive: #efebdf;
+  --text-primary: #1d1c19;
+  --text-secondary: #33312c;
+  --text-tertiary: #46433c;
+  --text-dim: #57544c;
+  --text-bright: #17602b;
+  --text-heading: #17602b;
+  --status-ok: #17602b;
+  --status-bad: #a8261c;
+  --text-amber: #7a4a00;
+  --text-amber-dim: #6b4200;
+  --border: #b8c8ae;
+  --border-bright: #2f7d43;
+  --border-thick: #cdd7c3;
+  --accent-green: #2f7d43;
+  --grid-color: #d9e2d0;
+  --progress-fill: #7fbf8e;
+  --progress-bg: #dbe5d2;
+  --shadow-glow: 0 1px 3px rgba(60, 50, 20, 0.12);
+  --shadow-glow-strong: 0 1px 4px rgba(60, 50, 20, 0.18);
+  --brand-orange: #b4541a;
+  --backdrop: rgba(80, 74, 60, 0.55);
+  color-scheme: light;
 }
 
 * {
@@ -830,7 +871,7 @@ body::before {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.95);
+  background: var(--backdrop);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1727,4 +1768,225 @@ body::before {
   font-family: var(--font-sans);
   font-size: 13px;
   color: var(--text-tertiary);
+}
+
+/* ================================================================== */
+/* Light theme: effects that assume a black background                */
+/* ================================================================== */
+[data-theme="light"] .terminal-header,
+[data-theme="light"] .terminal-btn:hover,
+[data-theme="light"] .terminal-btn.amber:hover {
+  box-shadow: none;
+}
+
+[data-theme="light"] .terminal-title .logo {
+  text-shadow: none;
+}
+
+[data-theme="light"] .progress-bar-text {
+  color: var(--text-primary);
+  text-shadow: 0 0 3px #fff, 0 0 2px #fff;
+}
+
+[data-theme="light"] .progress-bar-fill {
+  box-shadow: none;
+}
+
+/* ================================================================== */
+/* Header: brand mark and theme toggle                                */
+/* ================================================================== */
+.terminal-title .logo {
+  display: inline-flex;
+  align-items: center;
+}
+
+.brand-mark {
+  display: block;
+}
+
+.theme-toggle {
+  font-size: 11px;
+  padding: 2px 10px;
+}
+
+.theme-toggle[aria-pressed='true'] {
+  border-color: var(--text-amber);
+  color: var(--text-amber);
+}
+
+/* Narrow windows: icon only; the text stays for screen readers. */
+@media (max-width: 900px) {
+  .theme-toggle {
+    padding: 2px 6px;
+  }
+
+  .theme-toggle-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+}
+
+/* ================================================================== */
+/* Study timer panel: compact bar while idle                          */
+/* ================================================================== */
+.time-tracker-window .terminal-window-header {
+  gap: 8px;
+}
+
+.timer-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 1px 8px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.timer-toggle:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--text-dim);
+}
+
+.timer-toggle:focus-visible {
+  outline: 2px solid var(--text-amber);
+  outline-offset: 2px;
+}
+
+.timer-toggle:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.time-tracker-window.collapsed {
+  flex: 0 0 44px;
+  min-width: 44px;
+  max-width: 44px;
+}
+
+.time-tracker-window.collapsed .terminal-window-header {
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100%;
+  padding: 8px 0;
+  border-bottom: 0;
+}
+
+.time-tracker-window.collapsed .window-title {
+  display: none;
+}
+
+.time-tracker-window.collapsed .timer-toggle {
+  flex-direction: column;
+  padding: 8px 4px;
+  order: 1;
+}
+
+.time-tracker-window.collapsed .timer-toggle-text {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+/* ================================================================== */
+/* Keyboard hints, help sections                                      */
+/* ================================================================== */
+.quiz-progress-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.quiz-key-hint,
+.flashcard-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.help-section + .help-section {
+  margin-top: 10px;
+}
+
+.help-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-heading);
+  margin-bottom: 4px;
+}
+
+.help-list li {
+  margin-bottom: 1px;
+}
+
+.help-list-columns {
+  columns: 2;
+  column-gap: 24px;
+}
+
+.help-key {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text-amber);
+}
+
+/* ================================================================== */
+/* Completion tick and empty states                                   */
+/* ================================================================== */
+.topic-check {
+  display: inline-block;
+}
+
+/* Plays once when a topic becomes complete (not for topics that were
+   already done). Turned off by the prefers-reduced-motion rule above. */
+.topic-check.just-completed {
+  animation: tick-pop 0.45s ease-out;
+}
+
+@keyframes tick-pop {
+  0% { transform: scale(0.6); opacity: 0.2; }
+  60% { transform: scale(1.25); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+.empty-state .empty-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin-bottom: 6px;
+}
+
+.empty-state .empty-text {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  max-width: 44ch;
+  margin: 0 auto;
+}
+
+.empty-state .empty-icon {
+  font-family: var(--font-mono);
+}
+
+.empty-state kbd {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text-amber);
 }
