@@ -217,7 +217,7 @@ npm test
 npm run dev
 ```
 
-`npm run dev` starts **Vite on `http://localhost:5173`** and **Electron** together via `concurrently`. Electron loads that URL through `VITE_DEV_SERVER_URL`.
+`npm run dev` starts **Vite on `http://localhost:5173`** and **Electron** together via `concurrently`. Electron loads that URL through `VITE_DEV_SERVER_URL`, set with `cross-env` so the script also works in Windows cmd / PowerShell. Vite uses `strictPort`, so if 5173 is already taken it exits instead of moving to another port.
 
 ```bash
 # Detached DevTools

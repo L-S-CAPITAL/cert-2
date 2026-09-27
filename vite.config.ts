@@ -46,7 +46,10 @@ export default defineConfig({
   base: './',
   plugins: [react(), productionCsp()],
   server: {
+    // Electron's dev script waits on and loads exactly this port; fail fast
+    // instead of silently moving to 5174 when it is taken.
     port: 5173,
+    strictPort: true,
   },
   build: {
     outDir: 'dist',
