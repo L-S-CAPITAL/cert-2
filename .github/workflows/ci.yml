@@ -1,0 +1,133 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Cancel an in-flight run when a newer commit arrives for the same branch/PR.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Matches package.json "engines": { "node": ">=22.12.0" }.
+  NODE_VERSION: 22.x
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Unit tests
+        run: npx vitest run
+
+      - name: Build renderer
+        run: npx vite build
+
+      - name: Verify production CSP meta tag
+        run: |
+          grep -q '<meta http-equiv="Content-Security-Policy"' dist/index.html \
+            || { echo "::error file=dist/index.html::Content-Security-Policy meta tag missing"; exit 1; }
+          grep -q "script-src 'self'" dist/index.html \
+            || { echo "::error file=dist/index.html::CSP script-src 'self' missing"; exit 1; }
+          grep -o '<meta http-equiv="Content-Security-Policy"[^>]*>' dist/index.html
+
+  package:
+    name: package (${{ matrix.os }})
+    needs: check
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    env:
+      # Unsigned local builds only: never look for signing certificates.
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      # Electron 42+ has no postinstall download; electron-builder fetches the
+      # Electron runtime it packages on its own, so no extra install step.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build renderer
+        run: npx vite build
+
+      # PLACEHOLDER ICON (CI only): electron-builder requires a >=512x512 icon
+      # for macOS, but the repo only has a 256x256 icon.png. Upscale it into a
+      # temporary file with the runner's built-in `sips` so the mac job can
+      # package. Nothing is committed; replace once real 512px+ artwork exists.
+      - name: Create temporary 512px macOS icon (placeholder)
+        if: runner.os == 'macOS'
+        run: |
+          sips -z 512 512 icon.png --out "$RUNNER_TEMP/icon-512.png"
+          echo "MAC_ICON=$RUNNER_TEMP/icon-512.png" >> "$GITHUB_ENV"
+
+      # Unpacked build only: no installers, no publishing, no signing. No
+      # GH_TOKEN is passed, and --publish never makes that explicit.
+      - name: Package (electron-builder --dir)
+        run: |
+          args=(--dir --publish never)
+          if [ -n "${MAC_ICON:-}" ]; then
+            args+=("-c.mac.icon=$MAC_ICON")
+          fi
+          npx electron-builder "${args[@]}"
+
+      - name: Show applied Electron fuses
+        run: |
+          case "$RUNNER_OS" in
+            Linux)   app="release/linux-unpacked/electrotech-terminal" ;;
+            Windows) app="release/win-unpacked/ElectroTech Terminal.exe" ;;
+            macOS)   app="$(ls -d release/mac*/'ElectroTech Terminal.app')" ;;
+          esac
+          npx @electron/fuses read --app "$app"
+
+      # Tar first so executable bits and macOS framework symlinks survive,
+      # then upload the single archive as-is (no extra zip).
+      - name: Archive unpacked app
+        run: |
+          # Relative path: GNU tar in Git Bash would read "D:\..." as host:path.
+          mkdir -p ci-artifacts
+          archive="ci-artifacts/electrotech-terminal-${RUNNER_OS}-unpacked.tar.gz"
+          tar -czf "$archive" -C release --exclude='*.yml' --exclude='*.yaml' .
+          ls -lh "$archive"
+          echo "ARCHIVE=$archive" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          path: ${{ env.ARCHIVE }}
+          archive: false
+          retention-days: 7
+          if-no-files-found: error
