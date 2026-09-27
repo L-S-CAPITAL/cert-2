@@ -36,7 +36,9 @@ const CourseOverview: React.FC = () => {
     link.href = url;
     link.download = 'electrotech-progress.json';
     link.click();
-    URL.revokeObjectURL(url);
+    // Revoke on the next task: revoking synchronously can cancel the
+    // download before the browser has started reading the blob.
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
     setStatus('Progress exported');
   };
 
