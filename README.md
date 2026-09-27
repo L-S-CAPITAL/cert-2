@@ -115,7 +115,7 @@ Packaged Electron is locked down on purpose:
 - `contextIsolation: true`
 - `nodeIntegration: false`
 - `sandbox: true`
-- Strict **Content-Security-Policy** (dev CSP allows the Vite HMR websocket; prod does not)
+- Strict **Content-Security-Policy**: the production build ships it as a `<meta http-equiv>` tag in `dist/index.html` (injected by `vite.config.ts`), because response-header CSP does not apply to the packaged app's `file://` load; `npm run dev` gets a looser header CSP that allows Vite's inline scripts and HMR websocket
 - Navigation and `window.open` denied except the local dist tree / dev server
 - Preload exposes a **read-only** `window.electrotech` bridge (`platform` + version strings) — no file system, no Node
 - Single-instance lock so a second launch focuses the existing window
@@ -249,7 +249,7 @@ npm run pack             # unpacked directory in release/
 npm run dist             # installers
 ```
 
-The packaged app loads `dist/index.html` with `loadFile`. Production CSP is tight (`script-src 'self'`, no eval, no remote connect). `afterPack` runs `scripts/afterPack.js` (Electron fuses). Output directory: **`release/`**.
+The packaged app loads `dist/index.html` with `loadFile`. Production CSP is a `<meta http-equiv="Content-Security-Policy">` tag that Vite injects into `dist/index.html` at build time (header CSP does not reach `file://` pages): `default-src 'self'`, `script-src 'self'` and `style-src 'self'` with no inline code or eval, no remote connect, `object-src 'none'`, `base-uri 'none'`, `form-action 'none'`. `afterPack` runs `scripts/afterPack.js` (Electron fuses). Output directory: **`release/`**.
 
 App identity from `package.json`:
 
@@ -382,7 +382,7 @@ Tests live beside the modules they cover: `*.test.ts` under `src/data/` and `src
 | Node in renderer | off |
 | Sandbox | on |
 | Preload surface | `platform`, `versions` only |
-| CSP (prod) | `default-src 'self'`; no remote connect; no object |
+| CSP (prod) | `<meta>` tag in `dist/index.html`: `default-src 'self'`; no inline script/style; no remote connect; no object |
 | New windows | denied |
 | Off-tree navigation | prevented |
 | Vite base | `./` so `file://` assets resolve |

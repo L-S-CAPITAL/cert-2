@@ -1,9 +1,50 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig, type Plugin } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+
+/**
+ * Content-Security-Policy for the packaged renderer.
+ *
+ * The packaged app loads dist/index.html over file:// via loadFile, where
+ * session.webRequest.onHeadersReceived never runs, so the policy has to ship
+ * as a <meta http-equiv> tag. It is injected only into production builds:
+ * Vite dev needs inline scripts and the ws://localhost:5173 HMR socket, and
+ * gets its (looser) policy from the response header set in electron-main.js.
+ * frame-ancestors is ignored in a meta policy, so it is omitted here.
+ */
+const PRODUCTION_CSP = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self'",
+  "img-src 'self' data: blob:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  "object-src 'none'",
+  "base-uri 'none'",
+  "form-action 'none'",
+].join('; ');
+
+function productionCsp(): Plugin {
+  return {
+    name: 'electrotech-production-csp',
+    apply: 'build',
+    transformIndexHtml() {
+      return [
+        {
+          tag: 'meta',
+          attrs: {
+            'http-equiv': 'Content-Security-Policy',
+            content: PRODUCTION_CSP,
+          },
+          injectTo: 'head-prepend',
+        },
+      ];
+    },
+  };
+}
 
 export default defineConfig({
   base: './',
-  plugins: [react()],
+  plugins: [react(), productionCsp()],
   server: {
     port: 5173,
   },

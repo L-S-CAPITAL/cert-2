@@ -7,26 +7,25 @@ let mainWindow = null;
 
 const DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 
-function contentSecurityPolicy() {
-  if (DEV_SERVER_URL && !app.isPackaged) {
-    return [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data:",
-      "connect-src 'self' ws://localhost:5173 http://localhost:5173 ws://127.0.0.1:5173 http://127.0.0.1:5173",
-      "object-src 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-      "frame-ancestors 'none'",
-    ].join('; ');
-  }
+const IS_DEV = Boolean(DEV_SERVER_URL) && !app.isPackaged;
+
+/**
+ * CSP for the Vite dev server only. Vite dev needs inline scripts, eval and
+ * the ws://localhost:5173 HMR socket, and it is served over http, so the
+ * policy is set as a response header.
+ *
+ * The packaged app loads dist/index.html over file:// with loadFile, where
+ * webRequest.onHeadersReceived does not run. Its (strict) policy ships as a
+ * <meta http-equiv="Content-Security-Policy"> tag that vite.config.ts injects
+ * into production builds only.
+ */
+function devContentSecurityPolicy() {
   return [
     "default-src 'self'",
-    "script-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data:",
-    "connect-src 'self'",
+    "connect-src 'self' ws://localhost:5173 http://localhost:5173 ws://127.0.0.1:5173 http://127.0.0.1:5173",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -77,7 +76,7 @@ function createWindow() {
     }
   });
 
-  if (DEV_SERVER_URL && !app.isPackaged) {
+  if (IS_DEV) {
     mainWindow.loadURL(DEV_SERVER_URL);
     if (process.env.ELECTRON_OPEN_DEVTOOLS === '1') {
       mainWindow.webContents.openDevTools({ mode: 'detach' });
@@ -102,14 +101,16 @@ if (!gotLock) {
   });
 
   app.whenReady().then(() => {
-    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-      callback({
-        responseHeaders: {
-          ...details.responseHeaders,
-          'Content-Security-Policy': [contentSecurityPolicy()],
-        },
+    if (IS_DEV) {
+      session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+        callback({
+          responseHeaders: {
+            ...details.responseHeaders,
+            'Content-Security-Policy': [devContentSecurityPolicy()],
+          },
+        });
       });
-    });
+    }
 
     createWindow();
 
