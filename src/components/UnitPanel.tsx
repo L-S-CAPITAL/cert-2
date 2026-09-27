@@ -2,6 +2,7 @@ import React from 'react';
 import { Topic, Unit } from '../types';
 import { progressStore, useProgress } from '../stores/progress';
 import { isUnitUnlocked } from '../data/prerequisites';
+import { electiveGroup } from '../data/qualification';
 import TopicCard from './TopicCard';
 import QuizModal from './QuizModal';
 import { scrollToTopOfPanel } from '../scroll';
@@ -102,7 +103,10 @@ const UnitPanel: React.FC<UnitPanelProps> = ({
                 <div className="unit-code">{unit.code}</div>
                 <div className="unit-name">{unit.name}</div>
                 <div className="unit-progress">
-                  <span style={{ color: 'var(--text-amber)' }}>
+                  <span
+                    style={{ color: 'var(--text-amber)' }}
+                    title={unlocked ? `${completion}% of this unit's topics done · ${unit.points} pts when complete` : undefined}
+                  >
                     {unlocked ? `${completion}%` : 'LOCKED'}
                   </span>
                 </div>
@@ -120,7 +124,14 @@ const UnitPanel: React.FC<UnitPanelProps> = ({
                   </div>
                   <div className="detail-row">
                     <span className="detail-label">Points:</span>
-                    <span className="detail-value">{unit.points} points</span>
+                    <span className="detail-value">
+                      {unit.points} weighting points
+                      {unit.kind === 'elective' && electiveGroup(unit.code)
+                        ? ` · Group ${electiveGroup(unit.code)!.group} elective`
+                        : unit.kind === 'elective'
+                          ? ' · elective'
+                          : ' · core'}
+                    </span>
                   </div>
                   <div className="detail-row">
                     <span className="detail-label">Description:</span>

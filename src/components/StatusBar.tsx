@@ -1,7 +1,7 @@
 import React from 'react';
 import { progressStore, useProgress } from '../stores/progress';
 import { ALL_UNITS, COURSE_INFO } from '../data/course';
-import { summarizeCompletion } from '../data/completion';
+import { qualificationProgress } from '../data/qualification';
 
 const StatusBar: React.FC = () => {
   const progress = useProgress();
@@ -12,10 +12,8 @@ const StatusBar: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const { core, electives } = summarizeCompletion(
-    ALL_UNITS,
-    progress.unitCompletions,
-  );
+  // Same official figures as the Dashboard and Course Overview.
+  const { core, electives } = qualificationProgress(ALL_UNITS, progress.unitCompletions);
   const totalTime = progressStore.getFormattedTotalTime();
   const isTimerActive = progress.startTime !== null;
   const timerDisplay = progressStore.getFormattedActiveTime();
@@ -38,9 +36,14 @@ const StatusBar: React.FC = () => {
           <span className="value">{COURSE_INFO.code}</span>
         </div>
 
-        <div className="status-bar-item" title="Completed topics across the core units">
-          <span className="label">CORE PROGRESS</span>
-          <span className="value">{core.percent}%</span>
+        <div
+          className="status-bar-item"
+          title={`Weighting points from completed units, of ${COURSE_INFO.totalPoints} required`}
+        >
+          <span className="label">POINTS</span>
+          <span className="value">
+            {core.pointsDone + electives.pointsCounted}/{COURSE_INFO.totalPoints}
+          </span>
         </div>
 
         <div className="status-bar-item">
@@ -64,13 +67,15 @@ const StatusBar: React.FC = () => {
         <div className="status-bar-item">
           <span className="label">CORE UNITS</span>
           <span className="value">
-            {core.unitsDone}/{core.unitsTotal}
+            {core.unitsDone}/{core.unitsRequired}
           </span>
         </div>
 
-        <div className="status-bar-item" title="Completed topics across the elective units">
-          <span className="label">ELECTIVES</span>
-          <span className="value">{electives.percent}%</span>
+        <div className="status-bar-item" title="Elective weighting points from completed units">
+          <span className="label">ELECTIVE PTS</span>
+          <span className="value">
+            {electives.pointsCounted}/{electives.pointsRequired}
+          </span>
         </div>
 
         <div className="status-bar-item">

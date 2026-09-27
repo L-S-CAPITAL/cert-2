@@ -24,6 +24,10 @@ type Completions = Record<string, Record<string, boolean>>;
  *
  * Note: training.gov.au marks UEE22020 as superseded (24 Nov 2025) by the
  * equivalent UEE22025 (https://training.gov.au/Training/Details/UEE22025).
+ * This terminal tracks a UEE22020 enrolment: the 8 core units plus the
+ * electives UEECD0008 (B, 60), UEECD0019 (B, 40), UEECD0020 (B, 20) and
+ * UEECD0035 (A, 20) = 140 elective points. Unit.points in course.ts and
+ * electives.ts use the same official weighting points (a test checks it).
  */
 export const QUALIFICATION_RULES = {
   code: 'UEE22020',
@@ -107,6 +111,10 @@ export interface QualificationProgress {
     groupBNeeded: number;
     /** Most elective points the units in this app could ever count for. */
     pointsAvailableInApp: number;
+    /** True when finishing every listed elective here would meet the rules. */
+    coversRules: boolean;
+    /** Listed electives here that are not complete yet. */
+    remainingUnits: ElectiveUnitStatus[];
     units: ElectiveUnitStatus[];
     /** App electives that are not on the UEE22020 elective lists. */
     notListed: Unit[];
@@ -197,6 +205,10 @@ export function qualificationProgress(
       pointsNeeded,
       groupBNeeded,
       pointsAvailableInApp: available.pointsCounted,
+      coversRules:
+        available.pointsCounted >= rules.electivePoints &&
+        sumPoints('B', false) >= rules.groupBMinPoints,
+      remainingUnits: statuses.filter((status) => status.group !== null && !status.complete),
       units: statuses,
       notListed: statuses.filter((status) => status.group === null).map((status) => status.unit),
     },
@@ -218,7 +230,20 @@ export function stillNeededSummary(progress: QualificationProgress): string {
       } pts)`,
     );
   }
-  if (electives.pointsNeeded > 0 || electives.groupBNeeded > 0) {
+  const remainingElectivePoints = electives.remainingUnits.reduce(
+    (sum, status) => sum + (status.points ?? 0),
+    0,
+  );
+  if (
+    electives.coversRules &&
+    electives.pointsNeeded > 0 &&
+    remainingElectivePoints === electives.pointsNeeded
+  ) {
+    // The usual case: the electives in this terminal are exactly the ones
+    // needed, so just say how many are left.
+    const count = electives.remainingUnits.length;
+    parts.push(`${count} elective ${count === 1 ? 'unit' : 'units'} (${electives.pointsNeeded} pts)`);
+  } else if (electives.pointsNeeded > 0 || electives.groupBNeeded > 0) {
     const need = Math.max(electives.pointsNeeded, electives.groupBNeeded);
     const groupB =
       electives.groupBNeeded > 0

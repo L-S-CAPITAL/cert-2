@@ -9,8 +9,8 @@ import {
 interface QualificationProgressProps {
   units: Unit[];
   completions: Record<string, Record<string, boolean>>;
-  /** Completed core topics as a % (the StatusBar's CORE PROGRESS figure). */
-  coreTopicsPercent: number;
+  /** Completed / total topics across the core units (study progress). */
+  coreTopics: { done: number; total: number };
 }
 
 const percentOf = (value: number, total: number) =>
@@ -56,7 +56,7 @@ function Bar({
 const QualificationProgress: React.FC<QualificationProgressProps> = ({
   units,
   completions,
-  coreTopicsPercent,
+  coreTopics,
 }) => {
   const progress = qualificationProgress(units, completions);
   const { core, electives } = progress;
@@ -81,8 +81,8 @@ const QualificationProgress: React.FC<QualificationProgressProps> = ({
         valueText={`${core.unitsDone} of ${core.unitsRequired} core units, ${core.pointsDone} of ${core.pointsRequired} core points`}
       />
       <div className="dashboard-note qual-detail">
-        {core.pointsDone} / {core.pointsRequired} core pts · {coreTopicsPercent}% of core topics
-        done
+        {core.pointsDone} / {core.pointsRequired} core pts · {coreTopics.done} / {coreTopics.total}{' '}
+        core topics done
       </div>
 
       <Bar
@@ -99,16 +99,15 @@ const QualificationProgress: React.FC<QualificationProgressProps> = ({
 
       <div className="qual-needed">{stillNeededSummary(progress)}</div>
       <div className="dashboard-note qual-caveat">
-        Electives in this terminal can cover {electives.pointsAvailableInApp} of the{' '}
-        {electives.pointsRequired} elective points; choose the rest with your RTO.
+        {!electives.coversRules &&
+          `Electives in this terminal can cover ${electives.pointsAvailableInApp} of the ${electives.pointsRequired} elective points; choose the rest with your RTO. `}
         {notListed.length > 0 &&
-          ` ${notListed.join(' and ')} ${
+          `${notListed.join(' and ')} ${
             notListed.length === 1 ? 'is' : 'are'
           } not on the ${rules.code} elective lists, so ${
             notListed.length === 1 ? 'it is' : 'they are'
-          } not counted.`}{' '}
-        Rules: {rules.code} release {rules.release}, training.gov.au (superseded by{' '}
-        {rules.supersededBy.code} on 24 Nov 2025; check which one you are enrolled in).
+          } not counted. `}
+        Rules: {rules.code} release {rules.release} packaging rules, training.gov.au.
       </div>
     </section>
   );

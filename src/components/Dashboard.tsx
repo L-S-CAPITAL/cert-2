@@ -248,7 +248,7 @@ const Dashboard: React.FC<DashboardProps> = ({ units, selectedUnitId = null, onO
       <QualificationProgress
         units={units}
         completions={completions}
-        coreTopicsPercent={core.percent}
+        coreTopics={{ done: core.topicsDone, total: core.topicsTotal }}
       />
 
       <div className="terminal-section">
