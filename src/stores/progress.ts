@@ -180,6 +180,9 @@ export function createProgressStore(storage: Storage) {
       try {
         const raw = JSON.parse(json) as unknown;
         if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return false;
+        // Close out a running session (log + save it) before replacing state,
+        // so the timer never keeps running against the imported data.
+        store.stopSession();
         commit({
           ...sanitizePersistedState(raw),
           ...runtimeDefaults(),
@@ -191,6 +194,9 @@ export function createProgressStore(storage: Storage) {
     },
 
     reset(): void {
+      // Stop and save a running session first, so the reset starts from a
+      // stopped timer instead of silently discarding it mid-flight.
+      store.stopSession();
       commit({
         ...sanitizePersistedState({}),
         ...runtimeDefaults(),

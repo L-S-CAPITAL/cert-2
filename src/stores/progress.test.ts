@@ -117,4 +117,55 @@ describe('progressStore', () => {
     expect(store.importProgress('not-json')).toBe(false);
     expect(store.importProgress('null')).toBe(false);
   });
+
+  function runningStore() {
+    const { store, storage } = makeStore();
+    store.markTopicComplete('c1', 'c1-t1');
+    store.startTopicSession('c1', 'c1-t1');
+    store.getState().startTime = Date.now() - 5000;
+    const snapshots: Array<ReturnType<typeof store.getState>> = [];
+    store.subscribe(() => snapshots.push(store.getState()));
+    return { store, storage, snapshots };
+  }
+
+  it('stops and saves a running session before reset', () => {
+    const { store, snapshots } = runningStore();
+    store.reset();
+    expect(snapshots).toHaveLength(2);
+    expect(snapshots[0].startTime).toBeNull();
+    expect(snapshots[0].sessionLogs[0]).toMatchObject({
+      unitId: 'c1',
+      topicId: 'c1-t1',
+      durationSeconds: 5,
+    });
+    expect(snapshots[0].totalTimeSeconds).toBe(5);
+    const final = store.getState();
+    expect(final.startTime).toBeNull();
+    expect(final.activeUnitId).toBeNull();
+    expect(final.sessionLogs).toHaveLength(0);
+    expect(final.totalTimeSeconds).toBe(0);
+  });
+
+  it('stops and saves a running session before a valid import', () => {
+    const { store, snapshots } = runningStore();
+    const json = JSON.stringify({
+      unitCompletions: { c2: { 'c2-t1': true } },
+      sessionLogs: [],
+      totalTimeSeconds: 42,
+    });
+    expect(store.importProgress(json)).toBe(true);
+    expect(snapshots).toHaveLength(2);
+    expect(snapshots[0].sessionLogs[0]).toMatchObject({ unitId: 'c1', durationSeconds: 5 });
+    expect(store.getState().startTime).toBeNull();
+    expect(store.getState().totalTimeSeconds).toBe(42);
+    expect(store.isTopicComplete('c2', 'c2-t1')).toBe(true);
+  });
+
+  it('leaves a running session alone when an import is rejected', () => {
+    const { store, snapshots } = runningStore();
+    expect(store.importProgress('not-json')).toBe(false);
+    expect(store.importProgress('[]')).toBe(false);
+    expect(snapshots).toHaveLength(0);
+    expect(store.getState().startTime).not.toBeNull();
+  });
 });
