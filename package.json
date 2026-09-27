@@ -33,6 +33,7 @@
     "files": [
       "dist/**/*",
       "electron-main.js",
+      "electron-navigation.js",
       "electron-preload.js",
       "icon.png",
       "!**/node_modules/**"

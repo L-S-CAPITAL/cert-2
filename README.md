@@ -116,7 +116,8 @@ Packaged Electron is locked down on purpose:
 - `nodeIntegration: false`
 - `sandbox: true`
 - Strict **Content-Security-Policy**: the production build ships it as a `<meta http-equiv>` tag in `dist/index.html` (injected by `vite.config.ts`), because response-header CSP does not apply to the packaged app's `file://` load; `npm run dev` gets a looser header CSP that allows Vite's inline scripts and HMR websocket
-- Navigation and `window.open` denied except the local dist tree / dev server
+- Navigation, redirects and `window.open` denied except the local dist tree (and, in unpackaged dev only, the exact Vite dev-server origin)
+- Every browser permission request / check is denied (the app needs none)
 - Preload exposes a **read-only** `window.electrotech` bridge (`platform` + version strings) — no file system, no Node
 - Single-instance lock so a second launch focuses the existing window
 
@@ -308,7 +309,8 @@ Thin Electron shell. Fat, typed renderer. Content as data.
 
 ```
 cert-2/
-├── electron-main.js          # window, CSP, navigation allow-list, single-instance
+├── electron-main.js          # window, CSP, navigation guards, permissions, single-instance
+├── electron-navigation.js    # navigation allow-list (tested in electron-navigation.test.js)
 ├── electron-preload.js       # contextBridge → window.electrotech (read-only)
 ├── index.html
 ├── icon.png
@@ -387,7 +389,8 @@ Tests live beside the modules they cover: `*.test.ts` under `src/data/` and `src
 | Preload surface | `platform`, `versions` only |
 | CSP (prod) | `<meta>` tag in `dist/index.html`: `default-src 'self'`; no inline script/style; no remote connect; no object |
 | New windows | denied |
-| Off-tree navigation | prevented |
+| Off-tree navigation / redirects | prevented |
+| Browser permissions | all denied |
 | Vite base | `./` so `file://` assets resolve |
 
 ---
