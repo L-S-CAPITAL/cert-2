@@ -165,7 +165,7 @@ UEECD0008, UEECD0019 and UEECD0035 have one topic per official element, with a s
 ### Quiz feedback and review
 
 - After you pick an answer the options lock and show **✓** on the correct answer and **✗** on yours (with screen-reader labels), so the result never depends on colour alone. A feedback line is announced through a polite live region, and focus moves to **Next**, so `Enter` continues.
-- If you were wrong, the feedback names the correct letter and answer. Where the question has an `explanation`, a one-line reason follows. Unit quiz questions have explanations (the elective ones cite the performance criterion or evidence they come from). Three questions are left without one because the figure or wording could not be backed up; they show the answer only. The strand module quizzes (MATH / ALG / GEO / DWG) do not have explanations yet and show the answer only.
+- If you were wrong, the feedback names the correct letter and answer. Where the question has an `explanation`, a one-line reason follows. Unit quiz questions have explanations (the elective ones cite the performance criterion or evidence they come from). Two questions (the heating/cooling energy share and the hot-water temperature) are left without one because their figures could not be backed up; they show the answer only. The strand module quizzes (MATH / ALG / GEO / DWG) do not have explanations yet and show the answer only.
 - **Review mistakes (N)** starts a round of just the missed questions. Review rounds are practice: they are **not saved** to quiz history and do not complete the topic. Only a full run counts, and a perfect full run still marks the topic complete. **Retry** / **Retake full quiz** starts a normal full round.
 
 Earlier versions shipped UEECD0044, UEECD0051 and UEECO0002 as electives. They are not part of this enrolment (and UEECD0044/UEECD0051 are not UEE22020 electives), so they were taken out of the unit list. Their notes and quizzes are kept in `src/data/archivedElectives.ts`. Saved progress for them stays in your progress file and exports, but it no longer counts toward any figure; old session logs still show their names.
@@ -217,7 +217,7 @@ Press **`?`** anywhere (outside a form field) for the in-app keyboard card. **`E
 
 ### Themes
 
-The header's **Light theme** toggle (or **`t`**) switches between the dark terminal look and a light "paper" theme with dark ink. On first run the app follows the system setting (`prefers-color-scheme`); once you pick a theme it is remembered in local storage (`electrotech-settings`, separate from study progress and not part of export / import / reset). Both themes are a set of CSS custom properties (`:root` and `[data-theme="light"]` in `src/styles/terminal.css`), and `src/styles/contrast.test.ts` checks every text colour against every panel background in both at WCAG AA 4.5:1.
+The header's **Light theme** toggle (or **`t`**) switches between the dark terminal look and a light "paper" theme with dark ink. On first run the app follows the system setting (`prefers-color-scheme`); once you pick a theme it is remembered in local storage (`electrotech-settings`, separate from study progress and not part of export / import / reset). Both themes are a set of CSS custom properties (`:root` and `[data-theme="light"]` in `src/styles/terminal.css`), and `src/styles/contrast.test.ts` checks every text colour against every panel background in both at WCAG AA 4.5:1, including the text drawn on top of progress-bar fills.
 
 ---
 

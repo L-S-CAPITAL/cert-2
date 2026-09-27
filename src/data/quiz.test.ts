@@ -56,7 +56,6 @@ describe('explanations in the course data', () => {
   // Left without an explanation on purpose: the figures or wording could not
   // be backed up from the question itself, so the quiz shows the answer only.
   const NOT_EXPLAINED = [
-    'Which international standard provides cable sizing and selection guidelines for Australia?',
     'Approximately what percentage of residential energy use is attributed to heating and cooling?',
     'What is the recommended hot water heater temperature for energy efficiency?',
   ];

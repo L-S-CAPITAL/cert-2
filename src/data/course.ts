@@ -295,7 +295,7 @@ export const CORE_UNITS: Unit[] = [
         ],
         quizQuestions: [
           {
-            question: 'Which international standard provides cable sizing and selection guidelines for Australia?',
+            question: 'Which standard provides cable sizing and selection guidelines for Australia?',
             options: [
               'IEC 60364',
               'AS/NZS 3000',
@@ -303,6 +303,8 @@ export const CORE_UNITS: Unit[] = [
               'AS/NZS 4534',
             ],
             correctAnswer: 2,
+            explanation:
+              'AS/NZS 3008 (Selection of cables) is the joint Australian/New Zealand standard for sizing cables by current-carrying capacity and voltage drop. AS/NZS 3000 is the Wiring Rules.',
           },
         ],
       },
