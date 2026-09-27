@@ -1,6 +1,6 @@
 import React from 'react';
 import { MathModule, Unit } from '../types';
-import { makeDrillPaper, scoreDrill } from '../data/drill';
+import { evaluateDrill, makeDrillPaper } from '../data/drill';
 import { progressStore } from '../stores/progress';
 
 interface MathDrillProps {
@@ -64,7 +64,9 @@ const MathDrill: React.FC<MathDrillProps> = ({ module, unit, onBack }) => {
     (value: number | null) => {
       const nextAnswers = [...answers];
       nextAnswers[index] = value;
-      const nextTimes = recordTime(times);
+      // Only answered items count toward the average time; skipped and
+      // timed-out items (value === null) leave their slot empty.
+      const nextTimes = value === null ? times : recordTime(times);
       setAnswers(nextAnswers);
       setTimes(nextTimes);
       setSelected(null);
@@ -87,45 +89,27 @@ const MathDrill: React.FC<MathDrillProps> = ({ module, unit, onBack }) => {
     }
   }, [remaining, done, perQuestion, commit, finish]);
 
+  const result = React.useMemo(
+    () =>
+      evaluateDrill({
+        answers,
+        times,
+        items: paper,
+        passPercent,
+        passAnswered,
+        perQuestionSeconds: perQuestion,
+      }),
+    [answers, times, paper, passPercent, passAnswered, perQuestion],
+  );
+  const passed = result.passed;
+  const averageLabel =
+    result.averageSeconds === null ? 'n/a' : `${result.averageSeconds}s`;
+
   React.useEffect(() => {
-    if (!done) return;
-    const result = scoreDrill(answers, paper);
-    const timed = times.filter((item): item is number => item !== null);
-    const avg =
-      timed.length === 0
-        ? Number.POSITIVE_INFINITY
-        : timed.reduce((sum, item) => sum + item, 0) / timed.length;
-    const speedOk = perQuestion ? avg <= perQuestion : true;
-    if (
-      result.percent >= passPercent &&
-      result.answered >= passAnswered &&
-      speedOk
-    ) {
+    if (done && passed) {
       progressStore.markTopicComplete(unit.id, module.id);
     }
-  }, [
-    done,
-    answers,
-    paper,
-    times,
-    perQuestion,
-    passPercent,
-    passAnswered,
-    unit.id,
-    module.id,
-  ]);
-
-  const result = scoreDrill(answers, paper);
-  const timed = times.filter((item): item is number => item !== null);
-  const avg =
-    timed.length === 0
-      ? 0
-      : Math.round(timed.reduce((sum, item) => sum + item, 0) / timed.length);
-  const speedOk = perQuestion ? avg > 0 && avg <= perQuestion : true;
-  const passed =
-    result.percent >= passPercent &&
-    result.answered >= passAnswered &&
-    speedOk;
+  }, [done, passed, unit.id, module.id]);
   const current = paper[index];
   const minutes = Math.floor(remaining / 60);
   const seconds = remaining % 60;
@@ -169,7 +153,7 @@ const MathDrill: React.FC<MathDrillProps> = ({ module, unit, onBack }) => {
           </p>
           {perQuestion ? (
             <p className="math-body">
-              Average time on answered items: {avg}s (target ≤ {perQuestion}s).
+              Average time on answered items: {averageLabel} (target ≤ {perQuestion}s).
             </p>
           ) : null}
           <p className="math-body">
