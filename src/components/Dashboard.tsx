@@ -1,6 +1,7 @@
 import React from 'react';
 import { Unit } from '../types';
 import { useProgress } from '../stores/progress';
+import QualificationProgress from './QualificationProgress';
 import { describeSession, formatSessionDate } from '../data/sessions';
 import { summarizeCompletion } from '../data/completion';
 import {
@@ -121,7 +122,7 @@ function UnitTable({
 const Dashboard: React.FC<DashboardProps> = ({ units, selectedUnitId = null, onOpenUnit }) => {
   const progress = useProgress();
   const completions = progress.unitCompletions;
-  const { core, electives } = summarizeCompletion(units, completions);
+  const { core } = summarizeCompletion(units, completions);
   const sessionLogs = progress.sessionLogs;
   const timerRunning = progress.startTime !== null;
 
@@ -236,35 +237,11 @@ const Dashboard: React.FC<DashboardProps> = ({ units, selectedUnitId = null, onO
         )}
       </section>
 
-      <div className="terminal-section">
-        <div className="terminal-section-title">
-          <span className="icon">PROGRESS</span>
-          <span>Core progress</span>
-          <span className="section-count">
-            {core.unitsDone} / {core.unitsTotal} core units · {core.topicsDone} /{' '}
-            {core.topicsTotal} topics
-          </span>
-        </div>
-
-        <div className="progress-row">
-          <div className="progress-bar-container">
-            <div
-              className="progress-bar-fill"
-              style={{ width: `${core.percent}%` }}
-              role="progressbar"
-              aria-valuenow={core.percent}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label="Core progress (completed core topics)"
-            ></div>
-          </div>
-          <div className="progress-row-label">{core.percent}% complete</div>
-        </div>
-        <div className="dashboard-note">
-          Electives tracked separately: {electives.percent}% ({electives.topicsDone} /{' '}
-          {electives.topicsTotal} topics, {electives.unitsDone} / {electives.unitsTotal} units)
-        </div>
-      </div>
+      <QualificationProgress
+        units={units}
+        completions={completions}
+        coreTopicsPercent={core.percent}
+      />
 
       <div className="terminal-section">
         <div className="terminal-section-title">

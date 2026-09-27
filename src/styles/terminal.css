@@ -1269,6 +1269,43 @@ body::before {
   color: var(--text-tertiary);
 }
 
+/* Qualification progress: "Core" / "Electives" rows of name, bar, label. */
+.qual-row {
+  display: grid;
+  grid-template-columns: 76px minmax(80px, 1fr) 112px;
+  align-items: center;
+  gap: 12px;
+}
+
+.qual-row .qual-row-label {
+  text-align: right;
+}
+
+.qual-row-name {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+}
+
+.qual-row .qual-bar {
+  margin: 4px 0;
+}
+
+.qual-detail {
+  margin: 0 0 6px 88px;
+}
+
+.qual-needed {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-amber);
+}
+
+.qual-caveat {
+  margin-top: 2px;
+}
+
 .stat-card .stat-detail {
   font-size: 10px;
   color: var(--text-dim);

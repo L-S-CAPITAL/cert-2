@@ -165,9 +165,9 @@ describe('Dashboard stats', () => {
     expect(statCard('Topics left: next unit')?.querySelector('.stat-value')?.textContent).toBe(
       String(first.topics.length),
     );
-    // The overall % is shown once, beside the progress bar, not as a card.
+    // Overall progress lives in the qualification bars, not in a card.
     expect(container.querySelectorAll('.stat-card')).toHaveLength(4);
-    expect(container.querySelector('.progress-row-label')?.textContent).toBe('0% complete');
+    expect(container.querySelector('.qual-row-label')?.textContent).toBe('0 / 8 units');
   });
 
   it('counts a session logged today toward this week and the streak', () => {

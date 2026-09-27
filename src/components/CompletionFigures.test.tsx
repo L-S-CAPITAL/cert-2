@@ -64,24 +64,27 @@ describe('completion figures', () => {
     expect(statusValue('CORE UNITS')).toBe(`1/${core.unitsTotal}`);
     expect(statusValue('ELECTIVES')).toBe(`${electives.percent}%`);
 
+    // CourseOverview keeps the topic-based core bar.
     const coreBars = container.querySelectorAll(
       '[role="progressbar"][aria-label^="Core progress"]',
     );
-    expect(coreBars).toHaveLength(2);
-    for (const bar of coreBars) {
-      expect(bar.getAttribute('aria-valuenow')).toBe(String(core.percent));
-    }
+    expect(coreBars).toHaveLength(1);
+    expect(coreBars[0].getAttribute('aria-valuenow')).toBe(String(core.percent));
 
-    // The dashboard shows the overall figure once (bar + label beside it)
-    // with the unit / topic counts next to the section title.
+    // The dashboard measures progress toward the qualification: core units
+    // as a bar, with the same topic % as a detail line.
     const dashboard = container.querySelector('.dashboard')!;
-    expect(dashboard.querySelector('.progress-row-label')?.textContent).toBe(
-      `${core.percent}% complete`,
-    );
-    expect(dashboard.textContent).toContain(`1 / ${core.unitsTotal} core units`);
-    expect(dashboard.textContent).toContain(
-      `${core.topicsDone} / ${core.topicsTotal} topics`,
-    );
+    const coreBar = dashboard.querySelector('[role="progressbar"][aria-label="Core toward UEE22020"]')!;
+    expect(coreBar.getAttribute('aria-valuenow')).toBe('1');
+    expect(coreBar.getAttribute('aria-valuemax')).toBe(String(core.unitsTotal));
+    expect(dashboard.textContent).toContain(`1 / ${core.unitsTotal} units`);
+    expect(dashboard.textContent).toContain(`${core.percent}% of core topics done`);
+    // The completed elective (UEECD0044) is not on the UEE22020 elective
+    // lists, so it adds no elective points.
+    const electiveBar = dashboard.querySelector(
+      '[role="progressbar"][aria-label="Electives toward UEE22020"]',
+    )!;
+    expect(electiveBar.getAttribute('aria-valuenow')).toBe('0');
     const statValues = Array.from(dashboard.querySelectorAll('.stat-card .stat-value')).map(
       (value) => value.textContent,
     );
