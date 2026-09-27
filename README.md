@@ -173,20 +173,24 @@ Industry demand figure carried in course metadata: on the order of **26,000** op
 
 ## Terminal map
 
-Eight tabs. Keys `1`–`8`. The TIMER pane stays visible on the right.
+Eight sections in a left sidebar, grouped into **Study** and **Records**. Keys `1`–`8` still jump straight to a section. The TIMER pane stays visible on the right. Below 1000 px wide the sidebar shrinks to its `[DASH]`-style labels.
 
 ```
 ┌──────────────────────────────── ElectroTech Terminal ────────────────────────────────┐
 │  UEE22020  ·  Certificate II in Electrotechnology (Career Start)  ·  TAFE Queensland │
-├──────┬───────┬─────────────┬─────────────────┬────────┬─────────┬─────────┬──────────┤
-│ 1    │ 2     │ 3           │ 4               │ 5      │ 6       │ 7       │ 8        │
-│ DASH │ UNITS │ LOG         │ INFO            │ MATH   │ ALG     │ GEO     │ DWG      │
-├──────┴───────┴─────────────┴─────────────────┴────────┴─────────┴─────────┴──────────┤
-│  MAIN PANEL                                              │  TIMER                    │
-│  dashboard / units / sessions / overview / strand        │  select unit · start/stop │
-│                                                          │  live elapsed · totals    │
-├──────────────────────────────────────────────────────────┴───────────────────────────┤
-│  STATUS BAR · completion · clock · environment                                       │
+├──────────────────────┬───────────────────────────────────────┬───────────────────────┤
+│ STUDY                │  MAIN PANEL                           │  TIMER                │
+│ [DASH]  Dashboard  1 │  dashboard / units / strand /         │  select unit          │
+│ [UNITS] Units      2 │  sessions / overview                  │  start / stop         │
+│ [MATH]  Trade maths 5│                                       │  live elapsed         │
+│ [ALG]   Notation   6 │                                       │  totals               │
+│ [GEO]   Geometry   7 │                                       │                       │
+│ [DWG]   Drawings   8 │                                       │                       │
+│ RECORDS              │                                       │                       │
+│ [LOG]   Session log 3│                                       │                       │
+│ [INFO]  Overview   4 │                                       │                       │
+├──────────────────────┴───────────────────────────────────────┴───────────────────────┤
+│  STATUS BAR · points · units · clock                                                  │
 └──────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -311,8 +315,8 @@ Shortcuts are ignored while focus is in an input, select, textarea, or contented
 | `s` | Start or stop the study timer (a unit must be selected) |
 | `?` | Help |
 | `Esc` | Close dialogs |
-| `←` / `→` | Previous / next tab (when a tab has focus; wraps) |
-| `Home` / `End` | First / last tab (when a tab has focus) |
+| `↑` / `↓` (or `←` / `→`) | Previous / next section (when the sidebar has focus; wraps) |
+| `Home` / `End` | First / last section (when the sidebar has focus) |
 
 ---
 
@@ -335,7 +339,7 @@ cert-2/
 ├── docs/superpowers/plans/   # hardening notes (seven-slice plan)
 └── src/
     ├── main.tsx
-    ├── App.tsx               # tabs, shortcuts, timer rail
+    ├── App.tsx               # sidebar sections, shortcuts, timer rail
     ├── types.ts              # Unit, Topic, Progress, MathModule, …
     ├── styles/terminal.css   # phosphor terminal chrome
     ├── stores/
@@ -435,7 +439,8 @@ Prerequisite units must be fully topic-complete before dependents unlock. That i
 
 The hardening pass wired the chrome for keyboard and AT use:
 
-- Tabs expose `role="tablist"` / `tab` / `tabpanel` with `aria-selected` and `aria-controls`, a roving `tabindex`, and arrow / Home / End key navigation (WAI-ARIA tabs pattern)
+- The sidebar is a `nav` landmark holding a vertical `role="tablist"` (`aria-orientation="vertical"`) of `tab`s controlling the `tabpanel`, with `aria-selected`, `aria-controls`, `aria-keyshortcuts`, a roving `tabindex`, and Up/Down (also Left/Right) / Home / End keys (WAI-ARIA tabs pattern). The current section is marked by an amber bar, bold text and a `◀` marker, not colour alone. When the sidebar is narrow the text labels are visually hidden but still read out
+- Text colours meet WCAG AA (4.5:1) on every panel background; `src/styles/contrast.test.ts` checks the CSS custom properties. Long-form text (topic notes, quiz questions, flashcards) uses the system sans-serif; labels and numbers stay monospace. No web fonts are loaded (CSP `font-src 'self'`)
 - Help and quizzes are dialogs; `Esc` dismisses
 - Progress bars carry `role="progressbar"` and value attributes
 - Contrast and focus treatment live in `src/styles/terminal.css`
