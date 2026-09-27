@@ -26,7 +26,8 @@ Core units. Electives. Topic quizzes. Foundational trade mathematics.
 Algebra, geometry, and blueprint literacy. A local study timer.  
 Progress never leaves this machine.
 
-[![Electron](https://img.shields.io/badge/Electron-30-47848F?style=flat-square&logo=electron&logoColor=white)](https://www.electronjs.org/)
+[![CI](https://github.com/L-S-CAPITAL/cert-2/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/L-S-CAPITAL/cert-2/actions/workflows/ci.yml)
+[![Electron](https://img.shields.io/badge/Electron-44-47848F?style=flat-square&logo=electron&logoColor=white)](https://www.electronjs.org/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
@@ -442,6 +443,17 @@ Coverage is unit-level and biased toward the parts that must not silently corrup
 - Algebra / geometry / blueprint module invariants
 
 Add a test next to the file you change. Prefer Vitest + jsdom; do not stand up Electron for data tests.
+
+### Continuous integration
+
+GitHub Actions (`.github/workflows/ci.yml`) runs on every pull request and on pushes to `main`:
+
+| Job | Runner | What it checks |
+|---|---|---|
+| `check` | Ubuntu, Node 22 | `npm ci`, `tsc --noEmit`, `vitest run`, `vite build`, and that `dist/index.html` contains the production CSP `<meta>` tag |
+| `package` | Ubuntu, Windows, macOS | Runs only after `check` passes. Builds with `electron-builder --dir` (unpacked, unsigned, never published), prints the applied Electron fuses, and uploads the unpacked app as a `.tar.gz` artifact kept for 7 days |
+
+The macOS job upscales `icon.png` to a temporary 512×512 file (placeholder; nothing is committed) because electron-builder needs a 512px icon on macOS. Newer runs for the same branch cancel older ones. Dependabot (`.github/dependabot.yml`) opens weekly update PRs for npm and GitHub Actions, grouping minor and patch bumps into one PR each.
 
 ---
 
