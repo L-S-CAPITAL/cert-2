@@ -72,11 +72,19 @@ describe('completion figures', () => {
       expect(bar.getAttribute('aria-valuenow')).toBe(String(core.percent));
     }
 
-    const cards = Array.from(container.querySelectorAll('.stat-card'));
-    const card = (label: string) =>
-      cards.find((item) => item.querySelector('.stat-label')?.textContent === label)
-        ?.querySelector('.stat-value')?.textContent;
-    expect(card('Core Progress (topics)')).toBe(`${core.percent}%`);
-    expect(card('Core Units Completed')).toBe(`1 / ${core.unitsTotal}`);
+    // The dashboard shows the overall figure once (bar + label beside it)
+    // with the unit / topic counts next to the section title.
+    const dashboard = container.querySelector('.dashboard')!;
+    expect(dashboard.querySelector('.progress-row-label')?.textContent).toBe(
+      `${core.percent}% complete`,
+    );
+    expect(dashboard.textContent).toContain(`1 / ${core.unitsTotal} core units`);
+    expect(dashboard.textContent).toContain(
+      `${core.topicsDone} / ${core.topicsTotal} topics`,
+    );
+    const statValues = Array.from(dashboard.querySelectorAll('.stat-card .stat-value')).map(
+      (value) => value.textContent,
+    );
+    expect(statValues).not.toContain(`${core.percent}%`);
   });
 });

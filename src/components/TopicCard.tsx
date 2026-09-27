@@ -1,12 +1,18 @@
 import React from 'react';
 import { Unit, Topic } from '../types';
 import { useProgress, progressStore } from '../stores/progress';
+import { scrollToTopOfPanel } from '../scroll';
 
 interface TopicCardProps {
   unit: Unit;
   topic: Topic;
   onComplete: () => void;
   onQuiz: () => void;
+  /**
+   * When set (and whenever it changes), expand this topic, scroll it into
+   * view and focus its title, e.g. from the Dashboard's "Continue" button.
+   */
+  openRequest?: number | null;
 }
 
 const TopicCard: React.FC<TopicCardProps> = ({
@@ -14,8 +20,19 @@ const TopicCard: React.FC<TopicCardProps> = ({
   topic,
   onComplete,
   onQuiz,
+  openRequest = null,
 }) => {
-  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [isExpanded, setIsExpanded] = React.useState(openRequest !== null);
+  const titleRef = React.useRef<HTMLButtonElement>(null);
+
+  React.useEffect(() => {
+    if (openRequest === null) return;
+    setIsExpanded(true);
+    const title = titleRef.current;
+    if (!title) return;
+    scrollToTopOfPanel(title);
+    title.focus({ preventScroll: true });
+  }, [openRequest]);
   useProgress();
   const isComplete = progressStore.isTopicComplete(unit.id, topic.id);
   const stop = (event: React.MouseEvent) => event.stopPropagation();
@@ -32,6 +49,7 @@ const TopicCard: React.FC<TopicCardProps> = ({
       <button
         type="button"
         className="topic-title"
+        ref={titleRef}
         onClick={(event) => {
           stop(event);
           setIsExpanded((open) => !open);

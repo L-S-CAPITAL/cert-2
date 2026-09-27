@@ -182,7 +182,7 @@ Eight tabs. Keys `1`–`8`. The TIMER pane stays visible on the right.
 
 | Key | Panel | You use it to |
 |---|---|---|
-| `1` | **Dashboard** | Glance completion, hot units, where to resume |
+| `1` | **Dashboard** | **Continue studying** (jumps to the next unfinished topic), weekly study time, day streak, units still to do (click a row to open it) |
 | `2` | **Units** | Expand core and elective units, read topics, sit quizzes, mark complete |
 | `3` | **Session Log** | Audit timed study against unit / topic |
 | `4` | **Course Overview** | Points, outcomes, unit table, **export / import / reset** |
@@ -314,6 +314,7 @@ Thin Electron shell. Fat, typed renderer. Content as data.
 cert-2/
 ├── electron-main.js          # window, CSP, navigation guards, permissions, single-instance
 ├── electron-navigation.js    # navigation allow-list (tested in electron-navigation.test.js)
+├── electron-window-state.js  # remembers window size / position (tested in electron-window-state.test.js)
 ├── electron-preload.js       # contextBridge → window.electrotech (read-only)
 ├── index.html
 ├── icon.png
@@ -335,6 +336,7 @@ cert-2/
     │   ├── electives.ts
     │   ├── quizzes.ts        # extra topic quizzes merged into units
     │   ├── prerequisites.ts
+    │   ├── dashboard.ts      # streak, week vs week, unit grouping, "continue" target
     │   ├── math.ts           # foundational modules + drill bank
     │   ├── algebra.ts
     │   ├── geometry.ts
@@ -403,8 +405,8 @@ Tests live beside the modules they cover: `*.test.ts` under `src/data/` and `src
 
 A practical loop that matches how the app is wired:
 
-1. Open **Dashboard** (`1`). See what is incomplete.
-2. Move to **Units** (`2`). Expand a unit. Read the topic. Hit the key points.
+1. Open **Dashboard** (`1`). See what is incomplete, or press **Continue** to jump straight to the next unfinished topic.
+2. In **Units** (`2`), expand a unit. Read the topic. Hit the key points.
 3. Sit the quiz. A full score completes the topic; anything less leaves it open.
 4. Select that unit in the TIMER rail and press **`s`**. Work. Press **`s`** again.
 5. When the theory is soft, switch to **MATH** (`5`) and run the speed drill cold.

@@ -1,101 +1,283 @@
 import React from 'react';
 import { Unit } from '../types';
-import { progressStore, useProgress } from '../stores/progress';
+import { useProgress } from '../stores/progress';
 import { describeSession, formatSessionDate } from '../data/sessions';
 import { summarizeCompletion } from '../data/completion';
+import {
+  ContinueReason,
+  UnitRow,
+  dayStreak,
+  formatStudyDuration,
+  groupUnits,
+  pickContinueTarget,
+  weeklyStudyTime,
+} from '../data/dashboard';
 
 interface DashboardProps {
   units: Unit[];
+  /** Unit picked in the timer / Units tab (used to resume studying). */
+  selectedUnitId?: string | null;
+  /** Open a unit (and optionally one of its topics) in the Units tab. */
+  onOpenUnit?: (unitId: string, topicId?: string | null) => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ units }) => {
-  const progress = useProgress();
-  const { core, electives } = summarizeCompletion(units, progress.unitCompletions);
-  const totalTime = progressStore.getFormattedTotalTime();
-  const sessionLogs = progressStore.getSessionLogs();
+const REASON_LABEL: Record<ContinueReason, string> = {
+  timer: 'Resume timed unit',
+  selected: 'Resume selected unit',
+  'last-studied': 'Resume last studied',
+  'in-progress': 'Pick up where you left off',
+  'not-started': 'Up next',
+};
 
-  const statCards = [
+const STATUS_LABEL: Record<UnitRow['status'], string> = {
+  'in-progress': 'IN PROGRESS',
+  'not-started': 'NOT STARTED',
+  complete: 'COMPLETE',
+};
+
+const STATUS_COLOR: Record<UnitRow['status'], string> = {
+  'in-progress': 'var(--text-amber)',
+  'not-started': 'var(--text-dim)',
+  complete: 'var(--text-primary)',
+};
+
+function UnitTable({
+  rows,
+  onOpenUnit,
+  caption,
+}: {
+  rows: UnitRow[];
+  onOpenUnit?: DashboardProps['onOpenUnit'];
+  caption: string;
+}) {
+  return (
+    <table className="terminal-table unit-progress-table">
+      <caption className="visually-hidden">{caption}</caption>
+      <colgroup>
+        <col className="col-code" />
+        <col />
+        <col className="col-progress" />
+        <col className="col-status" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th scope="col">Code</th>
+          <th scope="col">Unit</th>
+          <th scope="col">Topics</th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => {
+          const locked = row.status === 'not-started' && !row.unlocked;
+          const open = () => onOpenUnit?.(row.unit.id);
+          return (
+            // The row is a mouse convenience; keyboard and screen-reader users
+            // get the real <button> in the unit cell (Enter / Space).
+            <tr key={row.unit.id} className="unit-row" onClick={open}>
+              <td className="unit-row-code">{row.unit.code}</td>
+              <td>
+                <button
+                  type="button"
+                  className="row-link"
+                  aria-label={`Open unit ${row.unit.code}: ${row.unit.name}`}
+                >
+                  {row.unit.name}
+                </button>
+              </td>
+              <td>
+                <div
+                  className="progress-bar-container unit-topics-bar"
+                  role="progressbar"
+                  aria-valuenow={row.percent}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuetext={`${row.topicsDone} of ${row.topicsTotal} topics`}
+                  aria-label={`${row.unit.code} topics complete`}
+                >
+                  <div className="progress-bar-fill" style={{ width: `${row.percent}%` }} />
+                  <div className="progress-bar-text">
+                    {row.topicsDone} / {row.topicsTotal}
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span
+                  className="unit-status"
+                  style={{ color: locked ? 'var(--text-dim)' : STATUS_COLOR[row.status] }}
+                  title={locked ? `Complete ${row.unit.prerequisites.join(', ')} first` : undefined}
+                >
+                  {locked ? 'LOCKED' : STATUS_LABEL[row.status]}
+                </span>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ units, selectedUnitId = null, onOpenUnit }) => {
+  const progress = useProgress();
+  const completions = progress.unitCompletions;
+  const { core, electives } = summarizeCompletion(units, completions);
+  const sessionLogs = progress.sessionLogs;
+  const timerRunning = progress.startTime !== null;
+
+  const target = pickContinueTarget({
+    units,
+    completions,
+    activeUnitId: timerRunning ? progress.activeUnitId : null,
+    activeTopicId: timerRunning ? progress.activeTopicId : null,
+    selectedUnitId,
+    sessionLogs,
+  });
+
+  const now = new Date();
+  const week = weeklyStudyTime(sessionLogs, now);
+  const streak = dayStreak(sessionLogs, now);
+  const weekDelta = week.thisWeekSeconds - week.lastWeekSeconds;
+  const grouped = groupUnits(units, completions);
+  const activeRows = [...grouped.inProgress, ...grouped.notStarted];
+
+  const statCards: { label: string; value: string; detail: string; colorClass?: string }[] = [
     {
-      label: 'Core Progress (topics)',
-      value: `${core.percent}%`,
+      label: 'Study time this week',
+      value: formatStudyDuration(week.thisWeekSeconds),
+      detail:
+        week.thisWeekSeconds === 0 && week.lastWeekSeconds === 0
+          ? 'no sessions logged in the last 2 weeks'
+          : `vs ${formatStudyDuration(week.lastWeekSeconds)} last week (${
+              weekDelta >= 0 ? '+' : '-'
+            }${formatStudyDuration(Math.abs(weekDelta))})`,
+    },
+    {
+      label: 'Day streak',
+      value: `${streak.days} ${streak.days === 1 ? 'day' : 'days'}`,
+      detail:
+        streak.daysSinceLastSession === null
+          ? 'no sessions yet'
+          : streak.daysSinceLastSession === 0
+            ? 'studied today'
+            : streak.daysSinceLastSession === 1
+              ? 'last session yesterday: study today to keep it'
+              : `last session ${streak.daysSinceLastSession} days ago`,
+      colorClass: streak.days > 0 ? 'green' : undefined,
+    },
+    {
+      // Quiz scores are not stored anywhere yet (quizzes only mark a topic
+      // complete on a perfect score), so there is no real average to show.
+      label: 'Average quiz score',
+      value: '—',
+      detail: 'no quiz scores recorded yet',
+    },
+    {
+      label: 'Topics left: next unit',
+      value: target.kind === 'unit' ? String(target.topicsLeft) : '0',
+      detail:
+        target.kind === 'unit'
+          ? `to finish ${target.unit.code}`
+          : target.kind === 'all-complete'
+            ? 'every unit is complete'
+            : 'no unlocked unit to study',
       colorClass: 'green',
-    },
-    {
-      label: 'Total Study Time',
-      value: totalTime,
-      colorClass: '',
-    },
-    {
-      label: 'Core Units Completed',
-      value: core.unitsDone,
-      total: core.unitsTotal,
-      colorClass: 'green',
-    },
-    {
-      label: `Electives (${electives.unitsDone}/${electives.unitsTotal} units)`,
-      value: `${electives.percent}%`,
-      colorClass: '',
-    },
-    {
-      label: 'Session Count',
-      value: sessionLogs.length,
-      colorClass: '',
     },
   ];
 
   return (
     <div className="dashboard">
+      <section className="terminal-section continue-card" aria-labelledby="continue-title">
+        <div className="terminal-section-title" id="continue-title">
+          <span className="icon">NEXT</span>
+          <span>Continue studying</span>
+        </div>
+        {target.kind === 'unit' && (
+          <div className="continue-body">
+            <div className="continue-text">
+              <div className="continue-reason">{REASON_LABEL[target.reason]}</div>
+              <div className="continue-unit" title={`${target.unit.code} - ${target.unit.name}`}>
+                <span className="continue-code">{target.unit.code}</span> {target.unit.name}
+              </div>
+              <div className="continue-topic">
+                Next topic {target.topicNumber} of {target.unit.topics.length}:{' '}
+                <span className="continue-topic-title">{target.topic.title}</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="terminal-btn amber continue-btn"
+              onClick={() => onOpenUnit?.(target.unit.id, target.topic.id)}
+            >
+              Continue ▶
+            </button>
+          </div>
+        )}
+        {target.kind === 'all-complete' && (
+          <div className="continue-body">
+            <div className="continue-text">
+              <div className="continue-unit">
+                All {target.unitsTotal} units complete. Nice work.
+              </div>
+              <div className="continue-topic">
+                Revisit any unit from the table below, or keep your skills sharp in the strand tabs.
+              </div>
+            </div>
+          </div>
+        )}
+        {target.kind === 'none' && (
+          <div className="continue-body">
+            <div className="continue-text">
+              <div className="continue-topic">
+                The remaining units are locked. Check their prerequisites in the Units tab.
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
       <div className="terminal-section">
         <div className="terminal-section-title">
           <span className="icon">PROGRESS</span>
-          <span>CORE PROGRESS</span>
+          <span>Core progress</span>
           <span className="section-count">
-            {core.topicsDone} / {core.topicsTotal} CORE TOPICS
+            {core.unitsDone} / {core.unitsTotal} core units · {core.topicsDone} /{' '}
+            {core.topicsTotal} topics
           </span>
         </div>
 
-        <div className="progress-bar-container">
-          <div
-            className="progress-bar-fill"
-            style={{ width: `${core.percent}%` }}
-            role="progressbar"
-            aria-valuenow={core.percent}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label="Core progress (completed core topics)"
-          ></div>
-          <div className="progress-bar-text">
-            {core.percent}% OF CORE TOPICS
+        <div className="progress-row">
+          <div className="progress-bar-container">
+            <div
+              className="progress-bar-fill"
+              style={{ width: `${core.percent}%` }}
+              role="progressbar"
+              aria-valuenow={core.percent}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Core progress (completed core topics)"
+            ></div>
           </div>
+          <div className="progress-row-label">{core.percent}% complete</div>
         </div>
-        <div style={{ fontSize: 10, color: 'var(--text-dim)' }}>
+        <div className="dashboard-note">
           Electives tracked separately: {electives.percent}% ({electives.topicsDone} /{' '}
-          {electives.topicsTotal} topics)
+          {electives.topicsTotal} topics, {electives.unitsDone} / {electives.unitsTotal} units)
         </div>
       </div>
 
       <div className="terminal-section">
         <div className="terminal-section-title">
           <span className="icon">STATS</span>
-          <span>QUICK STATISTICS</span>
+          <span>Quick statistics</span>
         </div>
 
         <div className="stats-grid">
           {statCards.map((stat) => (
-            <div
-              key={stat.label}
-              className={`stat-card ${stat.colorClass}`}
-            >
-              <div className="stat-value">
-                {stat.value}
-                {stat.total !== undefined && (
-                  <span style={{ color: 'var(--text-dim)', fontSize: '12px' }}>
-                    {' '}
-                    / {stat.total}
-                  </span>
-                )}
-              </div>
+            <div key={stat.label} className={`stat-card ${stat.colorClass ?? ''}`}>
+              <div className="stat-value">{stat.value}</div>
               <div className="stat-label">{stat.label}</div>
+              <div className="stat-detail">{stat.detail}</div>
             </div>
           ))}
         </div>
@@ -104,73 +286,24 @@ const Dashboard: React.FC<DashboardProps> = ({ units }) => {
       <div className="terminal-section">
         <div className="terminal-section-title">
           <span className="icon">UNITS</span>
-          <span>UNIT PROGRESS</span>
+          <span>Unit progress</span>
+          <span className="section-count">
+            {grouped.inProgress.length} in progress · {grouped.notStarted.length} not started
+          </span>
         </div>
 
-        <table className="terminal-table">
-          <thead>
-            <tr>
-              <th>Code</th>
-              <th>Unit</th>
-              <th>Topics</th>
-              <th>Progress</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {units.map((unit) => {
-              const topics = unit.topics || [];
-              const completion = progressStore.getUnitCompletion(
-                unit.id,
-                topics,
-              );
-              const completedTopics = topics.filter((t) =>
-                progressStore.isTopicComplete(unit.id, t.id),
-              ).length;
-              const status =
-                completion === 100
-                  ? 'COMPLETE'
-                  : completion > 0
-                    ? 'IN PROGRESS'
-                    : 'NOT STARTED';
-              return (
-                <tr key={unit.id}>
-                  <td style={{ color: 'var(--text-amber)' }}>{unit.code}</td>
-                  <td>{unit.name}</td>
-                  <td style={{ color: 'var(--text-dim)' }}>
-                    {completedTopics} / {topics.length}
-                  </td>
-                  <td>
-                    <div className="progress-bar-container" style={{ marginBottom: 0, marginTop: 4 }}>
-                      <div
-                        className="progress-bar-fill"
-                        style={{ width: `${completion}%`, height: '12px' }}
-                      ></div>
-                    </div>
-                    <div style={{ fontSize: '10px', color: 'var(--text-dim)', marginTop: 2 }}>
-                      {completion}%
-                    </div>
-                  </td>
-                  <td>
-                    <span
-                      style={{
-                        color:
-                          status === 'COMPLETE'
-                            ? 'var(--text-primary)'
-                            : status === 'IN PROGRESS'
-                              ? 'var(--text-amber)'
-                              : 'var(--text-dim)',
-                        fontSize: '10px',
-                      }}
-                    >
-                      {status}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        {activeRows.length > 0 ? (
+          <UnitTable rows={activeRows} onOpenUnit={onOpenUnit} caption="Units in progress and not started" />
+        ) : (
+          <div className="dashboard-note">Every unit is complete.</div>
+        )}
+
+        {grouped.completed.length > 0 && (
+          <details className="completed-units">
+            <summary>Completed ({grouped.completed.length})</summary>
+            <UnitTable rows={grouped.completed} onOpenUnit={onOpenUnit} caption="Completed units" />
+          </details>
+        )}
       </div>
 
       {sessionLogs.length > 0 && (

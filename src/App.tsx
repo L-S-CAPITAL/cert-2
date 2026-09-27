@@ -1,5 +1,6 @@
 import React from 'react';
 import { TabType } from './types';
+import type { UnitFocusRequest } from './components/UnitPanel';
 import TerminalHeader from './components/TerminalHeader';
 import StatusBar from './components/StatusBar';
 import Dashboard from './components/Dashboard';
@@ -18,6 +19,8 @@ import { ALGEBRA_UNIT } from './data/algebra';
 import { GEOMETRY_UNIT } from './data/geometry';
 import { BLUEPRINT_UNIT } from './data/blueprints';
 import { progressStore, useProgress } from './stores/progress';
+import { isUnitUnlocked } from './data/prerequisites';
+import { scrollIntoViewHorizontally } from './scroll';
 import { shouldIgnoreShortcut } from './shortcuts';
 
 const TABS: { id: TabType; label: string; icon: string }[] = [
@@ -48,7 +51,17 @@ const App: React.FC = () => {
   const [selectedUnitId, setSelectedUnitId] = React.useState<string | null>(null);
   const [expandedUnits, setExpandedUnits] = React.useState<Record<string, boolean>>({});
   const [helpOpen, setHelpOpen] = React.useState(false);
+  // Set by the Dashboard ("Continue studying", unit table rows) to open a unit
+  // and optionally one of its topics in the Units tab. `key` makes repeated
+  // requests for the same unit fire again.
+  const [focusRequest, setFocusRequest] = React.useState<UnitFocusRequest | null>(null);
   const progress = useProgress();
+
+  // A focus request is used once: forget it when leaving the Units tab so
+  // coming back later does not jump to that unit / topic again.
+  React.useEffect(() => {
+    if (activeTab !== 'units') setFocusRequest(null);
+  }, [activeTab]);
 
   React.useEffect(() => {
     const stop = () => progressStore.stopSession();
@@ -94,6 +107,41 @@ const App: React.FC = () => {
   }, [selectedUnitId]);
 
   const tabRefs = React.useRef<Array<HTMLButtonElement | null>>([]);
+  const tabListRef = React.useRef<HTMLElement | null>(null);
+  const [tabOverflow, setTabOverflow] = React.useState({ left: false, right: false });
+
+  // The tab bar scrolls horizontally when the window is too narrow for every
+  // tab. Track whether there is more to either side so the fade + arrow
+  // affordances only show when they mean something.
+  const updateTabOverflow = React.useCallback(() => {
+    const list = tabListRef.current;
+    if (!list) return;
+    const left = list.scrollLeft > 1;
+    const right = list.scrollLeft + list.clientWidth < list.scrollWidth - 1;
+    setTabOverflow((prev) =>
+      prev.left === left && prev.right === right ? prev : { left, right },
+    );
+  }, []);
+
+  React.useEffect(() => {
+    updateTabOverflow();
+    window.addEventListener('resize', updateTabOverflow);
+    return () => window.removeEventListener('resize', updateTabOverflow);
+  }, [updateTabOverflow]);
+
+  // Keep the active tab visible (e.g. after arrow keys or a number shortcut).
+  React.useEffect(() => {
+    const index = TABS.findIndex((tab) => tab.id === activeTab);
+    const tab = tabRefs.current[index];
+    if (tab && tabListRef.current) scrollIntoViewHorizontally(tabListRef.current, tab);
+    updateTabOverflow();
+  }, [activeTab, updateTabOverflow]);
+
+  const scrollTabs = (direction: -1 | 1) => {
+    const list = tabListRef.current;
+    if (!list) return;
+    list.scrollBy?.({ left: direction * list.clientWidth * 0.6, behavior: 'smooth' });
+  };
 
   // WAI-ARIA tabs pattern (automatic activation): Left/Right move between
   // tabs with wrap-around, Home/End jump to the first/last tab. Only the
@@ -130,10 +178,37 @@ const App: React.FC = () => {
     }));
   };
 
+  /** Open a unit (and optionally a topic) in the Units tab. */
+  const openUnit = (unitId: string, topicId: string | null = null) => {
+    const unit = ALL_UNITS.find((candidate) => candidate.id === unitId);
+    if (!unit) return;
+    const unlocked = isUnitUnlocked(
+      unit,
+      ALL_UNITS,
+      progressStore.getState().unitCompletions,
+    );
+    if (unlocked) {
+      // Same effect as clicking the unit header: select it for the timer and
+      // expand it. Locked units are only scrolled to (their lock notice shows).
+      setSelectedUnitId(unitId);
+      setExpandedUnits((prev) => ({ ...prev, [unitId]: true }));
+    }
+    setFocusRequest({ unitId, topicId: unlocked ? topicId : null, key: Date.now() });
+    setActiveTab('units');
+  };
+
+  const renderDashboard = () => (
+    <Dashboard
+      units={ALL_UNITS}
+      selectedUnitId={selectedUnitId}
+      onOpenUnit={openUnit}
+    />
+  );
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard units={ALL_UNITS} />;
+        return renderDashboard();
       case 'units':
         return (
           <UnitPanel
@@ -142,6 +217,7 @@ const App: React.FC = () => {
             onToggleUnit={toggleUnit}
             onUnitSelect={setSelectedUnitId}
             selectedUnitId={selectedUnitId}
+            focusRequest={focusRequest}
           />
         );
       case 'sessions':
@@ -157,7 +233,7 @@ const App: React.FC = () => {
       case 'blueprints':
         return <BlueprintsPanel />;
       default:
-        return <Dashboard units={ALL_UNITS} />;
+        return renderDashboard();
     }
   };
 
@@ -172,6 +248,11 @@ const App: React.FC = () => {
     timerRunning && progress.activeUnitId && progress.activeTopicId
       ? findTopic(progress.activeUnitId, progress.activeTopicId)
       : undefined;
+  const headerMeta = headerUnit
+    ? `${timerRunning ? 'ACTIVE' : 'SELECTED'}: ${headerUnit.code} - ${headerUnit.name}${
+        headerTopic ? ` / ${headerTopic.title}` : ''
+      }`
+    : '';
 
   return (
     <div className="terminal-app">
@@ -181,28 +262,60 @@ const App: React.FC = () => {
         provider={COURSE_INFO.provider}
       />
 
-      <nav className="terminal-tabs" role="tablist" aria-label="Main">
-        {TABS.map((tab, index) => (
-          <button
-            key={tab.id}
-            ref={(element) => {
-              tabRefs.current[index] = element;
-            }}
-            type="button"
-            role="tab"
-            id={`tab-${tab.id}`}
-            aria-selected={activeTab === tab.id}
-            aria-controls="main-panel"
-            tabIndex={activeTab === tab.id ? 0 : -1}
-            className={`tab ${activeTab === tab.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.id)}
-            onKeyDown={onTabKeyDown}
-          >
-            <span className="tab-icon">[{tab.icon}]</span>
-            {tab.label}
-          </button>
-        ))}
-      </nav>
+      <div
+        className={`terminal-tabs-bar${tabOverflow.left ? ' overflow-left' : ''}${
+          tabOverflow.right ? ' overflow-right' : ''
+        }`}
+      >
+        {/* Pointer-only scroll helpers: keyboard users move with the arrow
+            keys inside the tablist, which scrolls the active tab into view. */}
+        <button
+          type="button"
+          className="tabs-scroll tabs-scroll-left"
+          aria-hidden="true"
+          tabIndex={-1}
+          onClick={() => scrollTabs(-1)}
+        >
+          ◀
+        </button>
+        <nav
+          className="terminal-tabs"
+          role="tablist"
+          aria-label="Main"
+          ref={tabListRef}
+          onScroll={updateTabOverflow}
+        >
+          {TABS.map((tab, index) => (
+            <button
+              key={tab.id}
+              ref={(element) => {
+                tabRefs.current[index] = element;
+              }}
+              type="button"
+              role="tab"
+              id={`tab-${tab.id}`}
+              aria-selected={activeTab === tab.id}
+              aria-controls="main-panel"
+              tabIndex={activeTab === tab.id ? 0 : -1}
+              className={`tab ${activeTab === tab.id ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab.id)}
+              onKeyDown={onTabKeyDown}
+            >
+              <span className="tab-icon">[{tab.icon}]</span>
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+        <button
+          type="button"
+          className="tabs-scroll tabs-scroll-right"
+          aria-hidden="true"
+          tabIndex={-1}
+          onClick={() => scrollTabs(1)}
+        >
+          ▶
+        </button>
+      </div>
 
       <div className="terminal-content">
         <main
@@ -219,10 +332,10 @@ const App: React.FC = () => {
               {TABS.find((t) => t.id === activeTab)?.label ?? ''} PANEL
             </div>
             {headerUnit && (
-              <span className="window-meta">
-                {timerRunning ? 'ACTIVE' : 'SELECTED'}: {headerUnit.code} -{' '}
-                {headerUnit.name}
-                {headerTopic ? ` / ${headerTopic.title}` : ''}
+              // One line with an ellipsis when the window is narrow; the full
+              // text stays available as a tooltip.
+              <span className="window-meta" title={headerMeta}>
+                {headerMeta}
               </span>
             )}
           </div>
