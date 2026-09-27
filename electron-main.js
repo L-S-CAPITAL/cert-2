@@ -1,6 +1,6 @@
 const { app, BrowserWindow, session } = require('electron');
 const path = require('path');
-const { pathToFileURL } = require('url');
+const { createUrlGuard } = require('./electron-navigation');
 
 /** @type {import('electron').BrowserWindow | null} */
 let mainWindow = null;
@@ -37,16 +37,17 @@ function distIndexPath() {
   return path.join(__dirname, 'dist', 'index.html');
 }
 
-function isAllowedUrl(url) {
-  if (url.startsWith('devtools://') || url.startsWith('chrome-devtools://')) {
-    return true;
+const isAllowedUrl = createUrlGuard({
+  devServerUrl: DEV_SERVER_URL,
+  isPackaged: app.isPackaged,
+  appDir: __dirname,
+});
+
+/** Block any navigation or redirect that leaves the allow-list. */
+function guardNavigation(event) {
+  if (!isAllowedUrl(event.url)) {
+    event.preventDefault();
   }
-  if (DEV_SERVER_URL && url.startsWith(DEV_SERVER_URL)) {
-    return true;
-  }
-  const distDir = pathToFileURL(path.join(__dirname, 'dist')).href;
-  const distIndex = pathToFileURL(distIndexPath()).href;
-  return url === distIndex || url.startsWith(`${distDir}/`);
 }
 
 function createWindow() {
@@ -70,11 +71,8 @@ function createWindow() {
 
   mainWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
 
-  mainWindow.webContents.on('will-navigate', (event, url) => {
-    if (!isAllowedUrl(url)) {
-      event.preventDefault();
-    }
-  });
+  mainWindow.webContents.on('will-navigate', guardNavigation);
+  mainWindow.webContents.on('will-redirect', guardNavigation);
 
   if (IS_DEV) {
     mainWindow.loadURL(DEV_SERVER_URL);
@@ -101,6 +99,13 @@ if (!gotLock) {
   });
 
   app.whenReady().then(() => {
+    // The app needs no browser permissions (camera, notifications,
+    // clipboard, geolocation, ...): deny every request and check.
+    session.defaultSession.setPermissionRequestHandler(
+      (_webContents, _permission, callback) => callback(false),
+    );
+    session.defaultSession.setPermissionCheckHandler(() => false);
+
     if (IS_DEV) {
       session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
         callback({

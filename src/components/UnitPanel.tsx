@@ -66,8 +66,10 @@ const UnitPanel: React.FC<UnitPanelProps> = ({
                 type="button"
                 className="unit-header"
                 onClick={() => {
+                  // Locked units cannot be selected for timing or expanded.
+                  if (!unlocked) return;
                   onUnitSelect(unit.id);
-                  if (unlocked) onToggleUnit(unit.id);
+                  onToggleUnit(unit.id);
                 }}
                 aria-expanded={isExpanded}
                 aria-disabled={!unlocked}

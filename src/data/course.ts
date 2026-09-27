@@ -625,13 +625,17 @@ export const ALL_UNITS = [
   ...ELECTIVE_UNITS_WITH_QUIZZES,
 ];
 
-export function findTopic(unitId: string, topicId: string) {
-  const unit = [
+/** Look up a course unit or study strand (MATH / ALG / GEO / DWG) by id. */
+export function findUnit(unitId: string): Unit | undefined {
+  return [
     ...ALL_UNITS,
     MATH_UNIT,
     ALGEBRA_UNIT,
     GEOMETRY_UNIT,
     BLUEPRINT_UNIT,
   ].find((item) => item.id === unitId);
-  return unit?.topics.find((topic) => topic.id === topicId);
+}
+
+export function findTopic(unitId: string, topicId: string) {
+  return findUnit(unitId)?.topics.find((topic) => topic.id === topicId);
 }

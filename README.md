@@ -88,7 +88,7 @@ If you already live in a workshop, a switchroom, or a code editor, the UI should
 - **8 core units** (140 packaged core points in-app) with topics, key points, and quizzes.
 - **4 electives** covering multi-path circuits, drawings & standards, fixing/securing, and documentation.
 - Prerequisite unlocking via unit codes (`src/data/prerequisites.ts`).
-- Course overview with points, topic counts, career outcomes, and a live completion bar.
+- Course overview with points, topic counts, career outcomes, and live core / elective progress bars.
 
 ### Strand panels (beyond the packaged units)
 
@@ -116,7 +116,8 @@ Packaged Electron is locked down on purpose:
 - `nodeIntegration: false`
 - `sandbox: true`
 - Strict **Content-Security-Policy**: the production build ships it as a `<meta http-equiv>` tag in `dist/index.html` (injected by `vite.config.ts`), because response-header CSP does not apply to the packaged app's `file://` load; `npm run dev` gets a looser header CSP that allows Vite's inline scripts and HMR websocket
-- Navigation and `window.open` denied except the local dist tree / dev server
+- Navigation, redirects and `window.open` denied except the local dist tree (and, in unpackaged dev only, the exact Vite dev-server origin)
+- Every browser permission request / check is denied (the app needs none)
 - Preload exposes a **read-only** `window.electrotech` bridge (`platform` + version strings) — no file system, no Node
 - Single-instance lock so a second launch focuses the existing window
 
@@ -216,7 +217,7 @@ npm test
 npm run dev
 ```
 
-`npm run dev` starts **Vite on `http://localhost:5173`** and **Electron** together via `concurrently`. Electron loads that URL through `VITE_DEV_SERVER_URL`.
+`npm run dev` starts **Vite on `http://localhost:5173`** and **Electron** together via `concurrently`. Electron loads that URL through `VITE_DEV_SERVER_URL`, set with `cross-env` so the script also works in Windows cmd / PowerShell. Vite uses `strictPort`, so if 5173 is already taken it exits instead of moving to another port.
 
 ```bash
 # Detached DevTools
@@ -249,7 +250,9 @@ npm run pack             # unpacked directory in release/
 npm run dist             # installers
 ```
 
-The packaged app loads `dist/index.html` with `loadFile`. Production CSP is a `<meta http-equiv="Content-Security-Policy">` tag that Vite injects into `dist/index.html` at build time (header CSP does not reach `file://` pages): `default-src 'self'`, `script-src 'self'` and `style-src 'self'` with no inline code or eval, no remote connect, `object-src 'none'`, `base-uri 'none'`, `form-action 'none'`. `afterPack` runs `scripts/afterPack.js` (Electron fuses). Output directory: **`release/`**.
+The packaged app loads `dist/index.html` with `loadFile`. Production CSP is a `<meta http-equiv="Content-Security-Policy">` tag that Vite injects into `dist/index.html` at build time (header CSP does not reach `file://` pages): `default-src 'self'`, `script-src 'self'` and `style-src 'self'` with no inline code or eval, no remote connect, `object-src 'none'`, `base-uri 'none'`, `form-action 'none'`. `afterPack` runs `scripts/afterPack.js` (Electron fuses: RunAsNode, NODE_OPTIONS and inspect flags off; cookie encryption and OnlyLoadAppFromAsar on; **ASAR integrity validation on for Windows and macOS only**, where Electron supports it and electron-builder embeds the header hash; Linux has no ASAR integrity support; GrantFileProtocolExtraPrivileges stays on because the app loads from `file://`). Output directory: **`release/`**.
+
+`icon.png` is 256×256. That is enough for Linux and Windows, but a macOS build (`--mac`) needs an icon of at least 512×512. Add a larger source image before packaging for macOS.
 
 App identity from `package.json`:
 
@@ -297,6 +300,8 @@ Shortcuts are ignored while focus is in an input, select, textarea, or contented
 | `s` | Start or stop the study timer (a unit must be selected) |
 | `?` | Help |
 | `Esc` | Close dialogs |
+| `←` / `→` | Previous / next tab (when a tab has focus; wraps) |
+| `Home` / `End` | First / last tab (when a tab has focus) |
 
 ---
 
@@ -306,7 +311,8 @@ Thin Electron shell. Fat, typed renderer. Content as data.
 
 ```
 cert-2/
-├── electron-main.js          # window, CSP, navigation allow-list, single-instance
+├── electron-main.js          # window, CSP, navigation guards, permissions, single-instance
+├── electron-navigation.js    # navigation allow-list (tested in electron-navigation.test.js)
 ├── electron-preload.js       # contextBridge → window.electrotech (read-only)
 ├── index.html
 ├── icon.png
@@ -370,6 +376,7 @@ Strand content uses `MathModule` (`tutorial` | `drill` | `flashcards` | `guide`)
 - Completions are `Record<unitId, Record<topicId, boolean>>`
 - `startSession` / `startTopicSession` / `stopSession`
 - `markTopicComplete` on a perfect quiz
+- Completion figures come from one helper, `summarizeCompletion` (`src/data/completion.ts`): **core progress** is completed topics across the core units, electives are reported separately, and study strands are not counted. StatusBar, Dashboard and Course Overview all use it
 - `exportProgress` / `importProgress` / `reset` with sanitisation
 
 Tests live beside the modules they cover: `*.test.ts` under `src/data/` and `src/stores/`.
@@ -384,7 +391,8 @@ Tests live beside the modules they cover: `*.test.ts` under `src/data/` and `src
 | Preload surface | `platform`, `versions` only |
 | CSP (prod) | `<meta>` tag in `dist/index.html`: `default-src 'self'`; no inline script/style; no remote connect; no object |
 | New windows | denied |
-| Off-tree navigation | prevented |
+| Off-tree navigation / redirects | prevented |
+| Browser permissions | all denied |
 | Vite base | `./` so `file://` assets resolve |
 
 ---
@@ -409,7 +417,7 @@ Prerequisite units must be fully topic-complete before dependents unlock. That i
 
 The hardening pass wired the chrome for keyboard and AT use:
 
-- Tabs expose `role="tablist"` / `tab` / `tabpanel` with `aria-selected` and `aria-controls`
+- Tabs expose `role="tablist"` / `tab` / `tabpanel` with `aria-selected` and `aria-controls`, a roving `tabindex`, and arrow / Home / End key navigation (WAI-ARIA tabs pattern)
 - Help and quizzes are dialogs; `Esc` dismisses
 - Progress bars carry `role="progressbar"` and value attributes
 - Contrast and focus treatment live in `src/styles/terminal.css`

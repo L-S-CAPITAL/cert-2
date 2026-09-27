@@ -1,9 +1,10 @@
 import React from 'react';
 import { COURSE_INFO, ALL_UNITS, CORE_UNITS, ELECTIVE_UNITS } from '../data/course';
 import { progressStore, useProgress } from '../stores/progress';
+import { summarizeCompletion } from '../data/completion';
 
 const CourseOverview: React.FC = () => {
-  useProgress();
+  const progress = useProgress();
   const fileRef = React.useRef<HTMLInputElement>(null);
   const [status, setStatus] = React.useState<string | null>(null);
 
@@ -14,7 +15,10 @@ const CourseOverview: React.FC = () => {
     (sum, u) => sum + (u.topics?.length ?? 0),
     0,
   );
-  const overallCompletion = progressStore.getTotalCompletion(ALL_UNITS);
+  const { core, electives } = summarizeCompletion(
+    ALL_UNITS,
+    progress.unitCompletions,
+  );
 
   const detailRow = (label: string, value: string | number) => (
     <div className="detail-row">
@@ -32,7 +36,9 @@ const CourseOverview: React.FC = () => {
     link.href = url;
     link.download = 'electrotech-progress.json';
     link.click();
-    URL.revokeObjectURL(url);
+    // Revoke on the next task: revoking synchronously can cancel the
+    // download before the browser has started reading the blob.
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
     setStatus('Progress exported');
   };
 
@@ -206,20 +212,49 @@ const CourseOverview: React.FC = () => {
         style={{ marginTop: 16, marginBottom: 8 }}
       >
         <span className="icon">PROGRESS</span>
-        <span>Total progress</span>
+        <span>Core progress</span>
+        <span className="section-count">
+          {core.unitsDone} / {core.unitsTotal} core units complete
+        </span>
       </div>
       <div className="progress-bar-container">
         <div
           className="progress-bar-fill"
-          style={{ width: `${overallCompletion}%` }}
+          style={{ width: `${core.percent}%` }}
           role="progressbar"
-          aria-valuenow={overallCompletion}
+          aria-valuenow={core.percent}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label="Total progress"
+          aria-label="Core progress (completed core topics)"
         ></div>
         <div className="progress-bar-text">
-          {overallCompletion}% COMPLETE ({totalTopics} topics)
+          {core.percent}% OF CORE TOPICS ({core.topicsDone} / {core.topicsTotal})
+        </div>
+      </div>
+
+      <div
+        className="terminal-section-title"
+        style={{ marginTop: 12, marginBottom: 8 }}
+      >
+        <span className="icon">ELEC</span>
+        <span>Elective progress (not included in core progress)</span>
+        <span className="section-count">
+          {electives.unitsDone} / {electives.unitsTotal} elective units complete
+        </span>
+      </div>
+      <div className="progress-bar-container">
+        <div
+          className="progress-bar-fill"
+          style={{ width: `${electives.percent}%` }}
+          role="progressbar"
+          aria-valuenow={electives.percent}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Elective progress (completed elective topics)"
+        ></div>
+        <div className="progress-bar-text">
+          {electives.percent}% OF ELECTIVE TOPICS ({electives.topicsDone} /{' '}
+          {electives.topicsTotal})
         </div>
       </div>
     </div>

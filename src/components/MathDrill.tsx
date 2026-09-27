@@ -1,6 +1,6 @@
 import React from 'react';
 import { MathModule, Unit } from '../types';
-import { evaluateDrill, makeDrillPaper } from '../data/drill';
+import { evaluateDrill, makeDrillPaper, secondsUntil } from '../data/drill';
 import { progressStore } from '../stores/progress';
 import { SHORTCUT_BLOCK_ATTR } from '../shortcuts';
 
@@ -34,6 +34,17 @@ const MathDrill: React.FC<MathDrillProps> = ({ module, unit, onBack }) => {
   const [remaining, setRemaining] = React.useState(
     perQuestion ?? globalSeconds,
   );
+  // Remaining time is derived from a fixed end timestamp rather than
+  // decremented per tick, so restarting the interval (each new question)
+  // cannot drift the countdown.
+  const deadline = React.useRef<number | null>(null);
+  if (deadline.current === null) {
+    deadline.current = Date.now() + (perQuestion ?? globalSeconds) * 1000;
+  }
+  const startCountdown = React.useCallback((seconds: number) => {
+    deadline.current = Date.now() + seconds * 1000;
+    setRemaining(seconds);
+  }, []);
   const [done, setDone] = React.useState(false);
   const [selected, setSelected] = React.useState<number | null>(null);
   const startedAt = React.useRef(Date.now());
@@ -48,11 +59,11 @@ const MathDrill: React.FC<MathDrillProps> = ({ module, unit, onBack }) => {
 
   React.useEffect(() => {
     if (done) return undefined;
-    const timer = window.setInterval(() => {
-      setRemaining((value) => Math.max(0, value - 1));
-    }, 1000);
+    const tick = () => setRemaining(secondsUntil(deadline.current ?? Date.now()));
+    tick();
+    const timer = window.setInterval(tick, 250);
     return () => window.clearInterval(timer);
-  }, [done, index, perQuestion]);
+  }, [done]);
 
   const recordTime = (list: Array<number | null>) => {
     const elapsed = Math.max(1, Math.round((Date.now() - startedAt.current) / 1000));
@@ -75,10 +86,10 @@ const MathDrill: React.FC<MathDrillProps> = ({ module, unit, onBack }) => {
         finish();
       } else {
         setIndex(index + 1);
-        if (perQuestion) setRemaining(perQuestion);
+        if (perQuestion) startCountdown(perQuestion);
       }
     },
-    [answers, times, index, paper.length, finish, perQuestion],
+    [answers, times, index, paper.length, finish, perQuestion, startCountdown],
   );
 
   React.useEffect(() => {
@@ -121,7 +132,7 @@ const MathDrill: React.FC<MathDrillProps> = ({ module, unit, onBack }) => {
     setIndex(0);
     setAnswers(Array(paperSize).fill(null));
     setTimes(Array(paperSize).fill(null));
-    setRemaining(perQuestion ?? globalSeconds);
+    startCountdown(perQuestion ?? globalSeconds);
     setDone(false);
     setSelected(null);
     startedAt.current = Date.now();

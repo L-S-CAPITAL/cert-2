@@ -11,19 +11,15 @@ const TerminalHeader: React.FC<TerminalHeaderProps> = ({
   code,
   provider,
 }) => {
+  // The live clock lives in the StatusBar; the header only shows the date,
+  // so a once-a-minute refresh is enough to roll over at midnight.
   const [now, setNow] = React.useState(() => new Date());
 
   React.useEffect(() => {
-    const interval = setInterval(() => setNow(new Date()), 1000);
+    const interval = setInterval(() => setNow(new Date()), 60_000);
     return () => clearInterval(interval);
   }, []);
 
-  const timeStr = now.toLocaleTimeString('en-AU', {
-    hour12: true,
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
   const dateStr = now.toLocaleDateString('en-AU', {
     weekday: 'short',
     year: 'numeric',
@@ -49,9 +45,6 @@ const TerminalHeader: React.FC<TerminalHeaderProps> = ({
             {electronVersion ? `ELECTRON ${electronVersion}` : 'LOCAL'}
           </span>
         </div>
-        <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
-          {timeStr}
-        </span>
         <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
           {dateStr}
         </span>

@@ -1,15 +1,13 @@
 import React from 'react';
 import { Unit, Topic, QuizQuestion } from '../types';
 import { progressStore } from '../stores/progress';
+import { useDialogFocus } from '../hooks/useDialogFocus';
 
 interface QuizModalProps {
   unit: Unit;
   topic: Topic;
   onClose: () => void;
 }
-
-const FOCUSABLE =
-  'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
 const QuizModal: React.FC<QuizModalProps> = ({ unit, topic, onClose }) => {
   const [currentQuestion, setCurrentQuestion] = React.useState(0);
@@ -20,39 +18,7 @@ const QuizModal: React.FC<QuizModalProps> = ({ unit, topic, onClose }) => {
   const questions = topic.quizQuestions || [];
   const isLast = questions.length > 0 && currentQuestion === questions.length - 1;
 
-  React.useEffect(() => {
-    const previous = document.activeElement as HTMLElement | null;
-    const root = dialogRef.current;
-    const focusables = () =>
-      root ? Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)) : [];
-    focusables()[0]?.focus();
-
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onClose();
-        return;
-      }
-      if (event.key !== 'Tab' || !root) return;
-      const items = focusables();
-      if (items.length === 0) return;
-      const first = items[0];
-      const last = items[items.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    window.addEventListener('keydown', onKey);
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      previous?.focus();
-    };
-  }, [onClose, showResult]);
+  useDialogFocus(dialogRef, onClose, { refocusKey: showResult });
 
   React.useEffect(() => {
     if (
@@ -94,6 +60,7 @@ const QuizModal: React.FC<QuizModalProps> = ({ unit, topic, onClose }) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="quiz-title"
+      tabIndex={-1}
       ref={dialogRef}
     >
       <div className="terminal-card" style={{ maxWidth: 600, width: '90%' }}>

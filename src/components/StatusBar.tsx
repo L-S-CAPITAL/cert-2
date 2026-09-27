@@ -1,6 +1,7 @@
 import React from 'react';
 import { progressStore, useProgress } from '../stores/progress';
-import { ALL_UNITS, CORE_UNITS, COURSE_INFO } from '../data/course';
+import { ALL_UNITS, COURSE_INFO } from '../data/course';
+import { summarizeCompletion } from '../data/completion';
 
 const StatusBar: React.FC = () => {
   const progress = useProgress();
@@ -11,7 +12,10 @@ const StatusBar: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const totalCompletion = progressStore.getTotalCompletion(ALL_UNITS);
+  const { core, electives } = summarizeCompletion(
+    ALL_UNITS,
+    progress.unitCompletions,
+  );
   const totalTime = progressStore.getFormattedTotalTime();
   const isTimerActive = progress.startTime !== null;
   const timerDisplay = progressStore.getFormattedActiveTime();
@@ -25,10 +29,6 @@ const StatusBar: React.FC = () => {
   });
 
   const totalSessions = progress.sessionLogs.length;
-  const unitsComplete = CORE_UNITS.filter((u) => {
-    const completion = progressStore.getUnitCompletion(u.id, u.topics || []);
-    return completion === 100;
-  }).length;
 
   return (
     <footer className="status-bar">
@@ -38,9 +38,9 @@ const StatusBar: React.FC = () => {
           <span className="value">{COURSE_INFO.code}</span>
         </div>
 
-        <div className="status-bar-item">
-          <span className="label">COMPLETION</span>
-          <span className="value">{totalCompletion}%</span>
+        <div className="status-bar-item" title="Completed topics across the core units">
+          <span className="label">CORE PROGRESS</span>
+          <span className="value">{core.percent}%</span>
         </div>
 
         <div className="status-bar-item">
@@ -62,10 +62,15 @@ const StatusBar: React.FC = () => {
         </div>
 
         <div className="status-bar-item">
-          <span className="label">CORE DONE</span>
+          <span className="label">CORE UNITS</span>
           <span className="value">
-            {unitsComplete}/{COURSE_INFO.unitsCount}
+            {core.unitsDone}/{core.unitsTotal}
           </span>
+        </div>
+
+        <div className="status-bar-item" title="Completed topics across the elective units">
+          <span className="label">ELECTIVES</span>
+          <span className="value">{electives.percent}%</span>
         </div>
 
         <div className="status-bar-item">

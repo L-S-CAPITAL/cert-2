@@ -1,21 +1,23 @@
 import React from 'react';
 import { Unit } from '../types';
 import { progressStore, useProgress } from '../stores/progress';
+import { describeSession, formatSessionDate } from '../data/sessions';
+import { summarizeCompletion } from '../data/completion';
 
 interface DashboardProps {
   units: Unit[];
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ units }) => {
-  useProgress();
-  const totalCompletion = progressStore.getTotalCompletion(units);
+  const progress = useProgress();
+  const { core, electives } = summarizeCompletion(units, progress.unitCompletions);
   const totalTime = progressStore.getFormattedTotalTime();
   const sessionLogs = progressStore.getSessionLogs();
 
   const statCards = [
     {
-      label: 'Overall Completion',
-      value: `${totalCompletion}%`,
+      label: 'Core Progress (topics)',
+      value: `${core.percent}%`,
       colorClass: 'green',
     },
     {
@@ -24,13 +26,15 @@ const Dashboard: React.FC<DashboardProps> = ({ units }) => {
       colorClass: '',
     },
     {
-      label: 'Units Completed',
-      value: units.filter((u) => {
-        const completion = progressStore.getUnitCompletion(u.id, u.topics || []);
-        return completion === 100;
-      }).length,
-      total: units.length,
+      label: 'Core Units Completed',
+      value: core.unitsDone,
+      total: core.unitsTotal,
       colorClass: 'green',
+    },
+    {
+      label: `Electives (${electives.unitsDone}/${electives.unitsTotal} units)`,
+      value: `${electives.percent}%`,
+      colorClass: '',
     },
     {
       label: 'Session Count',
@@ -44,25 +48,29 @@ const Dashboard: React.FC<DashboardProps> = ({ units }) => {
       <div className="terminal-section">
         <div className="terminal-section-title">
           <span className="icon">PROGRESS</span>
-          <span>OVERALL PROGRESS</span>
+          <span>CORE PROGRESS</span>
           <span className="section-count">
-            {totalCompletion}% COMPLETE
+            {core.topicsDone} / {core.topicsTotal} CORE TOPICS
           </span>
         </div>
 
         <div className="progress-bar-container">
           <div
             className="progress-bar-fill"
-            style={{ width: `${totalCompletion}%` }}
+            style={{ width: `${core.percent}%` }}
             role="progressbar"
-            aria-valuenow={totalCompletion}
+            aria-valuenow={core.percent}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-label="Overall completion"
+            aria-label="Core progress (completed core topics)"
           ></div>
           <div className="progress-bar-text">
-            {totalCompletion}% COMPLETE
+            {core.percent}% OF CORE TOPICS
           </div>
+        </div>
+        <div style={{ fontSize: 10, color: 'var(--text-dim)' }}>
+          Electives tracked separately: {electives.percent}% ({electives.topicsDone} /{' '}
+          {electives.topicsTotal} topics)
         </div>
       </div>
 
@@ -173,22 +181,20 @@ const Dashboard: React.FC<DashboardProps> = ({ units }) => {
           </div>
           <div className="session-log">
             {sessionLogs.slice(0, 5).map((log) => {
-              const unit = units.find((u) => u.id === log.unitId);
+              const { unitLabel, topicTitle } = describeSession(log);
               const mins = Math.floor(log.durationSeconds / 60);
               const secs = log.durationSeconds % 60;
               const formatted = `${mins}m ${secs}s`;
-              const date = new Date(log.timestamp);
-              const dateStr = date.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-              });
               return (
                 <div key={log.id} className="session-log-item">
                   <span className="session-unit">
-                    {unit?.code || 'Unknown'}
+                    {unitLabel}
+                    {topicTitle ? ` / ${topicTitle}` : ''}
                   </span>
                   <span className="session-duration">{formatted}</span>
-                  <span className="session-date">{dateStr}</span>
+                  <span className="session-date">
+                    {formatSessionDate(log.timestamp)}
+                  </span>
                 </div>
               );
             })}
