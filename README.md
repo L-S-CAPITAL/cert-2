@@ -87,7 +87,7 @@ If you already live in a workshop, a switchroom, or a code editor, the UI should
 ### Course spine
 
 - **8 core units** (270 weighting points) with topics, key points, and quizzes.
-- **4 electives** (140 weighting points): preparatory energy sector work, fabricating/assembling utilities components, fixing and securing equipment, and instructing others on apparatus. Three of them are topic outlines only for now (see below).
+- **4 electives** (140 weighting points): preparatory energy sector work, fabricating/assembling utilities components, fixing and securing equipment, and instructing others on apparatus. UEECD0008, UEECD0019 and UEECD0035 have quizzes and flashcards written from the official unit text (see below).
 - Prerequisite unlocking via unit codes (`src/data/prerequisites.ts`).
 - Course overview with official weighting points, topic counts, career outcomes, and core units / elective points progress bars.
 
@@ -152,7 +152,13 @@ Typical topic coverage inside the cores includes WHS legislation and the PCBU du
 | `UEECD0020` | Fix and secure electrotechnology equipment | B | 20 | `UEECD0007` |
 | `UEECD0035` | Provide basic instruction in the use of electrotechnology apparatus | A | 20 | — |
 
-UEECD0008, UEECD0019 and UEECD0035 are **topic outlines only**: one topic per official element, with a short summary of its performance criteria. Study notes and quizzes are still to be written; until then these topics have no quiz button and can be ticked off with **Mark complete**.
+UEECD0008, UEECD0019 and UEECD0035 have one topic per official element, with a short summary of its performance criteria. Each topic has a 4-question quiz, and each unit has a flashcard deck (Units tab → expand the unit → **Show flashcards**). All questions and cards are original wording, written only from the official unit pages on training.gov.au (elements, performance criteria, range of conditions, performance and knowledge evidence, assessment conditions). No textbook content is used. The source URL is shown on each unit and kept in `src/data/electiveStudy.ts`. Longer study notes are still to be written.
+
+| Unit | Quiz questions | Flashcards | Source |
+|---|---|---|---|
+| `UEECD0008` | 12 (3 topics × 4) | 9 | https://training.gov.au/Training/Details/UEECD0008 |
+| `UEECD0019` | 12 (3 topics × 4) | 12 | https://training.gov.au/Training/Details/UEECD0019 |
+| `UEECD0035` | 8 (2 topics × 4) | 10 | https://training.gov.au/Training/Details/UEECD0035 |
 
 Earlier versions shipped UEECD0044, UEECD0051 and UEECO0002 as electives. They are not part of this enrolment (and UEECD0044/UEECD0051 are not UEE22020 electives), so they were taken out of the unit list. Their notes and quizzes are kept in `src/data/archivedElectives.ts`. Saved progress for them stays in your progress file and exports, but it no longer counts toward any figure; old session logs still show their names.
 
@@ -338,6 +344,7 @@ cert-2/
     ├── data/
     │   ├── course.ts         # COURSE_INFO + CORE_UNITS + ALL_UNITS
     │   ├── electives.ts      # the 4 enrolled electives
+    │   ├── electiveStudy.ts  # quizzes + flashcards for UEECD0008/0019/0035 (from training.gov.au text)
     │   ├── archivedElectives.ts  # removed electives, kept for old logs (not in ALL_UNITS)
     │   ├── quizzes.ts        # extra topic quizzes merged into units
     │   ├── prerequisites.ts

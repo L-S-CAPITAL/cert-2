@@ -3,6 +3,7 @@ import { Topic, Unit } from '../types';
 import { progressStore, useProgress } from '../stores/progress';
 import { isUnitUnlocked } from '../data/prerequisites';
 import { electiveGroup } from '../data/qualification';
+import UnitFlashcards from './UnitFlashcards';
 import TopicCard from './TopicCard';
 import QuizModal from './QuizModal';
 import { scrollToTopOfPanel } from '../scroll';
@@ -137,6 +138,12 @@ const UnitPanel: React.FC<UnitPanelProps> = ({
                     <span className="detail-label">Description:</span>
                     <span className="detail-value">{unit.description}</span>
                   </div>
+                  {unit.sourceUrl && (
+                    <div className="detail-row">
+                      <span className="detail-label">Source:</span>
+                      <span className="detail-value">{unit.sourceUrl}</span>
+                    </div>
+                  )}
 
                   <div style={{ marginTop: 10 }}>
                     <div
@@ -180,6 +187,14 @@ const UnitPanel: React.FC<UnitPanelProps> = ({
                       />
                     ))}
                   </div>
+
+                  {unit.flashcards && unit.flashcards.length > 0 && (
+                    <UnitFlashcards
+                      unitCode={unit.code}
+                      cards={unit.flashcards}
+                      sourceUrl={unit.sourceUrl}
+                    />
+                  )}
                 </div>
               )}
 
