@@ -250,7 +250,9 @@ npm run pack             # unpacked directory in release/
 npm run dist             # installers
 ```
 
-The packaged app loads `dist/index.html` with `loadFile`. Production CSP is a `<meta http-equiv="Content-Security-Policy">` tag that Vite injects into `dist/index.html` at build time (header CSP does not reach `file://` pages): `default-src 'self'`, `script-src 'self'` and `style-src 'self'` with no inline code or eval, no remote connect, `object-src 'none'`, `base-uri 'none'`, `form-action 'none'`. `afterPack` runs `scripts/afterPack.js` (Electron fuses). Output directory: **`release/`**.
+The packaged app loads `dist/index.html` with `loadFile`. Production CSP is a `<meta http-equiv="Content-Security-Policy">` tag that Vite injects into `dist/index.html` at build time (header CSP does not reach `file://` pages): `default-src 'self'`, `script-src 'self'` and `style-src 'self'` with no inline code or eval, no remote connect, `object-src 'none'`, `base-uri 'none'`, `form-action 'none'`. `afterPack` runs `scripts/afterPack.js` (Electron fuses: RunAsNode, NODE_OPTIONS and inspect flags off; cookie encryption and OnlyLoadAppFromAsar on; **ASAR integrity validation on for Windows and macOS only**, where Electron supports it and electron-builder embeds the header hash; Linux has no ASAR integrity support; GrantFileProtocolExtraPrivileges stays on because the app loads from `file://`). Output directory: **`release/`**.
+
+`icon.png` is 256×256. That is enough for Linux and Windows, but a macOS build (`--mac`) needs an icon of at least 512×512. Add a larger source image before packaging for macOS.
 
 App identity from `package.json`:
 
