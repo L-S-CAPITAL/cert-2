@@ -208,7 +208,8 @@ git clone https://github.com/L-S-CAPITAL/cert-2.git
 cd cert-2
 npm install
 
-# If Electron’s binary is missing (install scripts blocked by policy):
+# Electron 42+ downloads its binary on first run (e.g. `npm run dev`).
+# To fetch it ahead of time (or if install scripts are blocked by policy):
 node node_modules/electron/install.js
 
 npm test
@@ -481,6 +482,6 @@ No licence file is published on the repository at the time of writing. Treat the
 
 <br />
 
-<sub>Built with Electron 30 · React 18 · TypeScript 5 · Vite 5 · Vitest 2</sub>
+<sub>Built with Electron 44 · React 18 · TypeScript 5 · Vite 5 · Vitest 2</sub>
 
 </div>
