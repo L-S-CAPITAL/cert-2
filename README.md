@@ -27,7 +27,7 @@ Algebra, geometry, and blueprint literacy. A local study timer.
 Progress never leaves this machine.
 
 [![CI](https://github.com/L-S-CAPITAL/cert-2/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/L-S-CAPITAL/cert-2/actions/workflows/ci.yml)
-[![Electron](https://img.shields.io/badge/Electron-30-47848F?style=flat-square&logo=electron&logoColor=white)](https://www.electronjs.org/)
+[![Electron](https://img.shields.io/badge/Electron-44-47848F?style=flat-square&logo=electron&logoColor=white)](https://www.electronjs.org/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
