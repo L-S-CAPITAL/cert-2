@@ -64,7 +64,7 @@ const SessionLog: React.FC = () => {
       </div>
       <div
         className="timer-display"
-        style={{ color: 'var(--text-primary)', fontSize: 20 }}
+        style={{ color: 'var(--status-ok)', fontSize: 20 }}
       >
         {formatDuration(totalSessionTime)}
       </div>

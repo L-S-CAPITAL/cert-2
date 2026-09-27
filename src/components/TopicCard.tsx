@@ -42,7 +42,7 @@ const TopicCard: React.FC<TopicCardProps> = ({
       className={`topic-card ${isComplete ? 'completed' : ''}`}
       style={{
         borderLeftColor: isComplete
-          ? 'var(--text-primary)'
+          ? 'var(--status-ok)'
           : 'var(--text-dim)',
       }}
     >
@@ -59,7 +59,7 @@ const TopicCard: React.FC<TopicCardProps> = ({
         <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span
             style={{
-              color: isComplete ? 'var(--text-primary)' : 'var(--text-amber)',
+              color: isComplete ? 'var(--status-ok)' : 'var(--text-amber)',
             }}
             aria-hidden="true"
           >
@@ -70,7 +70,7 @@ const TopicCard: React.FC<TopicCardProps> = ({
         <span
           className="topic-status"
           style={{
-            color: isComplete ? 'var(--text-primary)' : 'var(--text-dim)',
+            color: isComplete ? 'var(--status-ok)' : 'var(--text-dim)',
           }}
         >
           {isComplete ? 'DONE' : 'NEW'}
@@ -85,8 +85,9 @@ const TopicCard: React.FC<TopicCardProps> = ({
             <div style={{ marginBottom: 8 }}>
               <div
                 style={{
-                  fontSize: 10,
-                  color: 'var(--text-tertiary)',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 12,
+                  color: 'var(--text-heading)',
                   marginBottom: 4,
                   textTransform: 'uppercase',
                   letterSpacing: 1,
@@ -94,17 +95,17 @@ const TopicCard: React.FC<TopicCardProps> = ({
               >
                 Key Points
               </div>
-              <ul style={{ paddingLeft: 16 }}>
+              <ul style={{ paddingLeft: 4, listStyle: 'none' }}>
                 {topic.keyPoints.map((point, i) => (
                   <li
                     key={i}
+                    className="key-point"
                     style={{
                       color: 'var(--text-secondary)',
-                      marginBottom: 2,
-                      fontSize: 10,
+                      marginBottom: 3,
+                      fontSize: 14,
                     }}
                   >
-                    <span style={{ color: 'var(--text-amber)' }}>{'> '} </span>
                     {point}
                   </li>
                 ))}
@@ -122,7 +123,7 @@ const TopicCard: React.FC<TopicCardProps> = ({
               }}
               style={{
                 borderColor: isComplete
-                  ? 'var(--text-primary)'
+                  ? 'var(--status-ok)'
                   : 'var(--border)',
               }}
             >

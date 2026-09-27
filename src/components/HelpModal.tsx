@@ -14,6 +14,7 @@ const SHORTCUTS = [
   ['6', 'Scientific Notation, Prefixes & Algebra'],
   ['7', 'Geometry, Physics & Hand Tools'],
   ['8', 'Technical Documents & Blueprints'],
+  ['↑ / ↓', 'Previous / next section (when the sidebar has focus)'],
   ['s', 'Start or stop the study timer'],
   ['?', 'Open this help panel'],
   ['Esc', 'Close dialogs'],

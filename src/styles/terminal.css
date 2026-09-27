@@ -1,6 +1,13 @@
-/* Bloomberg Terminal aesthetic - dark theme, amber/green text, monospace */
+/* Terminal look, tuned for reading: off-white body text, green and amber
+   kept for headings, numbers and status, monospace for labels and a system
+   sans-serif for long-form text. Text colours meet WCAG AA (4.5:1) on every
+   panel background; see src/styles/contrast.test.ts. */
 
 :root {
+  --font-mono: ui-monospace, 'Cascadia Mono', 'Cascadia Code', 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', 'DejaVu Sans Mono', 'Courier New', monospace;
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans',
+    'Helvetica Neue', Arial, sans-serif;
   --bg-primary: #000000;
   --bg-secondary: #0c0c0c;
   --bg-tertiary: #141414;
@@ -9,11 +16,16 @@
   --bg-active: #1a1a1a;
   --bg-tab-active: #000000;
   --bg-tab-inactive: #0a0a0a;
-  --text-primary: #00ff40;
-  --text-secondary: #00cc33;
-  --text-tertiary: #7acc7a;
-  --text-dim: #5aad5a;
-  --text-bright: #33ff66;
+  /* Body text: off-white, then two quieter greys. */
+  --text-primary: #ecebe4;
+  --text-secondary: #d3d1c7;
+  --text-tertiary: #afada3;
+  --text-dim: #959389;
+  /* Terminal green: headings, numbers and status only. */
+  --text-bright: #3dff6e;
+  --text-heading: #3dff6e;
+  --status-ok: #3dff6e;
+  --status-bad: #ff7676;
   --text-amber: #ffbf00;
   --text-amber-dim: #cc9900;
   --border: #004400;
@@ -36,8 +48,8 @@
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: ui-monospace, 'Cascadia Code', 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
-  font-size: 13px;
+  font-family: var(--font-mono);
+  font-size: 14px;
   line-height: 1.5;
   overflow: hidden;
 }
@@ -48,7 +60,7 @@ body {
   display: flex;
   flex-direction: column;
   background: var(--bg-primary);
-  font-family: ui-monospace, 'Cascadia Code', 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+  font-family: var(--font-mono);
 }
 
 .terminal-app {
@@ -83,7 +95,7 @@ body::before {
   background: var(--bg-secondary);
   border-bottom: 2px solid var(--border-bright);
   padding: 6px 16px;
-  font-size: 12px;
+  font-size: 13px;
   position: relative;
   z-index: 10;
   box-shadow: 0 0 15px rgba(0, 255, 64, 0.15);
@@ -117,7 +129,7 @@ body::before {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 12px;
   padding: 2px 10px;
   background: var(--bg-tertiary);
   border: 1px solid var(--border);
@@ -140,84 +152,8 @@ body::before {
 }
 
 .status-dot.connected {
-  background: var(--text-primary);
-  box-shadow: 0 0 6px var(--text-primary);
-}
-
-/* === Terminal Tabs === */
-.terminal-tabs {
-  display: flex;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) var(--bg-primary);
-  z-index: 5;
-}
-
-.terminal-tabs::-webkit-scrollbar {
-  height: 6px;
-}
-
-.terminal-tabs::-webkit-scrollbar-track {
-  background: var(--bg-primary);
-}
-
-.terminal-tabs::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
-}
-
-.tab {
-  padding: 8px 16px;
-  cursor: pointer;
-  background: var(--bg-tab-inactive);
-  border: none;
-  border-right: 1px solid var(--border-thick);
-  font-family: inherit;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  white-space: nowrap;
-  transition: all 0.1s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--text-tertiary);
-}
-
-.tab:hover {
-  background: var(--bg-tab-active);
-  color: var(--text-secondary);
-}
-
-.tab.active {
-  background: var(--bg-primary);
-  color: var(--text-amber);
-  border-bottom: 2px solid var(--text-amber);
-  padding-bottom: 6px;
-  font-weight: 700;
-  box-shadow: 0 0 12px rgba(255, 191, 0, 0.2);
-}
-
-.tab.active .tab-icon {
-  color: var(--text-amber);
-}
-
-.tab .tab-icon {
-  font-size: 12px;
-}
-
-.tab .tab-close {
-  display: none;
-}
-
-.tab:hover .tab-close {
-  display: block;
-  font-size: 10px;
-  color: var(--text-tertiary);
-  cursor: pointer;
+  background: var(--status-ok);
+  box-shadow: 0 0 6px var(--status-ok);
 }
 
 /* === Main Content Area === */
@@ -255,9 +191,13 @@ body::before {
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border);
   padding: 4px 12px;
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 1px;
+  color: var(--text-heading);
+}
+
+.terminal-window-header .window-meta {
   color: var(--text-tertiary);
 }
 
@@ -269,7 +209,7 @@ body::before {
 
 .terminal-window-header .window-title .icon {
   color: var(--text-amber);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .terminal-window-body {
@@ -301,7 +241,7 @@ body::before {
 .terminal-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .terminal-table th {
@@ -310,7 +250,7 @@ body::before {
   border-bottom: 1px solid var(--border);
   color: var(--text-bright);
   text-transform: uppercase;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 1px;
 }
 
@@ -325,14 +265,14 @@ body::before {
 }
 
 .terminal-table tr td:first-child {
-  color: var(--text-primary);
+  color: var(--text-heading);
   font-weight: 500;
 }
 
 /* === Terminal List === */
 .terminal-list {
   list-style: none;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .terminal-list li {
@@ -346,7 +286,7 @@ body::before {
   position: absolute;
   left: -12px;
   color: var(--text-amber);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .terminal-list li.bright {
@@ -365,10 +305,10 @@ body::before {
 }
 
 .terminal-card .card-title {
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: var(--text-tertiary);
+  color: var(--text-heading);
   margin-bottom: 8px;
   display: flex;
   align-items: center;
@@ -408,7 +348,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--text-bright);
   text-shadow: 0 0 4px #000, 0 0 2px #000;
@@ -422,7 +362,7 @@ body::before {
   color: var(--text-secondary);
   padding: 4px 12px;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
   cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -456,6 +396,7 @@ body::before {
 
 .tab:focus-visible,
 .terminal-btn:focus-visible,
+.flashcard:focus-visible,
 .terminal-select:focus-visible,
 .terminal-input:focus-visible,
 .unit-header:focus-visible,
@@ -483,7 +424,7 @@ body::before {
   border: 1px solid var(--border);
   color: var(--text-primary);
   font-family: inherit;
-  font-size: 12px;
+  font-size: 13px;
   padding: 4px 8px;
   width: 100%;
   border-radius: 2px;
@@ -501,7 +442,7 @@ body::before {
   border: 1px solid var(--border);
   color: var(--text-primary);
   font-family: inherit;
-  font-size: 12px;
+  font-size: 13px;
   padding: 4px 8px;
   cursor: pointer;
   border-radius: 2px;
@@ -522,7 +463,7 @@ body::before {
   background: var(--bg-secondary);
   border-top: 2px solid var(--border-bright);
   padding: 4px 16px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-tertiary);
   position: relative;
   z-index: 5;
@@ -566,8 +507,8 @@ body::before {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--text-primary);
-  box-shadow: 0 0 8px var(--text-primary);
+  background: var(--status-ok);
+  box-shadow: 0 0 8px var(--status-ok);
 }
 
 .connection-light.off {
@@ -595,10 +536,10 @@ body::before {
 }
 
 .terminal-section-title {
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: var(--text-tertiary);
+  color: var(--text-heading);
   margin-bottom: 8px;
   padding-bottom: 4px;
   border-bottom: 1px solid var(--border);
@@ -651,7 +592,7 @@ body::before {
 }
 
 .unit-item .unit-code {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-amber);
   font-weight: 700;
   text-transform: uppercase;
@@ -661,14 +602,14 @@ body::before {
 
 .unit-item .unit-name {
   color: var(--text-primary);
-  font-size: 12px;
+  font-size: 13px;
   flex: 1;
 }
 
 .unit-item .unit-progress {
   width: 120px;
   text-align: right;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-secondary);
 }
 
@@ -696,13 +637,13 @@ body::before {
 .unit-detail .detail-label {
   color: var(--text-tertiary);
   min-width: 180px;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .unit-detail .detail-value {
   color: var(--text-secondary);
   flex: 1;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .unit-detail .detail-label strong {
@@ -719,7 +660,7 @@ body::before {
 }
 
 .topic-card.completed {
-  border-left-color: var(--text-primary);
+  border-left-color: var(--status-ok);
   background: var(--bg-panel);
 }
 
@@ -727,8 +668,12 @@ body::before {
   color: var(--text-primary);
 }
 
+.topic-card.completed .topic-title .topic-status {
+  color: var(--status-ok);
+}
+
 .topic-card .topic-title {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
   display: flex;
   align-items: center;
@@ -744,18 +689,18 @@ body::before {
 }
 
 .topic-card .topic-title .topic-status {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-dim);
   text-transform: uppercase;
 }
 
 .topic-card.completed .topic-status {
-  color: var(--text-primary);
+  color: var(--status-ok);
 }
 
 .topic-card .topic-content {
   margin-top: 6px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-tertiary);
   line-height: 1.6;
 }
@@ -766,7 +711,7 @@ body::before {
   flex-direction: column;
   align-items: stretch;
   gap: 12px;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .timer-display {
@@ -787,7 +732,7 @@ body::before {
 
 .timer-display .time-label {
   color: var(--text-dim);
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .timer-display .time-value {
@@ -824,7 +769,7 @@ body::before {
 }
 
 .stat-card .stat-label {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -832,12 +777,12 @@ body::before {
 }
 
 .stat-card.green .stat-value {
-  color: var(--text-primary);
+  color: var(--status-ok);
 }
 
 /* === Session Log === */
 .session-log {
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .session-log-item {
@@ -854,7 +799,7 @@ body::before {
 }
 
 .session-log-item .session-duration {
-  color: var(--text-primary);
+  color: var(--status-ok);
   font-weight: 700;
   min-width: 100px;
   text-align: right;
@@ -862,7 +807,7 @@ body::before {
 
 .session-log-item .session-date {
   color: var(--text-tertiary);
-  font-size: 10px;
+  font-size: 11px;
   margin-left: 12px;
   min-width: 120px;
   text-align: right;
@@ -873,7 +818,7 @@ body::before {
   text-align: center;
   padding: 40px;
   color: var(--text-tertiary);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .empty-state .empty-icon {
@@ -902,8 +847,8 @@ body::before {
 }
 
 .status-dot.local {
-  background: var(--text-primary);
-  box-shadow: 0 0 6px var(--text-primary);
+  background: var(--status-ok);
+  box-shadow: 0 0 6px var(--status-ok);
   animation: none;
 }
 
@@ -933,7 +878,7 @@ body::before {
 .math-lede,
 .math-body,
 .math-problem {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
   color: var(--text-secondary);
   margin: 8px 0 12px;
@@ -946,7 +891,7 @@ body::before {
 .math-steps {
   margin: 8px 0 8px 18px;
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .math-steps li {
@@ -956,21 +901,21 @@ body::before {
 .math-answer {
   color: var(--text-amber);
   font-weight: 700;
-  font-size: 12px;
+  font-size: 13px;
   margin-top: 8px;
 }
 
 .math-ascii {
   margin: 8px 0 0;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.45;
   color: var(--text-amber);
   white-space: pre;
 }
 
 .eighths-table td:first-child {
-  color: var(--text-primary);
+  color: var(--text-heading);
 }
 
 .flashcard {
@@ -995,7 +940,7 @@ body::before {
 }
 
 .flashcard-label {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 1px;
   color: var(--text-tertiary);
 }
@@ -1007,7 +952,7 @@ body::before {
 }
 
 .flashcard-hint {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-dim);
 }
 
@@ -1043,90 +988,6 @@ body::before {
 .terminal-controls {
   flex: none;
   margin-left: 12px;
-}
-
-/* Tab bar: scrolls sideways when the tabs don't fit. Fades and arrow
-   buttons show which side has more tabs. */
-.terminal-tabs-bar {
-  position: relative;
-  display: flex;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
-  z-index: 5;
-}
-
-.terminal-tabs-bar .terminal-tabs {
-  flex: 1 1 auto;
-  min-width: 0;
-  border-bottom: none;
-  scroll-behavior: smooth;
-}
-
-.terminal-tabs-bar::before,
-.terminal-tabs-bar::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 48px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.15s;
-  z-index: 1;
-}
-
-.terminal-tabs-bar::before {
-  left: 24px;
-  background: linear-gradient(90deg, var(--bg-secondary), transparent);
-}
-
-.terminal-tabs-bar::after {
-  right: 24px;
-  background: linear-gradient(270deg, var(--bg-secondary), transparent);
-}
-
-.terminal-tabs-bar.overflow-left::before,
-.terminal-tabs-bar.overflow-right::after {
-  opacity: 1;
-}
-
-.tabs-scroll {
-  flex: none;
-  width: 24px;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-tertiary);
-  border: none;
-  color: var(--text-amber);
-  font-family: inherit;
-  font-size: 10px;
-  cursor: pointer;
-}
-
-.tabs-scroll:hover {
-  background: var(--bg-active);
-  text-shadow: 0 0 6px var(--text-amber);
-}
-
-.tabs-scroll-left {
-  border-right: 1px solid var(--border);
-}
-
-.tabs-scroll-right {
-  border-left: 1px solid var(--border);
-}
-
-/* Only show the arrows when there is something to scroll to. */
-.terminal-tabs-bar.overflow-left .tabs-scroll,
-.terminal-tabs-bar.overflow-right .tabs-scroll {
-  display: flex;
-}
-
-.terminal-tabs-bar:not(.overflow-left) .tabs-scroll-left,
-.terminal-tabs-bar:not(.overflow-right) .tabs-scroll-right {
-  color: var(--text-dim);
-  cursor: default;
 }
 
 /* Panel header: the ACTIVE / SELECTED line stays on one line with an
@@ -1208,14 +1069,14 @@ body::before {
 }
 
 .continue-reason {
-  font-size: 10px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--text-tertiary);
 }
 
 .continue-unit {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1228,7 +1089,7 @@ body::before {
 }
 
 .continue-topic {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-secondary);
 }
 
@@ -1257,7 +1118,7 @@ body::before {
 .progress-row-label {
   flex: none;
   white-space: nowrap;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -1265,7 +1126,7 @@ body::before {
 }
 
 .dashboard-note {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-tertiary);
 }
 
@@ -1282,10 +1143,10 @@ body::before {
 }
 
 .qual-row-name {
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: var(--text-secondary);
+  color: var(--text-heading);
 }
 
 .qual-row .qual-bar {
@@ -1298,7 +1159,7 @@ body::before {
 
 .qual-needed {
   margin-top: 6px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-amber);
 }
 
@@ -1307,7 +1168,7 @@ body::before {
 }
 
 .stat-card .stat-detail {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-dim);
   margin-top: 4px;
   overflow-wrap: anywhere;
@@ -1374,7 +1235,7 @@ body::before {
 }
 
 .unit-status {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 1px;
 }
 
@@ -1384,10 +1245,10 @@ body::before {
 
 .completed-units summary {
   cursor: pointer;
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: var(--text-primary);
+  color: var(--text-heading);
   padding: 4px 0;
 }
 
@@ -1485,7 +1346,7 @@ body::before {
   display: flex;
   gap: 3px;
   padding: 2px 2px 0;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--text-dim);
 }
 
@@ -1502,7 +1363,7 @@ body::before {
 
 .quiz-results {
   list-style: none;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .quiz-result {
@@ -1533,11 +1394,223 @@ body::before {
 }
 
 .quiz-score.perfect {
-  color: var(--text-primary);
+  color: var(--status-ok);
 }
 
 .quiz-date {
   text-align: right;
   color: var(--text-tertiary);
+  font-size: 11px;
+}
+
+/* ================================================================== */
+/* Long-form text: system sans-serif for reading                      */
+/* ================================================================== */
+.topic-content,
+.math-lede,
+.math-body,
+.math-problem,
+.math-steps,
+.flashcard-text,
+.quiz-question,
+.quiz-option,
+.unit-detail .detail-value,
+.unit-item .unit-name,
+.dashboard-note,
+.empty-state,
+.terminal-list,
+.qual-needed,
+.continue-unit,
+.course-description {
+  font-family: var(--font-sans);
+  letter-spacing: normal;
+}
+
+.topic-card .topic-content {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.unit-item .unit-name {
+  font-size: 14px;
+}
+
+.unit-detail .detail-value {
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.math-lede,
+.math-body,
+.math-problem,
+.math-steps {
+  font-size: 14px;
+}
+
+.flashcard-text {
+  font-size: 18px;
+  line-height: 1.45;
+}
+
+.quiz-question {
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--text-primary);
+}
+
+.quiz-option {
+  font-size: 14px;
+  line-height: 1.4;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* ================================================================== */
+/* Sidebar navigation (replaces the old horizontal tab bar)           */
+/* ================================================================== */
+.sidebar {
+  flex: 0 0 216px;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 0;
+}
+
+.sidebar-tabs {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-group {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  padding: 10px 14px 4px;
+}
+
+.sidebar-group:first-child {
+  padding-top: 2px;
+}
+
+.nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 12px 7px 11px;
+  background: transparent;
+  border: none;
+  border-left: 3px solid transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.nav-tab:hover {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+.nav-tab .tab-icon {
+  flex: none;
+  min-width: 56px;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+}
+
+.nav-tab .nav-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+}
+
+/* Number shortcuts are listed in the help dialog and tooltips. */
+.nav-tab .nav-key {
+  display: none;
+}
+
+/* Current section: amber bar, amber text and a ">" marker, so it is not
+   shown by colour alone. */
+.nav-tab.active {
+  background: var(--bg-active);
+  border-left-color: var(--text-amber);
+  color: var(--text-amber);
+  font-weight: 700;
+}
+
+.nav-tab.active .tab-icon {
+  color: var(--text-amber);
+}
+
+.nav-tab.active::after {
+  content: '◀';
+  flex: none;
   font-size: 10px;
+}
+
+.tab:focus-visible {
+  outline-offset: -2px;
+}
+
+/* Narrow windows (down to 800 px): icon-only sidebar. Labels stay in the
+   accessibility tree (visually hidden) and in the tooltip. */
+@media (max-width: 1000px) {
+  .sidebar {
+    flex-basis: 84px;
+  }
+
+  .sidebar-group {
+    padding: 8px 0 2px;
+    text-align: center;
+    letter-spacing: 1px;
+    font-size: 11px;
+  }
+
+  .nav-tab {
+    justify-content: center;
+    padding: 8px 4px 8px 1px;
+  }
+
+  .nav-tab .tab-icon {
+    min-width: 0;
+  }
+
+  .nav-tab .nav-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  .nav-tab.active::after {
+    display: none;
+  }
+}
+
+/* Topic key points: an amber ">" marker instead of a bullet. */
+.key-point {
+  position: relative;
+  padding-left: 16px;
+}
+
+.key-point::before {
+  content: '>';
+  position: absolute;
+  left: 0;
+  color: var(--text-amber);
+  font-family: var(--font-mono);
 }

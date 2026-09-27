@@ -105,8 +105,9 @@ const CourseOverview: React.FC = () => {
             <span>Description</span>
           </div>
           <div
+            className="course-description"
             style={{
-              fontSize: 12,
+              fontSize: 14,
               lineHeight: 1.6,
               color: 'var(--text-secondary)',
             }}
@@ -211,7 +212,7 @@ const CourseOverview: React.FC = () => {
                   <td style={{ color: 'var(--text-amber)' }}>{unit.code}</td>
                   <td>{unit.name}</td>
                   <td style={{ color: 'var(--text-secondary)' }}>{unit.points}</td>
-                  <td style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>
+                  <td style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
                     {completion}% of topics
                   </td>
                 </tr>

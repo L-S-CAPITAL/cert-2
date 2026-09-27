@@ -72,5 +72,7 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    // Let tests read the stylesheet (?raw) for the theme contrast checks.
+    css: { include: [/terminal\.css/] },
   },
 });
