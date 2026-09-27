@@ -75,6 +75,7 @@ Most study apps look like a brochure. This one looks like a **workstation**.
 - Eight numbered panels, same muscle memory as a Bloomberg function key row.
 - A persistent **TIMER** rail so study time is attributed to a unit, not guessed later.
 - Quizzes that actually close the loop: **100% on a topic quiz marks that topic complete**.
+- Instant feedback on every answer: ✓ / ✗ with the right answer and a one-line reason, then **Review mistakes** to re-ask only the questions you got wrong.
 - Prerequisite gates so you cannot skip past `UEECD0007` into units that depend on it.
 - Export / import / reset of progress as a single JSON file — useful when a machine is wiped or a trainer wants a snapshot.
 
@@ -159,6 +160,12 @@ UEECD0008, UEECD0019 and UEECD0035 have one topic per official element, with a s
 | `UEECD0008` | 12 (3 topics × 4) | 9 | https://training.gov.au/Training/Details/UEECD0008 |
 | `UEECD0019` | 12 (3 topics × 4) | 12 | https://training.gov.au/Training/Details/UEECD0019 |
 | `UEECD0035` | 8 (2 topics × 4) | 10 | https://training.gov.au/Training/Details/UEECD0035 |
+
+### Quiz feedback and review
+
+- After you pick an answer the options lock and show **✓** on the correct answer and **✗** on yours (with screen-reader labels), so the result never depends on colour alone. A feedback line is announced through a polite live region, and focus moves to **Next**, so `Enter` continues.
+- If you were wrong, the feedback names the correct letter and answer. Where the question has an `explanation`, a one-line reason follows. Unit quiz questions have explanations (the elective ones cite the performance criterion or evidence they come from). Three questions are left without one because the figure or wording could not be backed up; they show the answer only. The strand module quizzes (MATH / ALG / GEO / DWG) do not have explanations yet and show the answer only.
+- **Review mistakes (N)** starts a round of just the missed questions. Review rounds are practice: they are **not saved** to quiz history and do not complete the topic. Only a full run counts, and a perfect full run still marks the topic complete. **Retry** / **Retake full quiz** starts a normal full round.
 
 Earlier versions shipped UEECD0044, UEECD0051 and UEECO0002 as electives. They are not part of this enrolment (and UEECD0044/UEECD0051 are not UEE22020 electives), so they were taken out of the unit list. Their notes and quizzes are kept in `src/data/archivedElectives.ts`. Saved progress for them stays in your progress file and exports, but it no longer counts toward any figure; old session logs still show their names.
 
@@ -372,7 +379,7 @@ interface Topic {
   title: string;
   content: string;
   keyPoints: string[];
-  quizQuestions?: QuizQuestion[];
+  quizQuestions?: QuizQuestion[];   // QuizQuestion.explanation? = one-line reason shown after answering
 }
 
 interface Unit {
@@ -425,7 +432,7 @@ A practical loop that matches how the app is wired:
 
 1. Open **Dashboard** (`1`). See what is incomplete, or press **Continue** to jump straight to the next unfinished topic.
 2. In **Units** (`2`), expand a unit. Read the topic. Hit the key points.
-3. Sit the quiz. A full score completes the topic; anything less leaves it open.
+3. Sit the quiz. After each answer you see whether it was right, the correct answer, and (for unit quizzes) a one-line reason. A full score completes the topic; anything less leaves it open. On the results screen, **Review mistakes** re-asks only the questions you missed.
 4. Select that unit in the TIMER rail and press **`s`**. Work. Press **`s`** again.
 5. When the theory is soft, switch to **MATH** (`5`) and run the speed drill cold.
 6. Before a drawings or circuits class, warm up on **ALG** / **GEO** / **DWG**.
@@ -442,6 +449,7 @@ The hardening pass wired the chrome for keyboard and AT use:
 - The sidebar is a `nav` landmark holding a vertical `role="tablist"` (`aria-orientation="vertical"`) of `tab`s controlling the `tabpanel`, with `aria-selected`, `aria-controls`, `aria-keyshortcuts`, a roving `tabindex`, and Up/Down (also Left/Right) / Home / End keys (WAI-ARIA tabs pattern). The current section is marked by an amber bar, bold text and a `◀` marker, not colour alone. When the sidebar is narrow the text labels are visually hidden but still read out
 - Text colours meet WCAG AA (4.5:1) on every panel background; `src/styles/contrast.test.ts` checks the CSS custom properties. Long-form text (topic notes, quiz questions, flashcards) uses the system sans-serif; labels and numbers stay monospace. No web fonts are loaded (CSP `font-src 'self'`)
 - Help and quizzes are dialogs; `Esc` dismisses
+- Quiz answers are marked with ✓ / ✗ and hidden text labels as well as colour; feedback is announced in a live region and focus moves to the Next button after answering
 - Progress bars carry `role="progressbar"` and value attributes
 - Contrast and focus treatment live in `src/styles/terminal.css`
 - Shortcuts skip form fields, open dialogs, running drills, and Ctrl / Cmd / Alt combos, so a stray key cannot change tabs and lose quiz or drill progress
