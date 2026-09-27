@@ -66,3 +66,24 @@ describe('light theme text contrast (WCAG AA, 4.5:1 for normal text)', () => {
     expect(contrastRatio(light['brand-orange'], light['bg-secondary'])).toBeGreaterThanOrEqual(3);
   });
 });
+
+describe('progress bar text (drawn on top of the fill and the empty track)', () => {
+  for (const [theme, selector] of [
+    ['dark', ':root'],
+    ['light', '[data-theme="light"]'],
+  ] as const) {
+    const vars = cssVariables(css, selector);
+    for (const bg of ['progress-fill', 'progress-fill-end', 'progress-bg']) {
+      it(`${theme}: --progress-text on --${bg} is at least 4.5:1`, () => {
+        expect(vars['progress-text'], 'progress-text').toBeDefined();
+        expect(vars[bg], bg).toBeDefined();
+        expect(contrastRatio(vars['progress-text'], vars[bg])).toBeGreaterThanOrEqual(4.5);
+      });
+    }
+  }
+
+  it('uses a valid gradient angle for the fill', () => {
+    expect(css).not.toMatch(/linear-gradient\(\s*\d+\s*,/);
+    expect(css).toMatch(/\.progress-bar-fill\s*\{[^}]*linear-gradient\(90deg,/);
+  });
+});

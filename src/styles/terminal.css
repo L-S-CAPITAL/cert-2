@@ -33,8 +33,12 @@
   --border-thick: #002a00;
   --accent-green: #00ff40;
   --grid-color: #003300;
-  --progress-fill: #00ff40;
+  /* Progress bars: a darker green fill so the text drawn on top of it
+     (e.g. "3 / 4") keeps 4.5:1 on the fill and on the empty track. */
+  --progress-fill: #0e4420;
+  --progress-fill-end: #186b31;
   --progress-bg: #003300;
+  --progress-text: #3dff6e;
   --shadow-glow: 0 0 10px rgba(0, 255, 64, 0.3);
   --shadow-glow-strong: 0 0 20px rgba(0, 255, 64, 0.5);
   /* LS CAPITAL / Crucible brand orange (sampled from the brand artwork);
@@ -71,8 +75,10 @@
   --border-thick: #cdd7c3;
   --accent-green: #2f7d43;
   --grid-color: #d9e2d0;
-  --progress-fill: #7fbf8e;
+  --progress-fill: #a3d3ae;
+  --progress-fill-end: #7fbf8e;
   --progress-bg: #dbe5d2;
+  --progress-text: #1d1c19;
   --shadow-glow: 0 1px 3px rgba(60, 50, 20, 0.12);
   --shadow-glow-strong: 0 1px 4px rgba(60, 50, 20, 0.18);
   --brand-orange: #b4541a;
@@ -374,10 +380,10 @@ body::before {
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90, var(--progress-fill), var(--text-bright));
+  background: linear-gradient(90deg, var(--progress-fill), var(--progress-fill-end));
   border-right: 2px solid var(--text-bright);
   transition: width 0.5s ease;
-  box-shadow: 0 0 8px var(--progress-fill);
+  box-shadow: 0 0 8px var(--progress-fill-end);
 }
 
 .progress-bar-text {
@@ -391,7 +397,7 @@ body::before {
   justify-content: center;
   font-size: 12px;
   font-weight: 700;
-  color: var(--text-bright);
+  color: var(--progress-text);
   text-shadow: 0 0 4px #000, 0 0 2px #000;
   letter-spacing: 1px;
 }
@@ -1316,10 +1322,9 @@ body::before {
   }
 }
 
-/* Small per-unit bars: a soft fill without the bright edge line, so the
-   "x / y" text on top stays readable at any percentage. */
+/* Small per-unit bars: the same fill without the bright edge line or glow,
+   so the "x / y" text on top stays clean at any percentage. */
 .unit-topics-bar .progress-bar-fill {
-  background: rgba(0, 255, 64, 0.28);
   border-right: none;
   box-shadow: none;
 }
@@ -1784,7 +1789,6 @@ body::before {
 }
 
 [data-theme="light"] .progress-bar-text {
-  color: var(--text-primary);
   text-shadow: 0 0 3px #fff, 0 0 2px #fff;
 }
 
