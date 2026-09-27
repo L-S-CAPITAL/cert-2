@@ -1,7 +1,10 @@
 const path = require('path');
-const { flipFuses, FuseVersion, FuseV1Options } = require('@electron/fuses');
 
 exports.default = async function afterPack(context) {
+  // @electron/fuses v2 is ESM-only, so it cannot be require()d from this
+  // CommonJS hook. A dynamic import works on every supported Node version.
+  const { flipFuses, FuseVersion, FuseV1Options } = await import('@electron/fuses');
+
   const name =
     context.packager.executableName ||
     context.packager.appInfo.productFilename;

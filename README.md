@@ -197,7 +197,7 @@ Press **`?`** anywhere (outside a form field) for the in-app keyboard card. **`E
 
 ### Requirements
 
-- **Node.js 18+**
+- **Node.js 22.12+** (required by `@electron/fuses` v2, used when packaging)
 - **npm 9+**
 - A desktop OS Electron can run on (Linux, macOS, Windows)
 
