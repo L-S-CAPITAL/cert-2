@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { ProgressState, SessionLog, Topic, Unit } from '../types';
+import { ProgressState, SessionLog, Topic } from '../types';
 import {
   MAX_SESSION_LOGS,
   loadPersisted,
@@ -62,19 +62,6 @@ export function createProgressStore(storage: Storage) {
         if (state.unitCompletions[unitId]?.[topic.id]) completed++;
       }
       return Math.round((completed / total) * 100);
-    },
-
-    getTotalCompletion(units: Unit[]): number {
-      let total = 0;
-      let completed = 0;
-      for (const unit of units) {
-        const topics = unit.topics || [];
-        total += topics.length;
-        for (const topic of topics) {
-          if (state.unitCompletions[unit.id]?.[topic.id]) completed++;
-        }
-      }
-      return total === 0 ? 0 : Math.round((completed / total) * 100);
     },
 
     getFormattedTotalTime(): string {

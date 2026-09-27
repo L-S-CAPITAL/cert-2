@@ -88,7 +88,7 @@ If you already live in a workshop, a switchroom, or a code editor, the UI should
 - **8 core units** (140 packaged core points in-app) with topics, key points, and quizzes.
 - **4 electives** covering multi-path circuits, drawings & standards, fixing/securing, and documentation.
 - Prerequisite unlocking via unit codes (`src/data/prerequisites.ts`).
-- Course overview with points, topic counts, career outcomes, and a live completion bar.
+- Course overview with points, topic counts, career outcomes, and live core / elective progress bars.
 
 ### Strand panels (beyond the packaged units)
 
@@ -372,6 +372,7 @@ Strand content uses `MathModule` (`tutorial` | `drill` | `flashcards` | `guide`)
 - Completions are `Record<unitId, Record<topicId, boolean>>`
 - `startSession` / `startTopicSession` / `stopSession`
 - `markTopicComplete` on a perfect quiz
+- Completion figures come from one helper, `summarizeCompletion` (`src/data/completion.ts`): **core progress** is completed topics across the core units, electives are reported separately, and study strands are not counted. StatusBar, Dashboard and Course Overview all use it
 - `exportProgress` / `importProgress` / `reset` with sanitisation
 
 Tests live beside the modules they cover: `*.test.ts` under `src/data/` and `src/stores/`.
