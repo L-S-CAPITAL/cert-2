@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDialogFocus } from '../hooks/useDialogFocus';
 
 interface HelpModalProps {
   onClose: () => void;
@@ -19,13 +20,10 @@ const SHORTCUTS = [
 ];
 
 const HelpModal: React.FC<HelpModalProps> = ({ onClose }) => {
-  React.useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  const dialogRef = React.useRef<HTMLDivElement>(null);
+  // Focus the dialog itself so its title is announced, trap Tab inside it,
+  // close on Escape and hand focus back to the opener on close.
+  useDialogFocus(dialogRef, onClose, { initialFocus: 'dialog' });
 
   return (
     <div
@@ -33,6 +31,8 @@ const HelpModal: React.FC<HelpModalProps> = ({ onClose }) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="help-title"
+      tabIndex={-1}
+      ref={dialogRef}
       onClick={onClose}
     >
       <div

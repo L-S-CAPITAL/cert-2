@@ -879,6 +879,11 @@ body::before {
   z-index: 1000;
 }
 
+/* The dialog element receives programmatic focus (tabIndex=-1) on open. */
+.modal-backdrop:focus {
+  outline: none;
+}
+
 .unit-item.locked {
   opacity: 0.85;
 }
