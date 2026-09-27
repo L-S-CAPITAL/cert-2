@@ -1,6 +1,13 @@
-const { app, BrowserWindow, session } = require('electron');
+const { app, BrowserWindow, screen, session } = require('electron');
 const path = require('path');
 const { createUrlGuard } = require('./electron-navigation');
+const {
+  WINDOW_STATE_FILE,
+  MIN_SIZE,
+  captureWindowState,
+  loadWindowState,
+  saveWindowState,
+} = require('./electron-window-state');
 
 /** @type {import('electron').BrowserWindow | null} */
 let mainWindow = null;
@@ -50,12 +57,30 @@ function guardNavigation(event) {
   }
 }
 
+function windowStatePath() {
+  return path.join(app.getPath('userData'), WINDOW_STATE_FILE);
+}
+
+/** Work areas of the connected displays, primary display first. */
+function displayWorkAreas() {
+  const primary = screen.getPrimaryDisplay();
+  return [primary, ...screen.getAllDisplays().filter((display) => display.id !== primary.id)].map(
+    (display) => display.workArea,
+  );
+}
+
 function createWindow() {
+  // Last session's size / position, validated against the current displays.
+  const savedState = loadWindowState(windowStatePath(), displayWorkAreas());
+
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
-    minWidth: 1000,
-    minHeight: 700,
+    width: savedState.width,
+    height: savedState.height,
+    ...(savedState.x !== undefined && savedState.y !== undefined
+      ? { x: savedState.x, y: savedState.y }
+      : {}),
+    minWidth: MIN_SIZE.width,
+    minHeight: MIN_SIZE.height,
     backgroundColor: '#000000',
     webPreferences: {
       preload: path.join(__dirname, 'electron-preload.js'),
@@ -67,6 +92,14 @@ function createWindow() {
     frame: true,
     autoHideMenuBar: true,
     icon: path.join(__dirname, 'icon.png'),
+  });
+
+  if (savedState.isMaximized) {
+    mainWindow.maximize();
+  }
+
+  mainWindow.on('close', () => {
+    if (mainWindow) saveWindowState(windowStatePath(), captureWindowState(mainWindow));
   });
 
   mainWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
