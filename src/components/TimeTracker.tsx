@@ -28,6 +28,25 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
     (topic) => topic.id === progress.activeTopicId,
   );
 
+  // Announce only start / stop transitions; the ticking clock itself is not
+  // a live region (it would be read out every second).
+  const [announcement, setAnnouncement] = React.useState('');
+  const wasActive = React.useRef(isActive);
+  React.useEffect(() => {
+    if (wasActive.current === isActive) return;
+    wasActive.current = isActive;
+    if (isActive) {
+      const label = activeUnit
+        ? `${activeUnit.code}${activeTopic ? `, ${activeTopic.title}` : ''}`
+        : 'study session';
+      setAnnouncement(`Timer started for ${label}.`);
+    } else {
+      setAnnouncement(
+        `Timer stopped. Total logged time ${progressStore.getFormattedTotalTime()}.`,
+      );
+    }
+  }, [isActive, activeUnit, activeTopic]);
+
   const handleStartStop = () => {
     if (isActive) {
       progressStore.stopSession();
@@ -70,9 +89,11 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
         style={{
           color: isActive ? 'var(--text-amber)' : 'var(--text-tertiary)',
         }}
-        aria-live="polite"
       >
         {progressStore.getFormattedActiveTime()}
+      </div>
+      <div className="visually-hidden" role="status" aria-live="polite">
+        {announcement}
       </div>
 
       <button
