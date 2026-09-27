@@ -12,12 +12,12 @@ import GeometryPanel from './components/GeometryPanel';
 import BlueprintsPanel from './components/BlueprintsPanel';
 import TimeTracker from './components/TimeTracker';
 import HelpModal from './components/HelpModal';
-import { ALL_UNITS, COURSE_INFO } from './data/course';
+import { ALL_UNITS, COURSE_INFO, findTopic } from './data/course';
 import { MATH_UNIT } from './data/math';
 import { ALGEBRA_UNIT } from './data/algebra';
 import { GEOMETRY_UNIT } from './data/geometry';
 import { BLUEPRINT_UNIT } from './data/blueprints';
-import { progressStore } from './stores/progress';
+import { progressStore, useProgress } from './stores/progress';
 import { shouldIgnoreShortcut } from './shortcuts';
 
 const TABS: { id: TabType; label: string; icon: string }[] = [
@@ -48,6 +48,7 @@ const App: React.FC = () => {
   const [selectedUnitId, setSelectedUnitId] = React.useState<string | null>(null);
   const [expandedUnits, setExpandedUnits] = React.useState<Record<string, boolean>>({});
   const [helpOpen, setHelpOpen] = React.useState(false);
+  const progress = useProgress();
 
   React.useEffect(() => {
     const stop = () => progressStore.stopSession();
@@ -160,9 +161,17 @@ const App: React.FC = () => {
     }
   };
 
-  const activeUnit = selectedUnitId
-    ? TIMER_UNITS.find((u) => u.id === selectedUnitId)
-    : null;
+  // While the timer runs, the header shows what is actually being timed
+  // (progress.activeUnitId / activeTopicId), not whatever is selected now.
+  const timerRunning = progress.startTime !== null;
+  const headerUnitId = timerRunning ? progress.activeUnitId : selectedUnitId;
+  const headerUnit = headerUnitId
+    ? TIMER_UNITS.find((u) => u.id === headerUnitId)
+    : undefined;
+  const headerTopic =
+    timerRunning && progress.activeUnitId && progress.activeTopicId
+      ? findTopic(progress.activeUnitId, progress.activeTopicId)
+      : undefined;
 
   return (
     <div className="terminal-app">
@@ -209,9 +218,11 @@ const App: React.FC = () => {
               </span>
               {TABS.find((t) => t.id === activeTab)?.label ?? ''} PANEL
             </div>
-            {activeUnit && (
+            {headerUnit && (
               <span className="window-meta">
-                ACTIVE: {activeUnit.code} - {activeUnit.name}
+                {timerRunning ? 'ACTIVE' : 'SELECTED'}: {headerUnit.code} -{' '}
+                {headerUnit.name}
+                {headerTopic ? ` / ${headerTopic.title}` : ''}
               </span>
             )}
           </div>
