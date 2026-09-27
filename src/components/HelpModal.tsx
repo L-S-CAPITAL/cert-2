@@ -5,19 +5,47 @@ interface HelpModalProps {
   onClose: () => void;
 }
 
-const SHORTCUTS = [
-  ['1', 'Dashboard'],
-  ['2', 'Core / elective units'],
-  ['3', 'Session log'],
-  ['4', 'Course overview'],
-  ['5', 'Foundational Trade Mathematics'],
-  ['6', 'Scientific Notation, Prefixes & Algebra'],
-  ['7', 'Geometry, Physics & Hand Tools'],
-  ['8', 'Technical Documents & Blueprints'],
-  ['↑ / ↓', 'Previous / next section (when the sidebar has focus)'],
-  ['s', 'Start or stop the study timer'],
-  ['?', 'Open this help panel'],
-  ['Esc', 'Close dialogs'],
+type HelpSection = { title: string; keys: Array<[string, string]>; columns?: boolean };
+
+const SECTIONS: HelpSection[] = [
+  {
+    title: 'Go to a section',
+    columns: true,
+    keys: [
+      ['1', 'Dashboard'],
+      ['2', 'Units'],
+      ['3', 'Session log'],
+      ['4', 'Course overview'],
+      ['5', 'Trade maths'],
+      ['6', 'Notation & algebra'],
+      ['7', 'Geometry & tools'],
+      ['8', 'Drawings'],
+    ],
+  },
+  {
+    title: 'Anywhere',
+    keys: [
+      ['↑ / ↓', 'Previous / next section (when the sidebar has focus)'],
+      ['s', 'Start or stop the study timer'],
+      ['t', 'Switch between the dark and light (paper) theme'],
+      ['?', 'Open this help panel'],
+      ['Esc', 'Close dialogs'],
+    ],
+  },
+  {
+    title: 'In a quiz',
+    keys: [
+      ['1 – 4', 'Pick answer A – D'],
+      ['Enter', 'Next question / finish (focus moves to Next after you answer)'],
+    ],
+  },
+  {
+    title: 'Flashcards',
+    keys: [
+      ['Space / Enter', 'Flip the card'],
+      ['← / →', 'Previous / next card (when the deck has focus)'],
+    ],
+  },
 ];
 
 const HelpModal: React.FC<HelpModalProps> = ({ onClose }) => {
@@ -38,24 +66,32 @@ const HelpModal: React.FC<HelpModalProps> = ({ onClose }) => {
     >
       <div
         className="terminal-card"
-        style={{ maxWidth: 480, width: '90%' }}
+        style={{ maxWidth: 520, width: '90%', maxHeight: '90vh', overflowY: 'auto' }}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="terminal-section-title" id="help-title">
           <span className="icon">HELP</span>
           <span>Keyboard</span>
         </div>
-        <ul className="terminal-list" style={{ marginLeft: 16 }}>
-          {SHORTCUTS.map(([key, label]) => (
-            <li key={key}>
-              <span className="detail-value">
-                <strong style={{ color: 'var(--text-amber)' }}>{key}</strong>
-                {' — '}
-                {label}
-              </span>
-            </li>
-          ))}
-        </ul>
+        {SECTIONS.map((section) => (
+          <section key={section.title} className="help-section">
+            <h3 className="help-section-title">{section.title}</h3>
+            <ul
+              className={`terminal-list help-list${section.columns ? ' help-list-columns' : ''}`}
+              style={{ marginLeft: 16 }}
+            >
+              {section.keys.map(([key, label]) => (
+                <li key={key}>
+                  <span className="detail-value">
+                    <kbd className="help-key">{key}</kbd>
+                    {' — '}
+                    {label}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
           <button type="button" className="terminal-btn" onClick={onClose}>
             Close

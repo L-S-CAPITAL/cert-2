@@ -1,5 +1,6 @@
 import React from 'react';
 import { Flashcard } from '../types';
+import FlashcardDeck from './FlashcardDeck';
 
 interface UnitFlashcardsProps {
   unitCode: string;
@@ -20,7 +21,6 @@ const UnitFlashcards: React.FC<UnitFlashcardsProps> = ({ unitCode, cards, source
   const panelId = React.useId();
 
   if (cards.length === 0) return null;
-  const card = cards[index];
   const seenCount = Object.keys(seen).length;
 
   const go = (next: number) => {
@@ -49,30 +49,15 @@ const UnitFlashcards: React.FC<UnitFlashcardsProps> = ({ unitCode, cards, source
 
       {open && (
         <div id={panelId}>
-          <button
-            type="button"
-            className={`flashcard ${flipped ? 'flipped' : ''}`}
-            onClick={() => setFlipped((value) => !value)}
-            aria-pressed={flipped}
-            aria-label={`${unitCode} flashcard ${index + 1} of ${cards.length}, ${
-              flipped ? 'back' : 'front'
-            }`}
-          >
-            <span className="flashcard-label">{flipped ? 'BACK' : 'FRONT'}</span>
-            <span className="flashcard-text">{flipped ? card.back : card.front}</span>
-            <span className="flashcard-hint">Click to flip</span>
-          </button>
-          <div className="flashcard-nav">
-            <button type="button" className="terminal-btn" onClick={() => go(index - 1)}>
-              Previous
-            </button>
-            <span className="math-body">
-              {index + 1} / {cards.length} · seen {seenCount}
-            </span>
-            <button type="button" className="terminal-btn" onClick={() => go(index + 1)}>
-              Next
-            </button>
-          </div>
+          <FlashcardDeck
+            cards={cards}
+            index={index}
+            flipped={flipped}
+            seenCount={seenCount}
+            onFlip={() => setFlipped((value) => !value)}
+            onMove={go}
+            label={`${unitCode} flashcard`}
+          />
           {sourceUrl && (
             <div className="dashboard-note" style={{ marginTop: 6 }}>
               Written from the official unit text: {sourceUrl}

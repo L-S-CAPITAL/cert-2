@@ -2,6 +2,16 @@ import React from 'react';
 import { Unit, Topic, QuizQuestion } from '../types';
 import { progressStore } from '../stores/progress';
 import { useDialogFocus } from '../hooks/useDialogFocus';
+import {
+  QuizRound,
+  explanationFor,
+  fullRound,
+  missedQuestions,
+  optionLetter,
+  reviewRound,
+  roundScore,
+  shouldRecordRound,
+} from '../data/quiz';
 
 interface QuizModalProps {
   unit: Unit;
@@ -10,51 +20,69 @@ interface QuizModalProps {
 }
 
 const QuizModal: React.FC<QuizModalProps> = ({ unit, topic, onClose }) => {
-  const [currentQuestion, setCurrentQuestion] = React.useState(0);
-  const [selectedAnswer, setSelectedAnswer] = React.useState<number | null>(null);
-  const [score, setScore] = React.useState(0);
+  const questions: QuizQuestion[] = React.useMemo(() => topic.quizQuestions || [], [topic]);
+  const [round, setRound] = React.useState<QuizRound>(() => fullRound(questions));
+  const [roundKey, setRoundKey] = React.useState(0);
+  const [position, setPosition] = React.useState(0);
+  // Answers for the current round, keyed by question index.
+  const [answers, setAnswers] = React.useState<Record<number, number>>({});
   const [showResult, setShowResult] = React.useState(false);
   const dialogRef = React.useRef<HTMLDivElement>(null);
-  const questions = topic.quizQuestions || [];
-  const isLast = questions.length > 0 && currentQuestion === questions.length - 1;
+  const nextRef = React.useRef<HTMLButtonElement>(null);
 
-  useDialogFocus(dialogRef, onClose, { refocusKey: showResult });
+  useDialogFocus(dialogRef, onClose, { refocusKey: `${roundKey}-${showResult}` });
 
-  React.useEffect(() => {
-    if (
-      showResult &&
-      questions.length > 0 &&
-      score === questions.length
-    ) {
-      progressStore.markTopicComplete(unit.id, topic.id);
-    }
-  }, [showResult, questions.length, score, unit.id, topic.id]);
+  const questionIndex = round.order[position];
+  const q = questions[questionIndex];
+  const selectedAnswer = q ? answers[questionIndex] ?? null : null;
+  const isLast = position === round.order.length - 1;
+  const isReview = round.mode === 'review';
 
   const handleAnswer = (index: number) => {
-    if (selectedAnswer !== null || !questions[currentQuestion]) return;
-    setSelectedAnswer(index);
-    if (index === questions[currentQuestion].correctAnswer) {
-      setScore((value) => value + 1);
-    }
+    if (selectedAnswer !== null || !q) return;
+    setAnswers((current) => ({ ...current, [questionIndex]: index }));
+  };
+
+  // After answering, the options are disabled: move focus to Next/Finish so
+  // Enter continues and focus is not lost to the page.
+  React.useEffect(() => {
+    if (selectedAnswer !== null) nextRef.current?.focus();
+  }, [selectedAnswer]);
+
+  const startRound = (next: QuizRound) => {
+    setRound(next);
+    setRoundKey((key) => key + 1);
+    setPosition(0);
+    setAnswers({});
+    setShowResult(false);
   };
 
   const handleNext = () => {
-    if (isLast) {
-      // Save every finished attempt (perfect or not) for the dashboard's
-      // quiz history. Recorded here, once per Finish click, not in an effect.
-      progressStore.recordQuizAttempt(unit.id, topic.id, score, questions.length);
-      setShowResult(true);
-    } else {
-      setCurrentQuestion((value) => value + 1);
-      setSelectedAnswer(null);
+    if (!isLast) {
+      setPosition((value) => value + 1);
+      return;
     }
+    const score = roundScore(questions, round, answers);
+    if (shouldRecordRound(round)) {
+      // Save every finished full attempt (perfect or not) for the
+      // dashboard's quiz history, once per Finish click. Review rounds are
+      // practice and are not saved (see shouldRecordRound).
+      progressStore.recordQuizAttempt(unit.id, topic.id, score, questions.length);
+      if (score === questions.length) progressStore.markTopicComplete(unit.id, topic.id);
+    }
+    setShowResult(true);
   };
 
-  const handleRestart = () => {
-    setCurrentQuestion(0);
-    setSelectedAnswer(null);
-    setScore(0);
-    setShowResult(false);
+  // Number keys 1-4 (or up to the number of options) pick an answer. Global
+  // shortcuts are already off while this dialog is open, so they cannot
+  // switch tabs underneath the quiz.
+  const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.altKey || event.ctrlKey || event.metaKey || showResult || !q) return;
+    if (!/^[1-9]$/.test(event.key)) return;
+    const index = Number(event.key) - 1;
+    if (index >= q.options.length || selectedAnswer !== null) return;
+    event.preventDefault();
+    handleAnswer(index);
   };
 
   const card = (title: string, body: React.ReactNode) => (
@@ -65,10 +93,11 @@ const QuizModal: React.FC<QuizModalProps> = ({ unit, topic, onClose }) => {
       aria-labelledby="quiz-title"
       tabIndex={-1}
       ref={dialogRef}
+      onKeyDown={onKeyDown}
     >
-      <div className="terminal-card" style={{ maxWidth: 600, width: '90%' }}>
+      <div className="terminal-card quiz-card" style={{ maxWidth: 640, width: '90%' }}>
         <div className="terminal-section-title" id="quiz-title">
-          <span className="icon">QUIZ</span>
+          <span className="icon">{isReview ? 'REVIEW' : 'QUIZ'}</span>
           <span>{title}</span>
         </div>
         {body}
@@ -93,29 +122,52 @@ const QuizModal: React.FC<QuizModalProps> = ({ unit, topic, onClose }) => {
   }
 
   if (showResult) {
-    const perfect = score === questions.length;
+    const total = round.order.length;
+    const score = roundScore(questions, round, answers);
+    const missed = missedQuestions(questions, round, answers);
+    const perfect = missed.length === 0;
+    const percent = Math.round((score / total) * 100);
     return card(
-      'Quiz Results',
+      isReview ? 'Review results' : 'Quiz results',
       <>
-        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+        <div className="quiz-result-panel" style={{ textAlign: 'center', padding: '16px 0 8px' }}>
           <div
-            style={{
-              fontSize: 36,
-              fontWeight: 700,
-              color: perfect ? 'var(--status-ok)' : 'var(--text-amber)',
-            }}
+            className="quiz-result-score"
+            style={{ color: perfect ? 'var(--status-ok)' : 'var(--text-amber)' }}
           >
-            {score} / {questions.length}
+            {score} / {total}
           </div>
-          <div style={{ color: 'var(--text-tertiary)', margin: '12px 0', fontSize: 13 }}>
-            {perfect
-              ? 'PERFECT SCORE — topic marked complete'
-              : `Score: ${Math.round((score / questions.length) * 100)}%`}
+          <div className="quiz-result-note">
+            {isReview
+              ? perfect
+                ? 'All missed questions answered correctly this time.'
+                : `${score} of ${total} missed questions now correct (${percent}%).`
+              : perfect
+                ? 'Perfect score: topic marked complete.'
+                : `Score: ${percent}%. ${missed.length} to review.`}
           </div>
+          {isReview && (
+            <div className="quiz-result-sub">
+              Review rounds are practice: they are not saved to your quiz history.
+            </div>
+          )}
         </div>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-          <button type="button" className="terminal-btn amber" onClick={handleRestart}>
-            Retry
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+          {!perfect && (
+            <button
+              type="button"
+              className="terminal-btn amber"
+              onClick={() => startRound(reviewRound(missed))}
+            >
+              Review mistakes ({missed.length})
+            </button>
+          )}
+          <button
+            type="button"
+            className={`terminal-btn${perfect ? ' amber' : ''}`}
+            onClick={() => startRound(fullRound(questions))}
+          >
+            {isReview ? 'Retake full quiz' : 'Retry'}
           </button>
           <button type="button" className="terminal-btn" onClick={onClose}>
             Close
@@ -125,84 +177,99 @@ const QuizModal: React.FC<QuizModalProps> = ({ unit, topic, onClose }) => {
     );
   }
 
-  const q: QuizQuestion = questions[currentQuestion];
+  const answered = selectedAnswer !== null;
+  const correct = answered && selectedAnswer === q.correctAnswer;
+  const explanation = explanationFor(q);
 
   return card(
     `${unit.code} - ${topic.title}`,
     <>
-      <div className="section-count" style={{ marginBottom: 12 }}>
-        Q {currentQuestion + 1} / {questions.length}
+      <div className="quiz-progress-row">
+        <span className="section-count">
+          {isReview ? 'Review ' : ''}Q {position + 1} / {round.order.length}
+        </span>
+        <span className="quiz-key-hint">
+          Keys 1–{q.options.length} answer · Enter continues
+        </span>
       </div>
-      <div style={{ marginBottom: 16 }}>
-        <div className="quiz-question" style={{ marginBottom: 12 }}>
+      <div style={{ marginBottom: 12 }}>
+        <div className="quiz-question" id="quiz-question" style={{ marginBottom: 12 }}>
           {q.question}
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div
+          className="quiz-options"
+          role="group"
+          aria-labelledby="quiz-question"
+          style={{ display: 'flex', flexDirection: 'column', gap: 6 }}
+        >
           {q.options.map((option, i) => {
             const isSelected = selectedAnswer === i;
-            const isCorrect = i === q.correctAnswer;
-            const showFeedback = selectedAnswer !== null;
-            let optionColor = 'var(--text-secondary)';
-            let optionBorder = 'var(--border)';
-
-            if (showFeedback && isSelected) {
-              optionColor = isCorrect ? 'var(--status-ok)' : 'var(--status-bad)';
-              optionBorder = optionColor;
-            } else if (showFeedback && isCorrect) {
-              optionColor = 'var(--status-ok)';
-              optionBorder = 'var(--status-ok)';
-            }
-
+            const isAnswer = i === q.correctAnswer;
+            const state = !answered
+              ? ''
+              : isAnswer
+                ? ' is-correct'
+                : isSelected
+                  ? ' is-wrong'
+                  : ' is-other';
             return (
               <button
                 key={i}
                 type="button"
-                className="terminal-btn quiz-option"
+                className={`terminal-btn quiz-option${state}`}
                 onClick={() => handleAnswer(i)}
-                disabled={selectedAnswer !== null}
-                style={{
-                  textAlign: 'left',
-                  borderColor: optionBorder,
-                  color: optionColor,
-                  justifyContent: 'flex-start',
-                }}
+                disabled={answered}
+                aria-keyshortcuts={i < 9 ? String(i + 1) : undefined}
               >
-                <span style={{ marginRight: 8, color: 'var(--text-amber)' }}>
-                  {String.fromCharCode(65 + i)}.
-                </span>
-                {option}
+                <span className="quiz-option-letter">{optionLetter(i)}.</span>
+                <span className="quiz-option-text">{option}</span>
+                {answered && isAnswer && (
+                  <span className="quiz-option-mark">
+                    <span aria-hidden="true">✓</span>
+                    <span className="visually-hidden">(correct answer)</span>
+                  </span>
+                )}
+                {answered && isSelected && !isAnswer && (
+                  <span className="quiz-option-mark">
+                    <span aria-hidden="true">✗</span>
+                    <span className="visually-hidden">(your answer)</span>
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
       </div>
 
-      {selectedAnswer !== null && (
-        <div
-          style={{
-            marginBottom: 12,
-            fontSize: 12,
-            color:
-              selectedAnswer === q.correctAnswer
-                ? 'var(--status-ok)'
-                : 'var(--status-bad)',
-          }}
-        >
-          {selectedAnswer === q.correctAnswer
-            ? 'CORRECT'
-            : `INCORRECT — The correct answer is ${String.fromCharCode(65 + q.correctAnswer)}`}
-        </div>
-      )}
+      {/* Always rendered so screen readers announce the feedback when it appears. */}
+      <div
+        className={`quiz-feedback${answered ? (correct ? ' correct' : ' incorrect') : ''}`}
+        role="status"
+        aria-live="polite"
+      >
+        {answered && (
+          <>
+            <div className="quiz-feedback-head">
+              <span aria-hidden="true">{correct ? '✓' : '✗'}</span>{' '}
+              {correct
+                ? 'Correct.'
+                : `Incorrect. The answer is ${optionLetter(q.correctAnswer)}: ${q.options[q.correctAnswer]}`}
+            </div>
+            {explanation && <div className="quiz-explanation">{explanation}</div>}
+          </>
+        )}
+      </div>
 
-      <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}>
         <button type="button" className="terminal-btn" onClick={onClose}>
           Cancel
         </button>
         <button
+          ref={nextRef}
           type="button"
           className="terminal-btn amber"
           onClick={handleNext}
-          disabled={selectedAnswer === null}
+          disabled={!answered}
         >
           {isLast ? 'Finish' : 'Next'}
         </button>

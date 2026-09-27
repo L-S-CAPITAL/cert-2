@@ -48,6 +48,8 @@ export const UEECD0008_STUDY: ElectiveStudySet = {
           'Record it only after the job is finished',
         ],
         correctAnswer: 1,
+        explanation:
+          'PC 1.3: hazards not previously identified are noted on the job safety assessment, and advice is sought from the work supervisor.',
       },
       {
         // PC 1.4
@@ -59,6 +61,8 @@ export const UEECD0008_STUDY: ElectiveStudySet = {
           'You work it out after starting',
         ],
         correctAnswer: 2,
+        explanation:
+          'PC 1.4: work instructions are obtained and the nature, scope and location of the work are determined from the supervisor or an appropriate person.',
       },
       {
         // PC 1.7
@@ -70,6 +74,8 @@ export const UEECD0008_STUDY: ElectiveStudySet = {
           'They are borrowed from another crew without checking',
         ],
         correctAnswer: 0,
+        explanation:
+          'PC 1.7: tools, equipment and testing devices are obtained and checked for correct operation and safety before the work.',
       },
       {
         // PC 1.5
@@ -81,6 +87,8 @@ export const UEECD0008_STUDY: ElectiveStudySet = {
           'So your work is coordinated effectively with other people',
         ],
         correctAnswer: 3,
+        explanation:
+          'PC 1.5: advice is sought so the work is coordinated effectively with others.',
       },
     ],
     // Element 2: Undertake energy sector support activity
@@ -95,6 +103,8 @@ export const UEECD0008_STUDY: ElectiveStudySet = {
           'Level only if the customer asks for it',
         ],
         correctAnswer: 1,
+        explanation:
+          'PC 2.3: mechanical equipment is installed straight and square, in the required locations and within acceptable tolerances.',
       },
       {
         // PC 2.2
@@ -106,6 +116,8 @@ export const UEECD0008_STUDY: ElectiveStudySet = {
           'Only the purchase price',
         ],
         correctAnswer: 0,
+        explanation:
+          'PC 2.2: plant and equipment are checked against manufacturer guidelines or instructions, WHS/OHS requirements and workplace procedures.',
       },
       {
         // PC 2.6
@@ -117,6 +129,8 @@ export const UEECD0008_STUDY: ElectiveStudySet = {
           'Change the job plan yourself',
         ],
         correctAnswer: 2,
+        explanation:
+          'PC 2.6: unplanned events are referred to the supervisor, and their directions are followed.',
       },
       {
         // PC 2.5 and PE
@@ -128,6 +142,8 @@ export const UEECD0008_STUDY: ElectiveStudySet = {
           'Under supervision',
         ],
         correctAnswer: 3,
+        explanation:
+          'PC 2.5: work instructions are carried out under supervision.',
       },
     ],
     // Element 3: Complete energy sector work activity
@@ -142,6 +158,8 @@ export const UEECD0008_STUDY: ElectiveStudySet = {
           'Nothing, if the customer is not home',
         ],
         correctAnswer: 0,
+        explanation:
+          'PC 3.2: the work site is cleaned and made safe in line with workplace procedures.',
       },
       {
         // PC 3.3
@@ -153,6 +171,8 @@ export const UEECD0008_STUDY: ElectiveStudySet = {
           'Only the next shift, if you see them',
         ],
         correctAnswer: 1,
+        explanation:
+          'PC 3.3: the supervisor is notified that the work is complete, following workplace procedures.',
       },
       {
         // PC 3.1
@@ -164,6 +184,8 @@ export const UEECD0008_STUDY: ElectiveStudySet = {
           'Only personal protective equipment',
         ],
         correctAnswer: 2,
+        explanation:
+          'PC 3.1: the WHS/OHS work completion risk control measures and workplace procedures are followed.',
       },
       {
         // PE (assessment requirements)
@@ -175,6 +197,8 @@ export const UEECD0008_STUDY: ElectiveStudySet = {
           'On at least two separate occasions',
         ],
         correctAnswer: 3,
+        explanation:
+          'The performance evidence must be shown on at least two separate occasions.',
       },
     ],
   },
@@ -236,6 +260,8 @@ export const UEECD0019_STUDY: ElectiveStudySet = {
           'You decide once the job is under way',
         ],
         correctAnswer: 0,
+        explanation:
+          'PC 1.4: the scope of work is obtained from relevant documentation and from the work supervisor.',
       },
       {
         // PC 1.3
@@ -247,6 +273,8 @@ export const UEECD0019_STUDY: ElectiveStudySet = {
           "Only the tool maker's advertising",
         ],
         correctAnswer: 2,
+        explanation:
+          'PC 1.3: work instructions, workplace procedures, industry standards, codes of practice and regulations are identified and applied.',
       },
       {
         // PC 1.7
@@ -258,6 +286,8 @@ export const UEECD0019_STUDY: ElectiveStudySet = {
           'They are shared without checking',
         ],
         correctAnswer: 1,
+        explanation:
+          'PC 1.7: tools, equipment and measuring devices are obtained and checked for correct operation and safety.',
       },
       {
         // KE: workshop planning and materials
@@ -269,6 +299,8 @@ export const UEECD0019_STUDY: ElectiveStudySet = {
           'Typical non-electrical hazards in the workplace and control measures for them',
         ],
         correctAnswer: 3,
+        explanation:
+          'The knowledge evidence for workshop planning includes typical non-electrical hazards in the workplace and control measures for them.',
       },
     ],
     // Element 2: Dismantle and assemble utilities industry apparatus
@@ -283,6 +315,8 @@ export const UEECD0019_STUDY: ElectiveStudySet = {
           'Nothing, if the apparatus is switched off at the front panel',
         ],
         correctAnswer: 0,
+        explanation:
+          'PC 2.2: circuits, apparatus or plant are checked and isolation is confirmed, following WHS/OHS requirements and procedures.',
       },
       {
         // PC 2.5
@@ -294,6 +328,8 @@ export const UEECD0019_STUDY: ElectiveStudySet = {
           'It is only needed for new apparatus',
         ],
         correctAnswer: 1,
+        explanation:
+          'PC 2.5: components are marked or tagged during dismantling so the apparatus can be reassembled correctly and efficiently.',
       },
       {
         // PC 2.6
@@ -305,6 +341,8 @@ export const UEECD0019_STUDY: ElectiveStudySet = {
           'Anywhere, as long as it is close by',
         ],
         correctAnswer: 2,
+        explanation:
+          'PC 2.6: dismantled parts are stored so they are protected against loss or damage, following manufacturer instructions and workplace procedures.',
       },
       {
         // PC 2.9 to 2.11
@@ -316,6 +354,8 @@ export const UEECD0019_STUDY: ElectiveStudySet = {
           'Do quality checks, tidy the site, clean and store tools, and notify your supervisor',
         ],
         correctAnswer: 3,
+        explanation:
+          'PCs 2.9 to 2.11: quality checks, a tidy worksite, cleaned and stored tools, then the supervisor is notified.',
       },
     ],
     // Element 3: Fabricate utilities industry components
@@ -330,6 +370,8 @@ export const UEECD0019_STUDY: ElectiveStudySet = {
           'By asking the customer',
         ],
         correctAnswer: 0,
+        explanation:
+          'PC 3.5: dimensions are found by measuring directly or by calculating from the job drawings and instructions.',
       },
       {
         // PC 3.6 and PE
@@ -341,6 +383,8 @@ export const UEECD0019_STUDY: ElectiveStudySet = {
           'Skipping marking out to save time',
         ],
         correctAnswer: 1,
+        explanation:
+          'PC 3.6: fabrication minimises waste of materials and energy and damage to the surroundings or services.',
       },
       {
         // KE: low tolerance measurement; PE
@@ -352,6 +396,8 @@ export const UEECD0019_STUDY: ElectiveStudySet = {
           'A tape measure only',
         ],
         correctAnswer: 2,
+        explanation:
+          'The knowledge and performance evidence name vernier calipers and micrometers for low-tolerance measurement.',
       },
       {
         // KE: joining techniques
@@ -363,6 +409,8 @@ export const UEECD0019_STUDY: ElectiveStudySet = {
           'Machine screws, and welding, brazing or soldering',
         ],
         correctAnswer: 3,
+        explanation:
+          'The knowledge evidence lists machine screws, and welding, brazing or soldering techniques.',
       },
     ],
   },
@@ -436,6 +484,8 @@ export const UEECD0035_STUDY: ElectiveStudySet = {
           'Nobody: you instruct on everything on site',
         ],
         correctAnswer: 0,
+        explanation:
+          'PC 1.3: the apparatus is confirmed with the work supervisor and/or the relevant person.',
       },
       {
         // PC 1.5 and PE
@@ -447,6 +497,8 @@ export const UEECD0035_STUDY: ElectiveStudySet = {
           'By reading the price tag and box',
         ],
         correctAnswer: 1,
+        explanation:
+          'PC 1.5: you get familiar by reading the manufacturer user instructions and applying them in a preliminary practice run-through.',
       },
       {
         // PC 1.4
@@ -458,6 +510,8 @@ export const UEECD0035_STUDY: ElectiveStudySet = {
           'Nothing: safety is covered on the day',
         ],
         correctAnswer: 2,
+        explanation:
+          'PC 1.4: safety features and safe use are reviewed in accordance with the manufacturer instructions.',
       },
       {
         // KE and PE: evaluating user needs
@@ -469,6 +523,8 @@ export const UEECD0035_STUDY: ElectiveStudySet = {
           'Their instructional needs and their ability to use the apparatus',
         ],
         correctAnswer: 3,
+        explanation:
+          'The knowledge evidence covers methods for evaluating user instructional needs and user ability with the apparatus.',
       },
     ],
     // Element 2: Instruct user in the use of electrotechnology apparatus
@@ -483,6 +539,8 @@ export const UEECD0035_STUDY: ElectiveStudySet = {
           'Nothing, if they seem confident',
         ],
         correctAnswer: 0,
+        explanation:
+          'PC 2.1: users are told about safety features and safe use, following manufacturer instructions, regulatory requirements and safe work methods.',
       },
       {
         // PC 2.3
@@ -494,6 +552,8 @@ export const UEECD0035_STUDY: ElectiveStudySet = {
           'Leave and wait for them to call if there is a problem',
         ],
         correctAnswer: 1,
+        explanation:
+          'PC 2.3: users get the chance to ask questions and show they understand the safety aspects, set-up and operation.',
       },
       {
         // PC 2.4 and PE
@@ -505,6 +565,8 @@ export const UEECD0035_STUDY: ElectiveStudySet = {
           'They are kept by the installer',
         ],
         correctAnswer: 2,
+        explanation:
+          'PC 2.4: the manufacturer user instructions and related documentation are given to the appropriate person/s.',
       },
       {
         // PC 2.6
@@ -516,6 +578,8 @@ export const UEECD0035_STUDY: ElectiveStudySet = {
           'Efficiently, without damage to the apparatus, surroundings or services, using sustainable energy practices',
         ],
         correctAnswer: 3,
+        explanation:
+          'PC 2.6: instruction is given efficiently, without damage to the apparatus, surroundings or services, using sustainable energy practices.',
       },
     ],
   },

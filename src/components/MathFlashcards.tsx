@@ -2,6 +2,7 @@ import React from 'react';
 import { MathModule, Unit } from '../types';
 import { progressStore } from '../stores/progress';
 import QuizModal from './QuizModal';
+import FlashcardDeck from './FlashcardDeck';
 
 interface MathFlashcardsProps {
   module: MathModule;
@@ -21,7 +22,6 @@ const MathFlashcards: React.FC<MathFlashcardsProps> = ({
   const [quizOpen, setQuizOpen] = React.useState(false);
   const [reviewedMessage, setReviewedMessage] = React.useState('');
   const topic = unit.topics.find((item) => item.id === module.id);
-  const card = cards[index];
   const seenCount = Object.keys(seen).length;
   const allSeen = cards.length > 0 && seenCount >= cards.length;
 
@@ -53,37 +53,23 @@ const MathFlashcards: React.FC<MathFlashcardsProps> = ({
 
       {cards.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-icon">[ No flashcards yet ]</div>
-          <div style={{ color: 'var(--text-tertiary)' }}>
-            This module has no flashcards. Try the short quiz instead.
+          <div className="empty-icon" aria-hidden="true">[ CARDS ]</div>
+          <div className="empty-title">No flashcards yet</div>
+          <div className="empty-text">
+            This module has no flashcards yet. The short quiz below covers the same ideas.
           </div>
         </div>
       ) : (
         <>
-          {card && (
-            <button
-              type="button"
-              className={`flashcard ${flipped ? 'flipped' : ''}`}
-              onClick={() => setFlipped((value) => !value)}
-              aria-pressed={flipped}
-            >
-              <span className="flashcard-label">{flipped ? 'BACK' : 'FRONT'}</span>
-              <span className="flashcard-text">{flipped ? card.back : card.front}</span>
-              <span className="flashcard-hint">Click to flip</span>
-            </button>
-          )}
-
-          <div className="flashcard-nav">
-            <button type="button" className="terminal-btn" onClick={() => go(index - 1)}>
-              Previous
-            </button>
-            <span className="math-body">
-              {index + 1} / {cards.length} · seen {seenCount}
-            </span>
-            <button type="button" className="terminal-btn" onClick={() => go(index + 1)}>
-              Next
-            </button>
-          </div>
+          <FlashcardDeck
+            cards={cards}
+            index={index}
+            flipped={flipped}
+            seenCount={seenCount}
+            onFlip={() => setFlipped((value) => !value)}
+            onMove={go}
+            label={`${module.title} flashcard`}
+          />
         </>
       )}
 

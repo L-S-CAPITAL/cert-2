@@ -82,3 +82,15 @@ describe('QuizModal focus management', () => {
     expect(document.activeElement).toBe(opener);
   });
 });
+
+describe('HelpModal content', () => {
+  it('lists the quiz, flashcard and theme keys', () => {
+    act(() => root.render(<HelpModal onClose={() => {}} />));
+    const text = container.textContent ?? '';
+    expect(text).toContain('In a quiz');
+    expect(text).toContain('Pick answer A – D');
+    expect(text).toContain('Flip the card');
+    expect(text).toContain('Previous / next card');
+    expect(text).toContain('light (paper) theme');
+  });
+});

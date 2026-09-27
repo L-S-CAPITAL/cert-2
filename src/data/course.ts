@@ -60,6 +60,8 @@ export const CORE_UNITS: Unit[] = [
               'Construction Safety Act 2015',
             ],
             correctAnswer: 1,
+            explanation:
+              'The Work Health and Safety Act 2011 is the model WHS law; the older OHS Acts it replaced are not the primary legislation.',
           },
           {
             question: 'Who has the primary duty to ensure workplace health and safety?',
@@ -70,6 +72,8 @@ export const CORE_UNITS: Unit[] = [
               'The site supervisor',
             ],
             correctAnswer: 1,
+            explanation:
+              'The PCBU (person conducting a business or undertaking) holds the primary duty of care; workers and supervisors have their own duties too.',
           },
         ],
       },
@@ -96,6 +100,8 @@ export const CORE_UNITS: Unit[] = [
               'Only when the supervisor reminds workers',
             ],
             correctAnswer: 2,
+            explanation:
+              'PPE is worn at all times in designated areas and whenever hazards are present, not only when reminded or when machinery is running.',
           },
         ],
       },
@@ -158,6 +164,8 @@ export const CORE_UNITS: Unit[] = [
               'It depends on the voltage and insulation',
             ],
             correctAnswer: 3,
+            explanation:
+              'There is no single distance to memorise: the safe approach distance depends on the voltage and the insulation involved.',
           },
           {
             question: 'Which code of practice covers electrical installations?',
@@ -168,6 +176,8 @@ export const CORE_UNITS: Unit[] = [
               'AS/NZS 4340',
             ],
             correctAnswer: 0,
+            explanation:
+              'AS/NZS 3000, the Wiring Rules, sets the requirements for electrical installations.',
           },
         ],
       },
@@ -285,7 +295,7 @@ export const CORE_UNITS: Unit[] = [
         ],
         quizQuestions: [
           {
-            question: 'Which international standard provides cable sizing and selection guidelines for Australia?',
+            question: 'Which standard provides cable sizing and selection guidelines for Australia?',
             options: [
               'IEC 60364',
               'AS/NZS 3000',
@@ -293,6 +303,8 @@ export const CORE_UNITS: Unit[] = [
               'AS/NZS 4534',
             ],
             correctAnswer: 2,
+            explanation:
+              'AS/NZS 3008 (Selection of cables) is the joint Australian/New Zealand standard for sizing cables by current-carrying capacity and voltage drop. AS/NZS 3000 is the Wiring Rules.',
           },
         ],
       },
@@ -405,6 +417,8 @@ export const CORE_UNITS: Unit[] = [
               '8A',
             ],
             correctAnswer: 1,
+            explanation:
+              'Ohm\'s law: I = V ÷ R = 12 V ÷ 4 Ω = 3 A.',
           },
           {
             question: 'What does Kirchhoff\'s Voltage Law state?',
@@ -415,6 +429,8 @@ export const CORE_UNITS: Unit[] = [
               'Resistance equals voltage divided by current',
             ],
             correctAnswer: 1,
+            explanation:
+              'Kirchhoff\'s Voltage Law says the voltages around any closed loop add up to zero: the supply voltage equals the sum of the drops.',
           },
         ],
       },
@@ -503,6 +519,8 @@ export const CORE_UNITS: Unit[] = [
               'Just gloves',
             ],
             correctAnswer: 2,
+            explanation:
+              'Drilling calls for eye, hearing and foot protection: safety glasses, hearing protection and steel-capped boots.',
           },
         ],
       },

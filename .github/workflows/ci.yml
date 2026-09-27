@@ -82,25 +82,10 @@ jobs:
       - name: Build renderer
         run: npx vite build
 
-      # PLACEHOLDER ICON (CI only): electron-builder requires a >=512x512 icon
-      # for macOS, but the repo only has a 256x256 icon.png. Upscale it into a
-      # temporary file with the runner's built-in `sips` so the mac job can
-      # package. Nothing is committed; replace once real 512px+ artwork exists.
-      - name: Create temporary 512px macOS icon (placeholder)
-        if: runner.os == 'macOS'
-        run: |
-          sips -z 512 512 icon.png --out "$RUNNER_TEMP/icon-512.png"
-          echo "MAC_ICON=$RUNNER_TEMP/icon-512.png" >> "$GITHUB_ENV"
-
       # Unpacked build only: no installers, no publishing, no signing. No
       # GH_TOKEN is passed, and --publish never makes that explicit.
       - name: Package (electron-builder --dir)
-        run: |
-          args=(--dir --publish never)
-          if [ -n "${MAC_ICON:-}" ]; then
-            args+=("-c.mac.icon=$MAC_ICON")
-          fi
-          npx electron-builder "${args[@]}"
+        run: npx electron-builder --dir --publish never
 
       - name: Show applied Electron fuses
         run: |
