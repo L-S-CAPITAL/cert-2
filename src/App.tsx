@@ -7,6 +7,7 @@ import Dashboard from './components/Dashboard';
 import UnitPanel from './components/UnitPanel';
 import SessionLog from './components/SessionLog';
 import CourseOverview from './components/CourseOverview';
+import ProgressPanel from './components/ProgressPanel';
 import MathPanel from './components/MathPanel';
 import AlgebraPanel from './components/AlgebraPanel';
 import GeometryPanel from './components/GeometryPanel';
@@ -87,6 +88,14 @@ export const TABS: {
     icon: 'INFO',
     group: 'Records',
     key: '4',
+  },
+  {
+    id: 'progress',
+    label: 'PROGRESS',
+    short: 'PROGRESS',
+    icon: 'PROG',
+    group: 'Records',
+    key: '9',
   },
 ];
 
@@ -276,6 +285,8 @@ const App: React.FC = () => {
         return <SessionLog />;
       case 'overview':
         return <CourseOverview />;
+      case 'progress':
+        return <ProgressPanel />;
       case 'math':
         return <MathPanel />;
       case 'algebra':

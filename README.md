@@ -91,7 +91,8 @@ If you already live in a workshop, a switchroom, or a code editor, the UI should
 - **8 core units** (270 weighting points) with topics, key points, and quizzes.
 - **4 electives** (140 weighting points): preparatory energy sector work, fabricating/assembling utilities components, fixing and securing equipment, and instructing others on apparatus. UEECD0008, UEECD0019 and UEECD0035 have quizzes and flashcards written from the official unit text (see below).
 - Prerequisite unlocking via unit codes (`src/data/prerequisites.ts`).
-- Course overview with pathways and the core skillset, plus core units / elective points progress bars.
+- Course overview with pathways, the core skillset, and the Wired for Demand notes.
+- **PROGRESS** (its own sidebar section, directly under Course Overview) holds export / import / reset, the unit table, and the core units / elective points bars.
 
 ### Strand panels (beyond the packaged units)
 
@@ -174,15 +175,13 @@ Earlier versions shipped UEECD0044, UEECD0051 and UEECO0002 as electives. They a
 
 Eight entry pathways, from residential/commercial/industrial electrical through electronics, data and AV, security, renewable energy, refrigeration/HVAC, instrumentation, and electrical supply. Under them, the core skillset: electrical safety and WHS, tools and test instruments, basic DC/AC circuits, cable termination, reading drawings, and workplace communication.
 
-Directly under that card, **Wired for Demand** covers where electrician demand is strongest, state hotspots over 5, 10 and 20 years, and progression routes after Cert II (Cert III apprenticeship through dual trade, contracting and engineering).
-
-Industry demand figure carried in course metadata: on the order of **26,000** openings over a five-year window (provider-facing statistic, not a forecast from this repo).
+Directly under that card, **Wired for Demand** covers where electrician demand is strongest, state hotspots over 5, 10 and 20 years, and progression routes after Cert II (Cert III apprenticeship through dual trade, contracting and engineering). The old five-year job-openings figure is not shown.
 
 ---
 
 ## Terminal map
 
-Eight sections in a left sidebar, grouped into **Study** and **Records**. Keys `1`–`8` still jump straight to a section. The TIMER pane sits on the right: while the timer is idle it is a slim **Show timer** bar (a button with `aria-expanded`), so the main panel gets the room; it opens when you click it (and remembers that) and always stays open while a session is running. Below 1000 px wide the sidebar shrinks to its `[DASH]`-style labels.
+Nine sections in a left sidebar, grouped into **Study** and **Records**. Keys `1`–`8` and `9` jump straight to a section. The TIMER pane sits on the right: while the timer is idle it is a slim **Show timer** bar (a button with `aria-expanded`), so the main panel gets the room; it opens when you click it (and remembers that) and always stays open while a session is running. Below 1000 px wide the sidebar shrinks to its `[DASH]`-style labels.
 
 ```
 ┌──────────────────────────────── ElectroTech Terminal ────────────────────────────────┐
@@ -198,6 +197,7 @@ Eight sections in a left sidebar, grouped into **Study** and **Records**. Keys `
 │ RECORDS              │                                       │                       │
 │ [LOG]   Session log 3│                                       │                       │
 │ [INFO]  Overview   4 │                                       │                       │
+│ [PROG]  PROGRESS   9 │                                       │                       │
 ├──────────────────────┴───────────────────────────────────────┴───────────────────────┤
 │  STATUS BAR · points · units · clock                                                  │
 └──────────────────────────────────────────────────────────────────────────────────────┘
@@ -208,7 +208,8 @@ Eight sections in a left sidebar, grouped into **Study** and **Records**. Keys `
 | `1` | **Dashboard** | **Continue studying** (jumps to the next unfinished topic), weekly study time, day streak, average quiz score, 14-day study chart, recent quiz results, units still to do (click a row to open it) |
 | `2` | **Units** | Expand core and elective units, read topics, sit quizzes, mark complete |
 | `3` | **Session Log** | Audit timed study against unit / topic |
-| `4` | **Course Overview** | Pathways and skillset, unit table, **export / import / reset** |
+| `4` | **Course Overview** | Description, pathways and skillset, Wired for Demand |
+| `9` | **PROGRESS** | Unit table, core / elective points, **export / import / reset** |
 | `5` | **Foundational Trade Mathematics** | Tutorials, flashcards, 10-minute speed drill |
 | `6` | **Scientific Notation, Prefixes & Algebra** | Notation, SI prefixes, Ohm’s law, algebra |
 | `7` | **Geometry, Physics & Hand Tools** | Right triangles, trig, physics analogy, tools |
@@ -312,7 +313,7 @@ There is **no account, no backend, and no telemetry**.
 | Shape | Versioned (currently v2) and validated / sanitised on read (`src/stores/persist.ts`); older saves are migrated |
 | Contents | Topic completions, session logs (newest 200), accumulated seconds, quiz attempts (score / total, topic, time; newest 500) |
 | Runtime-only | Active timer start stamp — not written until the session stops |
-| Export | Course Overview → **Export** → `electrotech-progress.json` |
+| Export | PROGRESS → **Export** → `electrotech-progress.json` |
 | Import | Same panel; invalid JSON is rejected |
 | Reset | Confirmed destructive wipe of completions, logs, time, and quiz history |
 
@@ -330,6 +331,7 @@ Shortcuts are ignored while focus is in an input, select, textarea, or contented
 | `2` | Core / elective units |
 | `3` | Session log |
 | `4` | Course overview |
+| `9` | PROGRESS |
 | `5` | Foundational Trade Mathematics |
 | `6` | Scientific Notation, Prefixes & Algebra |
 | `7` | Geometry, Physics & Hand Tools |
@@ -432,7 +434,7 @@ Strand content uses `MathModule` (`tutorial` | `drill` | `flashcards` | `guide`)
 - Completions are `Record<unitId, Record<topicId, boolean>>`
 - `startSession` / `startTopicSession` / `stopSession`
 - `markTopicComplete` on a perfect quiz
-- Headline figures (status bar POINTS / CORE UNITS / ELECTIVE PTS, the Dashboard qualification panel and the Course Overview bars) all come from `qualificationProgress` and use official weighting points and whole units. Topic counts (`summarizeCompletion`, `src/data/completion.ts`) are shown only as study detail, and study strands are not counted
+- Headline figures (status bar POINTS / CORE UNITS / ELECTIVE PTS, the Dashboard qualification panel and the PROGRESS bars) all come from `qualificationProgress` and use official weighting points and whole units. Topic counts (`summarizeCompletion`, `src/data/completion.ts`) are shown only as study detail, and study strands are not counted
 - Qualification progress on the Dashboard follows the official UEE22020 (release 2) packaging rules from [training.gov.au](https://training.gov.au/Training/Details/UEE22020), kept in `src/data/qualification.ts`: 8 core units (270 weighting points) plus 140 elective points, with at most 60 from Group A and at least 80 from Group B. Only electives on those lists count, using the official weighting points; a test checks every unit's `points` matches them. UEE22020 was superseded by the equivalent UEE22025 on 24 Nov 2025
 - `exportProgress` / `importProgress` / `reset` with sanitisation
 
@@ -464,7 +466,7 @@ A practical loop that matches how the app is wired:
 4. Open the TIMER bar, select that unit and press **`s`**. Work. Press **`s`** again.
 5. When the theory is soft, switch to **MATH** (`5`) and run the speed drill cold.
 6. Before a drawings or circuits class, warm up on **ALG** / **GEO** / **DWG**.
-7. Once a week, **Export** from Course Overview so a disk failure is not a term of lost ticks.
+7. Once a week, **Export** from PROGRESS so a disk failure is not a term of lost ticks.
 
 Prerequisite units must be fully topic-complete before dependents unlock. That is intentional — it mirrors the packaging notes on units such as `UEECD0009` and `UEECD0021`.
 

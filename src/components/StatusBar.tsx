@@ -12,7 +12,7 @@ const StatusBar: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Same official figures as the Dashboard and Course Overview.
+  // Same official figures as the Dashboard and the PROGRESS panel.
   const { core, electives } = qualificationProgress(ALL_UNITS, progress.unitCompletions);
   const totalTime = progressStore.getFormattedTotalTime();
   const isTimerActive = progress.startTime !== null;

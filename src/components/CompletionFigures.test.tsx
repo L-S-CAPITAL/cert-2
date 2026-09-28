@@ -4,7 +4,7 @@ import { createRoot, Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import StatusBar from './StatusBar';
 import Dashboard from './Dashboard';
-import CourseOverview from './CourseOverview';
+import ProgressPanel from './ProgressPanel';
 import { ALL_UNITS } from '../data/course';
 import { summarizeCompletion } from '../data/completion';
 import { progressStore } from '../stores/progress';
@@ -31,7 +31,7 @@ afterEach(() => {
 });
 
 describe('completion figures', () => {
-  it('show the same official points and units in StatusBar, Dashboard and CourseOverview', () => {
+  it('show the same official points and units in StatusBar, Dashboard and PROGRESS', () => {
     // UEECD0009 (core, 40 pts) and UEECD0008 (Group B elective, 60 pts)
     const coreUnit = ALL_UNITS.find((unit) => unit.code === 'UEECD0009')!;
     const elective = ALL_UNITS.find((unit) => unit.code === 'UEECD0008')!;
@@ -48,7 +48,7 @@ describe('completion figures', () => {
         <>
           <StatusBar />
           <Dashboard units={ALL_UNITS} />
-          <CourseOverview />
+          <ProgressPanel />
         </>,
       ),
     );
@@ -66,8 +66,8 @@ describe('completion figures', () => {
     expect(statusValue('ELECTIVES')).toBeUndefined();
 
     const dashboard = container.querySelector('.dashboard')!;
-    const overview = container.querySelector('.course-overview')!;
-    for (const view of [dashboard, overview]) {
+    const progressPanel = container.querySelector('.progress-panel')!;
+    for (const view of [dashboard, progressPanel]) {
       const coreBar = view.querySelector('[role="progressbar"][aria-label="Core toward UEE22020"]')!;
       expect(coreBar.getAttribute('aria-valuenow')).toBe('1');
       expect(coreBar.getAttribute('aria-valuemax')).toBe('8');
@@ -81,12 +81,11 @@ describe('completion figures', () => {
         'Still needed: 7 core units (230 pts) and 3 elective units (80 pts).',
       );
     }
-    expect(overview.querySelectorAll('[role="progressbar"]')).toHaveLength(2);
+    expect(progressPanel.querySelectorAll('[role="progressbar"]')).toHaveLength(2);
     expect(dashboard.textContent).toContain(
       `40 / 270 core pts · ${core.topicsDone} / ${core.topicsTotal} core topics done`,
     );
-    expect(overview.textContent).not.toContain('Course information');
-    expect(overview.textContent).not.toContain('Course Code');
-    expect(overview.textContent).not.toContain('8 units, 270 of 270 points');
+    expect(progressPanel.textContent).not.toContain('Industry demand');
+    expect(progressPanel.textContent).not.toContain('Job openings');
   });
 });

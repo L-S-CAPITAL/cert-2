@@ -75,6 +75,7 @@ export type TabType =
   | 'units'
   | 'sessions'
   | 'overview'
+  | 'progress'
   | 'math'
   | 'algebra'
   | 'geometry'
