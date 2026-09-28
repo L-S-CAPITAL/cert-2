@@ -1,5 +1,6 @@
 import React from 'react';
 import { COURSE_INFO, ALL_UNITS } from '../data/course';
+import DemandBrief from './DemandBrief';
 import { progressStore, useProgress } from '../stores/progress';
 import { summarizeCompletion } from '../data/completion';
 import {
@@ -97,6 +98,8 @@ const CourseOverview: React.FC = () => {
             ))}
           </ul>
         </div>
+
+        <DemandBrief />
 
         <div className="terminal-card" style={{ marginTop: 12 }}>
           <div className="card-title">

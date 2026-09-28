@@ -174,6 +174,8 @@ Earlier versions shipped UEECD0044, UEECD0051 and UEECO0002 as electives. They a
 
 Eight entry pathways, from residential/commercial/industrial electrical through electronics, data and AV, security, renewable energy, refrigeration/HVAC, instrumentation, and electrical supply. Under them, the core skillset: electrical safety and WHS, tools and test instruments, basic DC/AC circuits, cable termination, reading drawings, and workplace communication.
 
+Directly under that card, **Wired for Demand** covers where electrician demand is strongest, state hotspots over 5, 10 and 20 years, and progression routes after Cert II (Cert III apprenticeship through dual trade, contracting and engineering).
+
 Industry demand figure carried in course metadata: on the order of **26,000** openings over a five-year window (provider-facing statistic, not a forecast from this repo).
 
 ---

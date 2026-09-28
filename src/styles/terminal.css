@@ -378,6 +378,96 @@ body::before {
   padding: 0;
 }
 
+.demand-brief {
+  margin-top: 16px;
+}
+
+.demand-title {
+  margin: 0 0 10px;
+  color: var(--text-heading);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.demand-heading {
+  margin: 0 0 8px;
+  color: var(--text-heading);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.demand-subhead {
+  margin: 12px 0 6px;
+  color: var(--text-heading);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.demand-copy {
+  margin: 0 0 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.demand-label {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.demand-points {
+  margin: 0 0 12px 16px;
+  padding: 0;
+}
+
+.demand-ranks {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+}
+
+.demand-ranks > li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.demand-ranks > li:last-child {
+  border-bottom: none;
+}
+
+.demand-rank-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.demand-rank-title {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.demand-level {
+  color: var(--text-amber);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.demand-horizon:first-child .demand-subhead {
+  margin-top: 0;
+}
+
 /* === Terminal Card / Panel === */
 .terminal-card {
   background: var(--bg-panel);
@@ -1523,7 +1613,12 @@ body::before {
 .course-description,
 .pathway-area,
 .pathway-detail,
-.pathway-skillset-title {
+.pathway-skillset-title,
+.demand-title,
+.demand-heading,
+.demand-subhead,
+.demand-copy,
+.demand-rank-title {
   font-family: var(--font-sans);
   letter-spacing: normal;
 }
