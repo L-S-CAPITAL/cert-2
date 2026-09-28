@@ -29,6 +29,29 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
+describe('CourseOverview pathways', () => {
+  it('lists pathways and the core skillset in place of career outcomes', () => {
+    act(() => root.render(<CourseOverview />));
+    const text = container.textContent ?? '';
+    expect(text).toContain('Pathways & skills');
+    expect(text).toContain('Electrical - residential / commercial / industrial');
+    expect(text).toContain('Apprentice electrician, trade assistant: basic circuits, wiring, cabling, test equipment, drawings, WHS.');
+    expect(text).toContain('Electronics and assembly');
+    expect(text).toContain('Telecommunications, data and AV');
+    expect(text).toContain('Security and alarms');
+    expect(text).toContain('Renewable energy');
+    expect(text).toContain('Refrigeration / HVAC - assistant level');
+    expect(text).toContain('Instrumentation, control and automation - entry');
+    expect(text).toContain('Electrical wholesaling / supply');
+    expect(text).toContain('Core skillset you get:');
+    expect(text).toContain("Basic DC/AC circuits, Ohm's law");
+    expect(text).toContain('Workplace communication and problem-solving');
+    expect(text).not.toContain('Career outcomes');
+    expect(text).not.toContain('Trades Assistant');
+    expect(text).not.toContain('Electrotechnology Apprentice');
+  });
+});
+
 describe('CourseOverview export', () => {
   it('revokes the blob URL only after the download click', () => {
     vi.useFakeTimers();

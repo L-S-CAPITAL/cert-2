@@ -91,7 +91,7 @@ If you already live in a workshop, a switchroom, or a code editor, the UI should
 - **8 core units** (270 weighting points) with topics, key points, and quizzes.
 - **4 electives** (140 weighting points): preparatory energy sector work, fabricating/assembling utilities components, fixing and securing equipment, and instructing others on apparatus. UEECD0008, UEECD0019 and UEECD0035 have quizzes and flashcards written from the official unit text (see below).
 - Prerequisite unlocking via unit codes (`src/data/prerequisites.ts`).
-- Course overview with official weighting points, topic counts, career outcomes, and core units / elective points progress bars.
+- Course overview with pathways and the core skillset, plus core units / elective points progress bars.
 
 ### Strand panels (beyond the packaged units)
 
@@ -170,10 +170,9 @@ UEECD0008, UEECD0019 and UEECD0035 have one topic per official element, with a s
 
 Earlier versions shipped UEECD0044, UEECD0051 and UEECO0002 as electives. They are not part of this enrolment (and UEECD0044/UEECD0051 are not UEE22020 electives), so they were taken out of the unit list. Their notes and quizzes are kept in `src/data/archivedElectives.ts`. Saved progress for them stays in your progress file and exports, but it no longer counts toward any figure; old session logs still show their names.
 
-### Career outcomes (as shown in Course Overview)
+### Pathways & skills (as shown in Course Overview)
 
-- Trades Assistant
-- Electrotechnology Apprentice
+Eight entry pathways, from residential/commercial/industrial electrical through electronics, data and AV, security, renewable energy, refrigeration/HVAC, instrumentation, and electrical supply. Under them, the core skillset: electrical safety and WHS, tools and test instruments, basic DC/AC circuits, cable termination, reading drawings, and workplace communication.
 
 Industry demand figure carried in course metadata: on the order of **26,000** openings over a five-year window (provider-facing statistic, not a forecast from this repo).
 
@@ -207,7 +206,7 @@ Eight sections in a left sidebar, grouped into **Study** and **Records**. Keys `
 | `1` | **Dashboard** | **Continue studying** (jumps to the next unfinished topic), weekly study time, day streak, average quiz score, 14-day study chart, recent quiz results, units still to do (click a row to open it) |
 | `2` | **Units** | Expand core and elective units, read topics, sit quizzes, mark complete |
 | `3` | **Session Log** | Audit timed study against unit / topic |
-| `4` | **Course Overview** | Points, outcomes, unit table, **export / import / reset** |
+| `4` | **Course Overview** | Pathways and skillset, unit table, **export / import / reset** |
 | `5` | **Foundational Trade Mathematics** | Tutorials, flashcards, 10-minute speed drill |
 | `6` | **Scientific Notation, Prefixes & Algebra** | Notation, SI prefixes, Ohm’s law, algebra |
 | `7` | **Geometry, Physics & Hand Tools** | Right triangles, trig, physics analogy, tools |
