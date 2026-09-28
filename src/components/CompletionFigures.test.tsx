@@ -85,8 +85,8 @@ describe('completion figures', () => {
     expect(dashboard.textContent).toContain(
       `40 / 270 core pts · ${core.topicsDone} / ${core.topicsTotal} core topics done`,
     );
-    expect(overview.textContent).toContain('8 units, 270 of 270 points');
-    expect(overview.textContent).toContain('4 units, 140 of 140 points (Group A 20, Group B 120)');
-    expect(overview.textContent).toContain('410 of 410 points');
+    expect(overview.textContent).not.toContain('Course information');
+    expect(overview.textContent).not.toContain('Course Code');
+    expect(overview.textContent).not.toContain('8 units, 270 of 270 points');
   });
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { COURSE_INFO, ALL_UNITS, CORE_UNITS, ELECTIVE_UNITS } from '../data/course';
+import { COURSE_INFO, ALL_UNITS } from '../data/course';
 import { progressStore, useProgress } from '../stores/progress';
 import { summarizeCompletion } from '../data/completion';
 import {
@@ -17,26 +17,8 @@ const CourseOverview: React.FC = () => {
   const fileRef = React.useRef<HTMLInputElement>(null);
   const [status, setStatus] = React.useState<string | null>(null);
 
-  const corePoints = CORE_UNITS.reduce((sum, u) => sum + u.points, 0);
-  const electivePoints = ELECTIVE_UNITS.reduce((sum, u) => sum + u.points, 0);
-  const groupPoints = (group: 'A' | 'B') =>
-    ELECTIVE_UNITS.filter((u) => electiveGroup(u.code)?.group === group).reduce(
-      (sum, u) => sum + u.points,
-      0,
-    );
-  const totalTopics = ALL_UNITS.reduce(
-    (sum, u) => sum + (u.topics?.length ?? 0),
-    0,
-  );
   const { electives } = summarizeCompletion(ALL_UNITS, progress.unitCompletions);
   const qual = qualificationProgress(ALL_UNITS, progress.unitCompletions);
-
-  const detailRow = (label: string, value: string | number) => (
-    <div className="detail-row">
-      <span className="detail-label">{label}</span>
-      <span className="detail-value">{value}</span>
-    </div>
-  );
 
   const exportProgress = () => {
     const blob = new Blob([progressStore.exportProgress()], {
@@ -78,27 +60,7 @@ const CourseOverview: React.FC = () => {
   return (
     <div className="course-overview">
       <div className="terminal-section">
-        <div className="terminal-section-title">
-          <span className="icon">INFO</span>
-          <span>Course information</span>
-        </div>
-
         <div className="terminal-card">
-          {detailRow('Course Code', COURSE_INFO.code)}
-          {detailRow('Course Title', COURSE_INFO.title)}
-          {detailRow(
-            'Core',
-            `${COURSE_INFO.unitsCount} units, ${corePoints} of ${COURSE_INFO.corePointsRequired} points`,
-          )}
-          {detailRow(
-            'Electives',
-            `${ELECTIVE_UNITS.length} units, ${electivePoints} of ${COURSE_INFO.electivePointsRequired} points (Group A ${groupPoints('A')}, Group B ${groupPoints('B')})`,
-          )}
-          {detailRow('Total', `${corePoints + electivePoints} of ${COURSE_INFO.totalPoints} points`)}
-          {detailRow('Topics', `${totalTopics} topics`)}
-        </div>
-
-        <div className="terminal-card" style={{ marginTop: 12 }}>
           <div className="card-title">
             <span className="icon">DESCRIPTION</span>
             <span>Description</span>
@@ -117,14 +79,21 @@ const CourseOverview: React.FC = () => {
 
         <div className="terminal-card" style={{ marginTop: 12 }}>
           <div className="card-title">
-            <span className="icon">OUTCOMES</span>
-            <span>Career outcomes</span>
+            <span className="icon">PATH</span>
+            <span>Pathways & skills</span>
           </div>
-          <ul className="terminal-list">
-            {COURSE_INFO.outcomes.map((outcome) => (
-              <li key={outcome} className="bright">
-                {outcome}
+          <ul className="pathway-list">
+            {COURSE_INFO.pathways.map((pathway) => (
+              <li key={pathway.area}>
+                <div className="pathway-area">{pathway.area}</div>
+                <div className="pathway-detail">{pathway.detail}</div>
               </li>
+            ))}
+          </ul>
+          <div className="pathway-skillset-title">Core skillset you get:</div>
+          <ul className="terminal-list pathway-skills">
+            {COURSE_INFO.coreSkillset.map((skill) => (
+              <li key={skill}>{skill}</li>
             ))}
           </ul>
         </div>

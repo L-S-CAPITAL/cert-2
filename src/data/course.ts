@@ -15,9 +15,48 @@ export const COURSE_INFO = {
   title: 'Certificate II in Electrotechnology (Career Start)',
   overview:
     'Kick-start your career in the electrotechnology industry with this entry-level course. Build the skills you need to get your foot in the door for an apprenticeship or seek trade assistant work. You will learn the skills needed to safely undertake basic electrotechnology work and solve problems in extra-low voltage single-path and multiple-path DC circuits. The course covers a General Safety Induction (White Card) and units needed for the first stage of an electrical apprenticeship.',
-  outcomes: [
-    'Trades Assistant',
-    'Electrotechnology Apprentice',
+  pathways: [
+    {
+      area: 'Electrical - residential / commercial / industrial',
+      detail:
+        'Apprentice electrician, trade assistant: basic circuits, wiring, cabling, test equipment, drawings, WHS.',
+    },
+    {
+      area: 'Electronics and assembly',
+      detail: 'Assembler / technician assistant: DC/AC fundamentals, soldering, components.',
+    },
+    {
+      area: 'Telecommunications, data and AV',
+      detail: 'Phone/data cabling, home networks, audio-visual installation assistant.',
+    },
+    {
+      area: 'Security and alarms',
+      detail: 'Security alarm, CCTV, access control installer assistant.',
+    },
+    {
+      area: 'Renewable energy',
+      detail: 'Solar PV assistant, battery storage labourer: sustainable energy principles.',
+    },
+    {
+      area: 'Refrigeration / HVAC - assistant level',
+      detail: 'Basic electrical control and safety for fridgemates / air-con apprenticeship.',
+    },
+    {
+      area: 'Instrumentation, control and automation - entry',
+      detail: 'Pathway to Cert III Instrumentation.',
+    },
+    {
+      area: 'Electrical wholesaling / supply',
+      detail: 'Counter sales, storeperson with technical knowledge.',
+    },
+  ],
+  coreSkillset: [
+    'Electrical safety and WHS, CPR/LVR awareness',
+    'Use hand/power tools and test instruments',
+    "Basic DC/AC circuits, Ohm's law",
+    'Cable termination, wiring practices',
+    'Read electrical drawings',
+    'Workplace communication and problem-solving',
   ],
   // Official UEE22020 packaging rules (see qualification.ts for the source).
   totalPoints: QUALIFICATION_RULES.totalPoints,

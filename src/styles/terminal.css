@@ -335,6 +335,49 @@ body::before {
   font-weight: 500;
 }
 
+.pathway-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pathway-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.pathway-list li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.pathway-area {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.pathway-detail {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 2px;
+}
+
+.pathway-skillset-title {
+  margin-top: 14px;
+  margin-bottom: 6px;
+  color: var(--text-heading);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pathway-skills {
+  margin: 0 0 0 16px;
+  padding: 0;
+}
+
 /* === Terminal Card / Panel === */
 .terminal-card {
   background: var(--bg-panel);
@@ -1477,7 +1520,10 @@ body::before {
 .terminal-list,
 .qual-needed,
 .continue-unit,
-.course-description {
+.course-description,
+.pathway-area,
+.pathway-detail,
+.pathway-skillset-title {
   font-family: var(--font-sans);
   letter-spacing: normal;
 }
