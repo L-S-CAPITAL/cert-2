@@ -12,8 +12,8 @@
 ║                                                                  ║
 ║              T E C H     T E R M I N A L                         ║
 ║                                                                  ║
-║     UEE22020  ·  Certificate II in Electrotechnology             ║
-║                  Career Start  ·  TAFE Queensland                ║
+║        Certificate II in Electrotechnology Prep Terminal         ║
+║                       for you, by CRUCIBLE                       ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
 ```
@@ -52,7 +52,7 @@ Progress never leaves this machine.
 
 ElectroTech Terminal is a **keyboard-first, offline desktop app** that treats Certificate II study the way a trading floor treats a market: one dark screen, dense information, instant navigation, and a running clock.
 
-It is a **study companion**, not a registered training organisation and not a substitute for TAFE Queensland assessment, workplace evidence, or a White Card issued by an approved provider. Content is written against the **UEE22020 Certificate II in Electrotechnology (Career Start)** packaging — eight core units plus a selected elective set — and four extra “strand” panels that drill the mathematics, notation, geometry, and drawing literacy the trade actually uses on day one.
+It is an independent **study companion** by CRUCIBLE: not a registered training organisation, not affiliated with any training provider, and not a substitute for your provider's assessment, workplace evidence, or a White Card issued by an approved provider. Content is written against the **UEE22020 Certificate II in Electrotechnology (Career Start)** packaging — eight core units plus a selected elective set — and four extra “strand” panels that drill the mathematics, notation, geometry, and drawing literacy the trade actually uses on day one.
 
 | Designed for | Not designed for |
 |---|---|
@@ -61,9 +61,9 @@ It is a **study companion**, not a registered training organisation and not a su
 | Timed drills and topic quizzes with local progress | Cloud LMS, accounts, or multi-device sync |
 | Quiet, private study on a laptop | Collecting personal data |
 
-Provider context in the app header: **TAFE Queensland**. Course homepage referenced in `package.json`:
+The app's heading reads **"Certificate II in Electrotechnology Prep Terminal for you, by CRUCIBLE"**, with the CRUCIBLE hexagon on each side. The qualification it is written against is UEE22020 on training.gov.au:
 
-https://tafeqld.edu.au/course/17/17886/certificate-ii-in-electrotechnology-career-start
+https://training.gov.au/Training/Details/UEE22020
 
 ---
 
@@ -185,7 +185,7 @@ Eight sections in a left sidebar, grouped into **Study** and **Records**. Keys `
 
 ```
 ┌──────────────────────────────── ElectroTech Terminal ────────────────────────────────┐
-│  UEE22020  ·  Certificate II in Electrotechnology (Career Start)  ·  TAFE Queensland │
+│  ⬡ Certificate II in Electrotechnology Prep Terminal for you, by CRUCIBLE ⬡          │
 ├──────────────────────┬───────────────────────────────────────┬───────────────────────┤
 │ STUDY                │  MAIN PANEL                           │  TIMER                │
 │ [DASH]  Dashboard  1 │  dashboard / units / strand /         │  select unit          │
@@ -521,7 +521,7 @@ Icons come from the committed `build/` files (see [App icon](#app-icon)), so no 
 
 ElectroTech Terminal is an **unofficial learning aid**.
 
-- It is **not** issued by TAFE Queensland, the Australian Skills Quality Authority, or a state electrical safety office.
+- It is **not** issued by, endorsed by, or affiliated with any registered training organisation, the Australian Skills Quality Authority, or a state electrical safety office.
 - It does **not** confer a White Card, an electrical licence, or competency in UEE22020.
 - Circuit, WHS, and standards notes are study prompts. On a live site, the current **AS/NZS 3000**, the **Electrical Safety Act** in your jurisdiction, the PCBU’s procedures, and a licensed supervisor win every argument.
 - Do not treat quiz distractors as a complete hazard register. Do not work live from this app.

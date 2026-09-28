@@ -86,7 +86,6 @@ const CourseOverview: React.FC = () => {
         <div className="terminal-card">
           {detailRow('Course Code', COURSE_INFO.code)}
           {detailRow('Course Title', COURSE_INFO.title)}
-          {detailRow('Provider', COURSE_INFO.provider)}
           {detailRow(
             'Core',
             `${COURSE_INFO.unitsCount} units, ${corePoints} of ${COURSE_INFO.corePointsRequired} points`,

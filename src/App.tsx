@@ -13,7 +13,7 @@ import GeometryPanel from './components/GeometryPanel';
 import BlueprintsPanel from './components/BlueprintsPanel';
 import TimeTracker from './components/TimeTracker';
 import HelpModal from './components/HelpModal';
-import { ALL_UNITS, COURSE_INFO, findTopic } from './data/course';
+import { ALL_UNITS, findTopic } from './data/course';
 import { MATH_UNIT } from './data/math';
 import { ALGEBRA_UNIT } from './data/algebra';
 import { GEOMETRY_UNIT } from './data/geometry';
@@ -308,9 +308,6 @@ const App: React.FC = () => {
   return (
     <div className="terminal-app">
       <TerminalHeader
-        title={COURSE_INFO.title}
-        code={COURSE_INFO.code}
-        provider={COURSE_INFO.provider}
         theme={theme}
         onToggleTheme={toggleTheme}
       />

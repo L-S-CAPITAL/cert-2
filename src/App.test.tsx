@@ -327,3 +327,13 @@ describe('Study timer panel', () => {
     expect(panel().hidden).toBe(true);
   });
 });
+
+describe('No provider affiliation in the UI', () => {
+  it('does not show TAFE Queensland on the dashboard or the course overview', () => {
+    expect(document.body.textContent).not.toMatch(/TAFE/i);
+    press('4');
+    expect(selectedTab()).toBe('tab-overview');
+    expect(document.body.textContent).toContain('UEE22020');
+    expect(document.body.textContent).not.toMatch(/TAFE|Queensland|Provider/i);
+  });
+});
