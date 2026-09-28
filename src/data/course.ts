@@ -63,7 +63,6 @@ export const COURSE_INFO = {
   corePointsRequired: QUALIFICATION_RULES.corePoints,
   electivePointsRequired: QUALIFICATION_RULES.electivePoints,
   unitsCount: Object.keys(QUALIFICATION_RULES.core).length,
-  expectedJobOpenings: '26,000',
 };
 
 export const CORE_UNITS: Unit[] = [

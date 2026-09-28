@@ -85,7 +85,7 @@ describe('App keyboard shortcuts', () => {
         active.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
       });
     };
-    expect(tabs().map((tab) => tab.tabIndex)).toEqual([0, -1, -1, -1, -1, -1, -1, -1]);
+    expect(tabs().map((tab) => tab.tabIndex)).toEqual([0, -1, -1, -1, -1, -1, -1, -1, -1]);
     for (const tab of tabs()) {
       expect(tab.getAttribute('aria-controls')).toBe('main-panel');
     }
@@ -99,13 +99,13 @@ describe('App keyboard shortcuts', () => {
 
     keyOnTab('ArrowLeft');
     keyOnTab('ArrowLeft');
-    expect(selectedTab()).toBe('tab-overview');
-    expect(document.activeElement?.id).toBe('tab-overview');
+    expect(selectedTab()).toBe('tab-progress');
+    expect(document.activeElement?.id).toBe('tab-progress');
 
     keyOnTab('Home');
     expect(selectedTab()).toBe('tab-dashboard');
     keyOnTab('End');
-    expect(selectedTab()).toBe('tab-overview');
+    expect(selectedTab()).toBe('tab-progress');
     keyOnTab('ArrowRight');
     expect(selectedTab()).toBe('tab-dashboard');
     expect(document.activeElement?.id).toBe('tab-dashboard');
@@ -129,11 +129,12 @@ describe('App keyboard shortcuts', () => {
       'tab-blueprints',
       'tab-sessions',
       'tab-overview',
+      'tab-progress',
     ]);
     const groupOf = (tab: HTMLElement) =>
       document.getElementById(tab.getAttribute('aria-describedby')!)?.textContent;
     expect(tabs.map(groupOf)).toEqual([
-      'Study', 'Study', 'Study', 'Study', 'Study', 'Study', 'Records', 'Records',
+      'Study', 'Study', 'Study', 'Study', 'Study', 'Study', 'Records', 'Records', 'Records',
     ]);
     // Accessible names stay readable text; the [DASH] labels are decoration.
     expect(tabs[0].querySelector('.nav-label')?.textContent).toBe('Dashboard');
@@ -141,7 +142,7 @@ describe('App keyboard shortcuts', () => {
     expect(tabs[0].querySelector('.tab-icon')?.textContent).toBe('[DASH]');
     // Number shortcuts are unchanged and exposed to assistive tech.
     expect(tabs.map((tab) => tab.getAttribute('aria-keyshortcuts'))).toEqual([
-      '1', '2', '5', '6', '7', '8', '3', '4',
+      '1', '2', '5', '6', '7', '8', '3', '4', '9',
     ]);
     // The old horizontal, scrolling tab bar is gone.
     expect(container.querySelector('.terminal-tabs-bar')).toBeNull();
@@ -163,10 +164,12 @@ describe('App keyboard shortcuts', () => {
     keyOnFocused('ArrowUp');
     keyOnFocused('ArrowUp');
     keyOnFocused('ArrowUp');
-    expect(selectedTab()).toBe('tab-overview');
-    expect(tab('overview').tabIndex).toBe(0);
+    expect(selectedTab()).toBe('tab-progress');
+    expect(tab('progress').tabIndex).toBe(0);
     expect(tab('dashboard').tabIndex).toBe(-1);
-    expect(container.querySelector('.window-title')?.textContent).toContain('Course Overview');
+    expect(container.querySelector('.window-title')?.textContent).toContain('PROGRESS');
+    expect(tab('progress').querySelector('.nav-label')?.textContent).toBe('PROGRESS');
+    expect(tab('progress').textContent).not.toContain('INFO');
   });
 
   it('labels the header with the timed unit/topic while the timer runs', () => {

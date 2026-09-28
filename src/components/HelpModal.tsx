@@ -16,6 +16,7 @@ const SECTIONS: HelpSection[] = [
       ['2', 'Units'],
       ['3', 'Session log'],
       ['4', 'Course overview'],
+      ['9', 'PROGRESS'],
       ['5', 'Trade maths'],
       ['6', 'Notation & algebra'],
       ['7', 'Geometry & tools'],

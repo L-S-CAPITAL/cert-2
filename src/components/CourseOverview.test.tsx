@@ -1,7 +1,7 @@
 import React from 'react';
 import { act } from 'react';
 import { createRoot, Root } from 'react-dom/client';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import CourseOverview from './CourseOverview';
 
 declare global {
@@ -10,8 +10,6 @@ declare global {
 
 let container: HTMLDivElement;
 let root: Root;
-const originalCreate = URL.createObjectURL;
-const originalRevoke = URL.revokeObjectURL;
 
 beforeEach(() => {
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -22,10 +20,6 @@ beforeEach(() => {
 
 afterEach(() => {
   act(() => root.unmount());
-  vi.useRealTimers();
-  vi.restoreAllMocks();
-  URL.createObjectURL = originalCreate;
-  URL.revokeObjectURL = originalRevoke;
   document.body.innerHTML = '';
 });
 
@@ -58,10 +52,12 @@ describe('CourseOverview pathways', () => {
     const demand = text.indexOf(
       'Wired for Demand: Industries, Hotspots and Progression Routes After Cert II',
     );
-    const industry = text.indexOf('Industry demand');
     expect(pathways).toBeGreaterThanOrEqual(0);
     expect(demand).toBeGreaterThan(pathways);
-    expect(industry).toBeGreaterThan(demand);
+    expect(text).not.toContain('Industry demand');
+    expect(text).not.toContain('Job openings');
+    expect(text).not.toContain('Progress data');
+    expect(text).not.toContain('ELECTIVE POINTS');
 
     expect(text).toContain('1. Where demand is strongest');
     expect(text).toContain('197,300 employed, 94% full-time, median $2,191/week.');
@@ -88,33 +84,5 @@ describe('CourseOverview pathways', () => {
     expect(text).toContain('UEE50220');
     expect(text).toContain('UEE33020');
     expect(text).toContain('UEE60220');
-  });
-});
-
-describe('CourseOverview export', () => {
-  it('revokes the blob URL only after the download click', () => {
-    vi.useFakeTimers();
-    const calls: string[] = [];
-    URL.createObjectURL = vi.fn(() => {
-      calls.push('create');
-      return 'blob:test';
-    });
-    URL.revokeObjectURL = vi.fn(() => {
-      calls.push('revoke');
-    });
-    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {
-      calls.push('click');
-    });
-
-    act(() => root.render(<CourseOverview />));
-    const exportButton = Array.from(container.querySelectorAll('button')).find(
-      (button) => button.textContent === 'Export',
-    )!;
-    act(() => exportButton.click());
-    expect(calls).toEqual(['create', 'click']);
-
-    act(() => vi.runAllTimers());
-    expect(calls).toEqual(['create', 'click', 'revoke']);
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:test');
   });
 });
