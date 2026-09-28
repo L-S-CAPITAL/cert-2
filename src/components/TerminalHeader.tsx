@@ -2,18 +2,18 @@ import React from 'react';
 import type { Theme } from '../stores/settings';
 import BrandMark from './BrandMark';
 
+/**
+ * The app's main heading. The app is an independent study aid: it names the
+ * qualification it prepares for, not any training provider.
+ */
+export const APP_HEADING = 'Certificate II in Electrotechnology Prep Terminal for you, by CRUCIBLE';
+
 interface TerminalHeaderProps {
-  title: string;
-  code: string;
-  provider: string;
   theme?: Theme;
   onToggleTheme?: () => void;
 }
 
 const TerminalHeader: React.FC<TerminalHeaderProps> = ({
-  title,
-  code,
-  provider,
   theme = 'dark',
   onToggleTheme,
 }) => {
@@ -37,19 +37,13 @@ const TerminalHeader: React.FC<TerminalHeaderProps> = ({
 
   return (
     <header className="terminal-header">
-      <div className="terminal-title">
-        <span className="logo" aria-hidden="true">
-          <BrandMark size={20} />
-        </span>
-        <span className="symbol">{code}</span>
-        <span className="terminal-title-text" title={`${title} | ${provider}`}>
-          {title}
-        </span>
-        <span className="terminal-provider" style={{ color: 'var(--text-dim)', fontSize: 11 }}>|</span>
-        <span className="terminal-provider" style={{ fontSize: 11, color: 'var(--text-dim)' }}>
-          {provider}
-        </span>
-      </div>
+      {/* The brand hexagon bookends the heading on both sides; both marks are
+          aria-hidden, so screen readers read just the heading text. */}
+      <h1 className="terminal-title">
+        <BrandMark className="brand-mark-start" />
+        <span className="terminal-title-text">{APP_HEADING}</span>
+        <BrandMark className="brand-mark-end" />
+      </h1>
       <div className="terminal-controls">
         {onToggleTheme && (
           <button

@@ -13,7 +13,6 @@ export { ELECTIVE_UNITS };
 export const COURSE_INFO = {
   code: 'UEE22020',
   title: 'Certificate II in Electrotechnology (Career Start)',
-  provider: 'TAFE Queensland',
   overview:
     'Kick-start your career in the electrotechnology industry with this entry-level course. Build the skills you need to get your foot in the door for an apprenticeship or seek trade assistant work. You will learn the skills needed to safely undertake basic electrotechnology work and solve problems in extra-low voltage single-path and multiple-path DC circuits. The course covers a General Safety Induction (White Card) and units needed for the first stage of an electrical apprenticeship.',
   outcomes: [

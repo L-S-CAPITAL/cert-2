@@ -44,6 +44,7 @@
   /* LS CAPITAL / Crucible brand orange (sampled from the brand artwork);
      used only for the small brand mark, never for text. */
   --brand-orange: #c45e1c;
+  --brand-glow-opacity: 0.55;
   --backdrop: rgba(0, 0, 0, 0.95);
   color-scheme: dark;
 }
@@ -81,7 +82,8 @@
   --progress-text: #1d1c19;
   --shadow-glow: 0 1px 3px rgba(60, 50, 20, 0.12);
   --shadow-glow-strong: 0 1px 4px rgba(60, 50, 20, 0.18);
-  --brand-orange: #b4541a;
+  --brand-orange: #c45e1c;
+  --brand-glow-opacity: 0.3;
   --backdrop: rgba(80, 74, 60, 0.55);
   color-scheme: light;
 }
@@ -149,21 +151,13 @@ body::before {
 }
 
 .terminal-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  margin: 0;
+  font-family: var(--font-sans);
   font-weight: 700;
   font-size: 14px;
-  letter-spacing: 1px;
-}
-
-.terminal-title .logo {
-  color: var(--text-amber);
-  text-shadow: 0 0 8px rgba(255, 191, 0, 0.6);
-}
-
-.terminal-title .symbol {
-  color: var(--text-bright);
+  line-height: 1.25;
+  letter-spacing: 0.2px;
+  color: var(--text-primary);
 }
 
 .terminal-controls {
@@ -1014,22 +1008,38 @@ body::before {
 /* Responsive layout (fits down to an 800 x 600 window)               */
 /* ================================================================== */
 
-/* Header: the course title shortens with an ellipsis instead of wrapping. */
+/* Header: the heading fits on one line down to the 800 px minimum window
+   (slightly smaller type below 900 px, theme toggle icon-only below
+   1000 px). The hexagons are inline, so if the text ever has to wrap (e.g.
+   a wider system font) it breaks into balanced lines with one hexagon
+   before the first word and one after the last, never an ellipsis or
+   overflow. */
 .terminal-title {
   min-width: 0;
   flex: 1 1 auto;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 
-.terminal-title > span {
-  flex: none;
-  white-space: nowrap;
+.terminal-title > .brand-mark {
+  display: inline-block;
+  vertical-align: middle;
+  margin-top: -0.2em;
 }
 
-.terminal-title > .terminal-title-text {
-  flex: 0 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.terminal-title > .brand-mark-start {
+  margin-right: 0.55em;
+}
+
+.terminal-title > .brand-mark-end {
+  margin-left: 0.55em;
+}
+
+@media (max-width: 900px) {
+  .terminal-title {
+    font-size: 12.5px;
+    letter-spacing: 0;
+  }
 }
 
 .terminal-controls {
@@ -1784,9 +1794,6 @@ body::before {
   box-shadow: none;
 }
 
-[data-theme="light"] .terminal-title .logo {
-  text-shadow: none;
-}
 
 [data-theme="light"] .progress-bar-text {
   text-shadow: 0 0 3px #fff, 0 0 2px #fff;
@@ -1799,11 +1806,6 @@ body::before {
 /* ================================================================== */
 /* Header: brand mark and theme toggle                                */
 /* ================================================================== */
-.terminal-title .logo {
-  display: inline-flex;
-  align-items: center;
-}
-
 .brand-mark {
   display: block;
 }
@@ -1818,8 +1820,9 @@ body::before {
   color: var(--text-amber);
 }
 
-/* Narrow windows: icon only; the text stays for screen readers. */
-@media (max-width: 900px) {
+/* Narrow windows: icon only, leaving room for the heading; the text stays
+   for screen readers. */
+@media (max-width: 1000px) {
   .theme-toggle {
     padding: 2px 6px;
   }

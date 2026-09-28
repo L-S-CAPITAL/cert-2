@@ -6,7 +6,7 @@
     "name": "ElectroTech Terminal",
     "email": "maintainer@electrotech.local"
   },
-  "homepage": "https://tafeqld.edu.au/course/17/17886/certificate-ii-in-electrotechnology-career-start",
+  "homepage": "https://github.com/L-S-CAPITAL/cert-2",
   "main": "electron-main.js",
   "engines": {
     "node": ">=22.12.0"
